@@ -10,6 +10,7 @@ const sections = [
     name: 'Acadialps.com',
     line: 'A strategic sales channel built for C-suite conversations.',
     href: 'https://acadialps.com',
+    embed: 'https://www.acadialps.com/',
     body: [
       'Recruited 220+ senior advisors, many of them former Big 4 consultants, to build a strategic sales channel dedicated to C-suite conversations.',
     ],
@@ -83,10 +84,20 @@ const sections = [
       </header>
 
       {
-        sections.map(({ name, line, href, body, merlin }) => (
+        sections.map(({ name, line, href, embed, body, merlin }) => (
           <section class="item">
             <h3>{href ? <a href={href}>{name}</a> : name}</h3>
             <div class="text">
+              {embed && (
+                <iframe
+                  class="embed"
+                  src={embed}
+                  title={`${name}, live site`}
+                  loading="lazy"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+                />
+              )}
               <p class="line">{line}</p>
               {body.map((para) => <p>{para}</p>)}
               {merlin && <Merlin />}
@@ -212,6 +223,16 @@ const sections = [
 
   .text {
     max-width: 60ch;
+  }
+
+  .embed {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: #fff;
   }
 
   .text p {
