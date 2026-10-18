@@ -28,13 +28,14 @@ const moves = [
       ))
     }
   </div>
-  <p class="merlin-hint">Click anywhere and he’ll point.</p>
+  <p class="merlin-hint">Click anywhere and he’ll point. Click him to ask again.</p>
   <p class="sr-only" aria-live="polite" data-merlin-live></p>
 </div>
 
 <script>
   import { initAgent } from 'clippyjs';
   import MerlinLoaders from 'clippyjs/agents/merlin';
+  import { TOPICS, isTopic, openTopic, type Topic } from '../scripts/topics';
 
   type Agent = Awaited<ReturnType<typeof initAgent>>;
 
@@ -80,21 +81,114 @@ const moves = [
     } catch {}
   };
 
+  // Merlin's question: a balloon-styled card beside him with one button per topic.
+  const agentEl = () => (agent as unknown as { _el: HTMLElement } | undefined)?._el;
+
+  const ask = document.createElement('div');
+  ask.className = 'merlin-ask';
+  ask.dataset.merlinUi = '';
+  ask.setAttribute('role', 'dialog');
+  ask.setAttribute('aria-label', 'Merlin asks what you are interested in');
+  ask.hidden = true;
+  ask.innerHTML = `
+    <button type="button" class="merlin-ask-close" aria-label="Close">×</button>
+    <p>Hi! What are you interested in?</p>
+    <div class="merlin-ask-options">
+      ${Object.entries(TOPICS)
+        .map(([key, { label }]) => `<button type="button" data-ask="${key}">${label}</button>`)
+        .join('')}
+    </div>`;
+  document.body.appendChild(ask);
+
+  const placeAsk = () => {
+    const el = agentEl();
+    if (!el || ask.hidden) return;
+    const r = el.getBoundingClientRect();
+    const w = ask.offsetWidth;
+    const h = ask.offsetHeight;
+    const left = Math.min(Math.max(8, r.right - w), innerWidth - w - 8);
+    const above = r.top - h - 8;
+    ask.style.left = `${left}px`;
+    ask.style.top = `${above >= 8 ? above : Math.min(r.bottom + 8, innerHeight - h - 8)}px`;
+  };
+
+  const showAsk = () => {
+    agent?.closeBalloon();
+    ask.hidden = false;
+    ask.classList.remove('popIn');
+    void ask.offsetWidth;
+    ask.classList.add('vivify', 'popIn');
+    placeAsk();
+    live.textContent = 'Merlin asks: what are you interested in?';
+  };
+
+  const hideAsk = () => {
+    ask.hidden = true;
+  };
+
+  ask.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('.merlin-ask-close')) return hideAsk();
+    const topic = target.closest<HTMLButtonElement>('[data-ask]')?.dataset.ask;
+    if (isTopic(topic)) openTopic(topic);
+  });
+
+  addEventListener('resize', placeAsk);
+
+  // Whichever chooser opened the topic, Merlin answers and points at the first section.
+  const reactions: Record<Topic, string> = {
+    professional: 'Explain',
+    personal: 'Think',
+    family: 'Pleased',
+    adventure: 'DoMagic1',
+    message: 'Write',
+  };
+
+  document.addEventListener('topic:open', (e) => {
+    const { topic, target } = (e as CustomEvent<{ topic: Topic; target: HTMLElement | null }>).detail;
+    hideAsk();
+    if (!visible || !agent) return;
+    agent.stop();
+    say(TOPICS[topic].reply);
+    agent.play(reactions[topic]);
+    if (target) {
+      // Point once the smooth scroll has settled.
+      setTimeout(() => {
+        const r = target.getBoundingClientRect();
+        agent?.gestureAt(r.left + 40, r.top + 24);
+      }, 700);
+    }
+  });
+
   const summon = async (greet = true) => {
     const a = await load();
     setVisible(true);
     a.show();
     if (greet) {
-      say('Hello! Click anywhere and I’ll point.');
       a.play('Wave');
+      setTimeout(showAsk, 900);
     }
   };
 
   const dismiss = () => {
+    hideAsk();
     agent?.stop();
     agent?.hide();
     setVisible(false);
   };
+
+  // A click on Merlin (not a drag) asks again; letting go after a drag moves the card with him.
+  let downAt: [number, number] | undefined;
+  document.addEventListener('mousedown', (e) => {
+    if ((e.target as HTMLElement).closest('[data-merlin-agent]')) downAt = [e.clientX, e.clientY];
+  });
+  document.addEventListener('mouseup', (e) => {
+    if (!downAt) return;
+    const moved = Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 4;
+    downAt = undefined;
+    if (moved) setTimeout(placeAsk, 20);
+    else ask.hidden ? showAsk() : hideAsk();
+  });
 
   toggle.addEventListener('click', () => (visible ? dismiss() : summon()));
 
@@ -119,7 +213,8 @@ const moves = [
   document.addEventListener('click', (e) => {
     if (!visible || !agent) return;
     const target = e.target as HTMLElement;
-    if (target.closest('[data-merlin-ui], [data-merlin-agent]')) return;
+    // Topic choosers get Merlin's answer (topic:open) instead of a point.
+    if (target.closest('[data-merlin-ui], [data-merlin-agent], [data-topic]')) return;
     marker(e.pageX, e.pageY);
     agent.stop();
     agent.gestureAt(e.clientX, e.clientY);
@@ -177,6 +272,64 @@ const moves = [
     margin: 0.75rem 0 0;
     font-size: 0.75rem;
     color: var(--muted);
+  }
+
+  /* Styled after Merlin's own speech balloon. */
+  .merlin-ask {
+    position: fixed;
+    z-index: 10002;
+    width: min(18rem, calc(100vw - 16px));
+    padding: 0.75rem 0.85rem 0.85rem;
+    background: #ffc;
+    color: #000;
+    border: 1px solid #000;
+    border-radius: 6px;
+    font: 0.875rem/1.4 'Microsoft Sans Serif', Tahoma, system-ui, sans-serif;
+    box-shadow: 0 6px 20px rgb(0 0 0 / 0.15);
+  }
+
+  .merlin-ask[hidden] {
+    display: none;
+  }
+
+  .merlin-ask p {
+    margin: 0 1.5rem 0.6rem 0;
+    font-weight: 600;
+  }
+
+  .merlin-ask-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  .merlin-ask button {
+    font: inherit;
+    color: #000;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 4px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+  }
+
+  .merlin-ask button:hover,
+  .merlin-ask button:focus-visible {
+    background: #000;
+    color: #ffc;
+  }
+
+  .merlin-ask .merlin-ask-close {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.35rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    line-height: 1;
+    border: none;
+    background: transparent;
+    font-size: 1.1rem;
   }
 
   .merlin-target {

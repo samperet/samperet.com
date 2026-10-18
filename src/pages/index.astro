@@ -1,13 +1,31 @@
 ---
 import Merlin from '../components/Merlin.astro';
+import { TOPICS } from '../scripts/topics';
 
 const title = 'Samperet.com';
 const description = 'Strategy, relationships, systems, design, & code.';
 
-// Copy is deliberately thin — edit freely. `body` is the longer text under each row.
-const sections = [
+// TODO: the address "Send me a message" goes to. Until it is set, the form says messages aren't connected yet.
+const contactEmail = '';
+
+// Copy is deliberately thin — edit freely. `body` is the longer text under each row;
+// `topics` decides which of Merlin's questions (see scripts/topics.ts) opens the section.
+type Section = {
+  name: string;
+  topics: string[];
+  line: string;
+  body: string[];
+  href?: string;
+  embed?: string;
+  merlin?: boolean;
+  contact?: boolean;
+  photos?: { src: string; alt: string }[];
+};
+
+const sections: Section[] = [
   {
     name: 'Acadialps.com',
+    topics: ['professional'],
     line: 'A strategic sales channel built for C-suite conversations.',
     href: 'https://acadialps.com',
     embed: 'https://www.acadialps.com/',
@@ -17,6 +35,7 @@ const sections = [
   },
   {
     name: 'Founders Wanted',
+    topics: ['professional'],
     line: 'Turning stagnant intellectual property into companies.',
     body: [
       'Searching through thousands of pieces of stagnant intellectual property, and commercializing the viable ones by injecting marketing, recruiting, and seed money.',
@@ -25,6 +44,7 @@ const sections = [
   },
   {
     name: 'Airbnb',
+    topics: ['professional'],
     line: 'Early host, PDX founder.',
     body: [
       'One of the first 2,000 hosts to sign up. By the time I started working there, my host ID was too short to use as a badge number.',
@@ -37,6 +57,7 @@ const sections = [
   },
   {
     name: 'Automation',
+    topics: ['professional'],
     line: 'Automating things since childhood.',
     merlin: true,
     body: [
@@ -45,6 +66,7 @@ const sections = [
   },
   {
     name: 'Design',
+    topics: ['professional'],
     line: 'Deep attention to detail.',
     body: [
       'Aesthetic design, systems design, and onboarding UX design all capture my deep attention to detail.',
@@ -53,6 +75,7 @@ const sections = [
   },
   {
     name: 'Consciousness, Yoga & Self Development',
+    topics: ['personal'],
     line: 'Facilitator, group leader, lifelong student.',
     body: [
       'A facilitator of HeartIQ, a body of work from the Netherlands.',
@@ -61,6 +84,7 @@ const sections = [
   },
   {
     name: 'Humanitarian Relief',
+    topics: ['personal', 'adventure'],
     line: 'Showing up after disasters.',
     body: [
       'Went to New Orleans after Hurricane Katrina, and to Tacloban, Philippines, after Typhoon Haiyan.',
@@ -74,6 +98,7 @@ const sections = [
   },
   {
     name: 'Travel',
+    topics: ['adventure'],
     line: 'Places that shaped how I see things.',
     body: [
       'Japan, Nepal, Hong Kong, Shenzhen, Malaysia, the Philippines, Germany, Switzerland, France, Spain, Italy, the Czech Republic, Amsterdam, Moldova, Ukraine, and Mexico, plus multiple drives across the USA.',
@@ -87,6 +112,7 @@ const sections = [
   },
   {
     name: 'jayaandfiona.com',
+    topics: ['family'],
     line: 'Jaya and Fiona’s Fun Zone.',
     href: 'https://jayaandfiona.com',
     embed: 'https://jayaandfiona.com/',
@@ -95,7 +121,17 @@ const sections = [
       'Making things for them was my entrance to vibe coding, before the term was coined.',
     ],
   },
+  {
+    name: 'Send me a message',
+    topics: ['message'],
+    line: 'Questions, ideas, or just hello.',
+    body: [],
+    contact: true,
+  },
 ];
+
+const slug = (name: string) =>
+  name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 ---
 
 <!doctype html>
@@ -118,40 +154,101 @@ const sections = [
       <header class="hero">
         <h1>Samperet.com</h1>
         <h2>strategy, relationships, systems, design, &amp; code.</h2>
+        <nav class="topics" aria-label="Open sections by interest">
+          {
+            Object.entries(TOPICS).map(([key, { label }]) => (
+              <button type="button" data-topic={key} aria-pressed="false">
+                {label}
+              </button>
+            ))
+          }
+        </nav>
       </header>
 
       {
-        sections.map(({ name, line, href, embed, body, merlin, photos }) => (
-          <section class="item">
-            <h3>{href ? <a href={href}>{name}</a> : name}</h3>
-            <div class="text">
+        sections.map(({ name, topics, line, href, embed, body, merlin, contact, photos }) => (
+          <details class="item" id={slug(name)} data-topics={topics.join(' ')}>
+            <summary>
+              <h3>{href ? <a href={href}>{name}</a> : name}</h3>
               <p class="line">{line}</p>
-              {body.map((para) => <p>{para}</p>)}
-              {merlin && <Merlin />}
-            </div>
-            {embed && (
-              <iframe
-                class="embed"
-                src={embed}
-                title={`${name}, live site`}
-                loading="lazy"
-                referrerpolicy="strict-origin-when-cross-origin"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
-              />
-            )}
-            {photos && photos.length > 0 && (
-              <div class="photos">
-                {photos.map(({ src, alt }) => (
-                  <a href={src}>
-                    <img src={src} alt={alt} loading="lazy" decoding="async" />
-                  </a>
-                ))}
+              <span class="chevron" aria-hidden="true" />
+            </summary>
+            <div class="body">
+              <div class="text">
+                {body.map((para) => <p>{para}</p>)}
+                {merlin && <Merlin />}
+                {contact && (
+                  <form class="contact" data-contact-form data-to={contactEmail}>
+                    <label>
+                      Name
+                      <input name="name" autocomplete="name" required />
+                    </label>
+                    <label>
+                      Message
+                      <textarea name="message" rows="5" required />
+                    </label>
+                    <button type="submit">Send</button>
+                    <p class="contact-status" role="status" data-contact-status />
+                  </form>
+                )}
               </div>
-            )}
-          </section>
+              {embed && (
+                <iframe
+                  class="embed"
+                  src={embed}
+                  title={`${name}, live site`}
+                  loading="lazy"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+                />
+              )}
+              {photos && photos.length > 0 && (
+                <div class="photos">
+                  {photos.map(({ src, alt }) => (
+                    <a href={src}>
+                      <img src={src} alt={alt} loading="lazy" decoding="async" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </details>
         ))
       }
     </main>
+
+    <script>
+      import { isTopic, openTopic } from '../scripts/topics';
+
+      document.querySelector('.topics')?.addEventListener('click', (e) => {
+        const topic = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-topic]')?.dataset.topic;
+        if (isTopic(topic)) openTopic(topic);
+      });
+
+      // Open the section a #hash points at, e.g. a shared link to #travel.
+      const fromHash = () => {
+        const target = location.hash && document.getElementById(location.hash.slice(1));
+        if (target instanceof HTMLDetailsElement) target.open = true;
+      };
+      addEventListener('hashchange', fromHash);
+      fromHash();
+
+      // Messages go out through the visitor's email app until a backend exists.
+      const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+      form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const status = form.querySelector<HTMLElement>('[data-contact-status]')!;
+        const to = form.dataset.to;
+        if (!to) {
+          status.textContent = 'Messages aren’t connected yet. Check back soon.';
+          return;
+        }
+        const data = new FormData(form);
+        const subject = `Hello from ${data.get('name')}`;
+        location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(String(data.get('message')))}`;
+        status.textContent = 'Opening your email app…';
+      });
+    </script>
   </body>
 </html>
 
@@ -229,11 +326,6 @@ const sections = [
   }
 
   .item {
-    display: grid;
-    grid-template-columns: minmax(10rem, 1fr) 2fr;
-    gap: 0.5rem 2rem;
-    align-items: start;
-    padding: 2rem 0;
     border-top: 1px solid var(--rule);
   }
 
@@ -241,10 +333,167 @@ const sections = [
     border-bottom: 1px solid var(--rule);
   }
 
+  /* Heading and one-liner stay visible; everything else opens with the row. */
+  summary,
+  .body {
+    display: grid;
+    grid-template-columns: minmax(10rem, 1fr) 2fr 1.5rem;
+    gap: 0.5rem 2rem;
+  }
+
+  summary {
+    align-items: baseline;
+    padding: 1.5rem 0;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+  }
+
+  summary .line {
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .chevron {
+    justify-self: end;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted);
+    transform: translateY(-0.2rem) rotate(45deg);
+    transition: transform 0.2s;
+  }
+
+  .item[open] .chevron {
+    transform: translateY(0.1rem) rotate(-135deg);
+  }
+
+  .body {
+    padding-bottom: 2rem;
+  }
+
+  .body .text {
+    grid-column: 2;
+  }
+
+  .body .text:empty {
+    display: none;
+  }
+
   @media (max-width: 640px) {
-    .item {
+    summary {
+      grid-template-columns: 1fr 1.5rem;
+    }
+
+    summary .line {
+      grid-column: 1;
+    }
+
+    .chevron {
+      grid-row: 1;
+      grid-column: 2;
+    }
+
+    .body {
       grid-template-columns: 1fr;
     }
+
+    .body .embed,
+    .body .photos {
+      grid-column: 1;
+    }
+
+    .body .text {
+      grid-column: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chevron {
+      transition: none;
+    }
+  }
+
+  .topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+
+  .topics button,
+  .contact button {
+    font: inherit;
+    font-size: 0.875rem;
+    color: var(--fg);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+  }
+
+  .topics button:hover,
+  .topics button:focus-visible,
+  .contact button:hover,
+  .contact button:focus-visible {
+    border-color: currentColor;
+  }
+
+  .topics button[aria-pressed='true'] {
+    color: var(--bg);
+    background: var(--fg);
+    border-color: var(--fg);
+  }
+
+  .contact {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 32rem;
+  }
+
+  .contact label {
+    display: grid;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+  }
+
+  .contact input,
+  .contact textarea {
+    font: inherit;
+    color: var(--fg);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .contact input:focus-visible,
+  .contact textarea:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+  }
+
+  .contact button {
+    justify-self: start;
+    font-weight: 600;
+  }
+
+  .text .contact-status {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  .text .contact-status:empty {
+    display: none;
   }
 
   h3 {
@@ -272,8 +521,8 @@ const sections = [
   }
 
   /* Embeds and photo rows span the heading and text columns. */
-  .embed,
-  .photos {
+  .body .embed,
+  .body .photos {
     grid-column: 1 / -1;
   }
 
@@ -313,9 +562,6 @@ const sections = [
     margin-bottom: 0;
   }
 
-  .text .line {
-    color: var(--fg);
-    line-height: 1.5;
-  }
+
 
 </style>
