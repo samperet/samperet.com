@@ -2,17 +2,59 @@
 const title = 'Samperet.com';
 const description = 'Strategy, relationships, systems, design, & code.';
 
-// Copy is deliberately thin — edit freely.
+// Copy is deliberately thin — edit freely. `body` is the longer text under each row.
 const sections = [
   {
     name: 'Acadialps.com',
-    line: 'Enterprise marketplace connecting innovative solutions, senior advisors, and enterprise customers.',
+    line: 'A strategic sales channel built for C-suite conversations.',
     href: 'https://acadialps.com',
+    body: [
+      'Recruited 220+ senior advisors, many of them former Big 4 consultants, to build a strategic sales channel dedicated to C-suite conversations.',
+    ],
   },
-  { name: 'Founders Wanted', line: 'Looking for builders to start something with.' },
-  { name: 'Automation', line: 'Systems that do the repetitive work.' },
-  { name: 'Design', line: 'Clear interfaces, considered details.' },
-  { name: 'jayaandfiona.com', line: "Jaya and Fiona's Fun Zone.", href: 'https://jayaandfiona.com' },
+  {
+    name: 'Founders Wanted',
+    line: 'Turning stagnant intellectual property into companies.',
+    body: [
+      'Searching through thousands of pieces of stagnant intellectual property, and commercializing the viable ones by injecting marketing, recruiting, and seed money.',
+      'Projects successfully launched include AI Parkinson’s detection, NASA-based rock blasting, and IoT consumer devices.',
+    ],
+  },
+  {
+    name: 'Airbnb',
+    line: 'Early host, PDX founder.',
+    body: [
+      'One of the first 2,000 hosts to sign up. By the time I started working there, my host ID was too short to use as a badge number.',
+      'A PDX founder, in the first batch of hires to open the Portland office. I played a critical role in designing the customer service processes and building the office itself, including Brian Chesky’s favorite table, inspired by Twin Peaks, and a honeybee room with custom laser-cut bee-nest chandeliers.',
+    ],
+  },
+  {
+    name: 'Automation',
+    line: 'Automating things since childhood.',
+    merlin: true,
+    body: [
+      'I was automating things as a young child: building games in HyperCard, and later designing home automation routines in Xcode.',
+    ],
+  },
+  {
+    name: 'Design',
+    line: 'Deep attention to detail.',
+    body: [
+      'Aesthetic design, systems design, and onboarding UX design all capture my deep attention to detail.',
+      'I enjoy elements of surprise and delight, context awareness, and memorable user experiences.',
+    ],
+  },
+  {
+    name: 'Consciousness',
+    line: 'TODO: one line on consciousness.',
+    body: ['TODO: a few sentences on consciousness.'],
+  },
+  {
+    name: 'jayaandfiona.com',
+    line: 'Jaya and Fiona’s Fun Zone.',
+    href: 'https://jayaandfiona.com',
+    body: [],
+  },
 ];
 ---
 
@@ -39,10 +81,33 @@ const sections = [
       </header>
 
       {
-        sections.map(({ name, line, href }) => (
+        sections.map(({ name, line, href, body, merlin }) => (
           <section class="item">
             <h3>{href ? <a href={href}>{name}</a> : name}</h3>
-            <p>{line}</p>
+            <div class="text">
+              <p class="line">{line}</p>
+              {body.map((para) => <p>{para}</p>)}
+            </div>
+            {merlin && (
+              <figure class="merlin">
+                <svg viewBox="0 0 120 140" role="img" aria-labelledby="merlin-title">
+                  <title id="merlin-title">A Merlin-style wizard, a nod to the Microsoft Agent character</title>
+                  <path d="M60 4 L84 62 H36 Z" fill="#4338ca" />
+                  <circle cx="54" cy="30" r="3" fill="#fde68a" />
+                  <circle cx="66" cy="46" r="2.5" fill="#fde68a" />
+                  <path d="M60 4 L68 0 L66 10 Z" fill="#4338ca" />
+                  <ellipse cx="60" cy="62" rx="32" ry="6" fill="#3730a3" />
+                  <circle cx="60" cy="76" r="15" fill="#f5d0b5" />
+                  <circle cx="54" cy="74" r="2" fill="#111" />
+                  <circle cx="66" cy="74" r="2" fill="#111" />
+                  <path d="M44 80 Q60 132 76 80 Q68 88 60 86 Q52 88 44 80 Z" fill="#f5f5f4" stroke="#d6d3d1" />
+                  <path d="M38 96 Q24 120 30 138 H90 Q96 120 82 96 Z" fill="#4338ca" />
+                  <line x1="96" y1="90" x2="110" y2="138" stroke="#92400e" stroke-width="4" stroke-linecap="round" />
+                  <circle cx="95" cy="87" r="5" fill="#fde68a" />
+                </svg>
+                <figcaption>Merlin says hi.</figcaption>
+              </figure>
+            )}
           </section>
         ))
       }
@@ -125,10 +190,10 @@ const sections = [
 
   .item {
     display: grid;
-    grid-template-columns: minmax(10rem, 1fr) 2fr;
+    grid-template-columns: minmax(10rem, 1fr) 2fr auto;
     gap: 0.5rem 2rem;
-    align-items: baseline;
-    padding: 1.5rem 0;
+    align-items: start;
+    padding: 2rem 0;
     border-top: 1px solid var(--rule);
   }
 
@@ -147,6 +212,7 @@ const sections = [
     font-size: 1.125rem;
     font-weight: 600;
     letter-spacing: -0.01em;
+    line-height: 1.5;
   }
 
   h3 a {
@@ -161,9 +227,40 @@ const sections = [
     text-decoration-color: currentColor;
   }
 
-  .item p {
-    margin: 0;
+  .text {
+    max-width: 60ch;
+  }
+
+  .text p {
+    margin: 0 0 0.75rem;
     color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .text .line {
+    color: var(--fg);
     line-height: 1.5;
+  }
+
+  .merlin {
+    margin: 0;
+    width: 6rem;
+    text-align: center;
+  }
+
+  .merlin svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .merlin figcaption {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--muted);
   }
 </style>
