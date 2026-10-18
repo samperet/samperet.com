@@ -123,31 +123,31 @@ const sections = [
       {
         sections.map(({ name, line, href, embed, body, merlin, photos }) => (
           <section class="item">
+            {embed && (
+              <iframe
+                class="embed"
+                src={embed}
+                title={`${name}, live site`}
+                loading="lazy"
+                referrerpolicy="strict-origin-when-cross-origin"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+              />
+            )}
             <h3>{href ? <a href={href}>{name}</a> : name}</h3>
             <div class="text">
-              {embed && (
-                <iframe
-                  class="embed"
-                  src={embed}
-                  title={`${name}, live site`}
-                  loading="lazy"
-                  referrerpolicy="strict-origin-when-cross-origin"
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
-                />
-              )}
               <p class="line">{line}</p>
               {body.map((para) => <p>{para}</p>)}
               {merlin && <Merlin />}
-              {photos && photos.length > 0 && (
-                <div class="photos">
-                  {photos.map(({ src, alt }) => (
-                    <a href={src}>
-                      <img src={src} alt={alt} loading="lazy" decoding="async" />
-                    </a>
-                  ))}
-                </div>
-              )}
             </div>
+            {photos && photos.length > 0 && (
+              <div class="photos">
+                {photos.map(({ src, alt }) => (
+                  <a href={src}>
+                    <img src={src} alt={alt} loading="lazy" decoding="async" />
+                  </a>
+                ))}
+              </div>
+            )}
           </section>
         ))
       }
@@ -271,11 +271,17 @@ const sections = [
     max-width: 60ch;
   }
 
+  /* Embeds and photo rows span the heading and text columns. */
+  .embed,
+  .photos {
+    grid-column: 1 / -1;
+  }
+
   .photos {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
     gap: 0.5rem;
-    margin-top: 1.25rem;
+    margin-top: 1rem;
   }
 
   .photos img {
@@ -290,7 +296,8 @@ const sections = [
     display: block;
     width: 100%;
     aspect-ratio: 16 / 5;
-    margin-bottom: 1.25rem;
+    min-height: 10rem;
+    margin-bottom: 1rem;
     border: 1px solid var(--rule);
     border-radius: 8px;
     background: #fff;
