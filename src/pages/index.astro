@@ -123,6 +123,12 @@ const sections = [
       {
         sections.map(({ name, line, href, embed, body, merlin, photos }) => (
           <section class="item">
+            <h3>{href ? <a href={href}>{name}</a> : name}</h3>
+            <div class="text">
+              <p class="line">{line}</p>
+              {body.map((para) => <p>{para}</p>)}
+              {merlin && <Merlin />}
+            </div>
             {embed && (
               <iframe
                 class="embed"
@@ -133,12 +139,6 @@ const sections = [
                 sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
               />
             )}
-            <h3>{href ? <a href={href}>{name}</a> : name}</h3>
-            <div class="text">
-              <p class="line">{line}</p>
-              {body.map((para) => <p>{para}</p>)}
-              {merlin && <Merlin />}
-            </div>
             {photos && photos.length > 0 && (
               <div class="photos">
                 {photos.map(({ src, alt }) => (
@@ -297,7 +297,7 @@ const sections = [
     width: 100%;
     aspect-ratio: 16 / 5;
     min-height: 10rem;
-    margin-bottom: 1rem;
+    margin-top: 1rem;
     border: 1px solid var(--rule);
     border-radius: 8px;
     background: #fff;
