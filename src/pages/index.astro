@@ -56,6 +56,16 @@ const sections = [
     ],
   },
   {
+    name: 'Travel',
+    line: 'Places that shaped how I see things.',
+    body: [
+      'Japan, Nepal, Moldova, Ukraine, Hong Kong, Shenzhen, Malaysia, and the Philippines, plus multiple drives across the USA.',
+      'I’ve also lived in Maui, Australia, and India.',
+    ],
+    // Drop images in public/travel/ and list them here: { src: '/travel/kyoto.jpg', alt: 'Kyoto at dusk' }
+    photos: [] as { src: string; alt: string }[],
+  },
+  {
     name: 'jayaandfiona.com',
     line: 'Jaya and Fiona’s Fun Zone.',
     href: 'https://jayaandfiona.com',
@@ -91,7 +101,7 @@ const sections = [
       </header>
 
       {
-        sections.map(({ name, line, href, embed, body, merlin }) => (
+        sections.map(({ name, line, href, embed, body, merlin, photos }) => (
           <section class="item">
             <h3>{href ? <a href={href}>{name}</a> : name}</h3>
             <div class="text">
@@ -108,6 +118,13 @@ const sections = [
               <p class="line">{line}</p>
               {body.map((para) => <p>{para}</p>)}
               {merlin && <Merlin />}
+              {photos && photos.length > 0 && (
+                <div class="photos">
+                  {photos.map(({ src, alt }) => (
+                    <img src={src} alt={alt} loading="lazy" decoding="async" />
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         ))
@@ -230,6 +247,21 @@ const sections = [
 
   .text {
     max-width: 60ch;
+  }
+
+  .photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+
+  .photos img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 6px;
   }
 
   .embed {
