@@ -30,6 +30,10 @@ const sections = [
       'One of the first 2,000 hosts to sign up. By the time I started working there, my host ID was too short to use as a badge number.',
       'A PDX founder, in the first batch of hires to open the Portland office. I played a critical role in designing the customer service processes and building the office itself, including Brian Chesky’s favorite table, inspired by Twin Peaks, and a honeybee room with custom laser-cut bee-nest chandeliers.',
     ],
+    photos: [
+      { src: '/photos/airbnb-bearshark.jpg', alt: 'A bear-shark sculpture, half polar bear and half shark, suspended from the ceiling of an Airbnb office' },
+      { src: '/photos/airbnb-wood-ball.jpg', alt: 'Selfie in safety glasses in a workshop, in front of a giant sphere made of patchwork wood' },
+    ],
   },
   {
     name: 'Automation',
@@ -61,6 +65,11 @@ const sections = [
     body: [
       'Went to New Orleans after Hurricane Katrina, and to Tacloban, Philippines, after Typhoon Haiyan.',
       'In Tacloban we were the first Americans to arrive, and paved the way for the relief efforts that followed by converting a ransacked hospital into a distribution warehouse.',
+    ],
+    photos: [
+      { src: '/photos/tacloban-hospital.jpg', alt: 'The relief team on the steps of R.T. Romualdez Hospital in Tacloban' },
+      { src: '/photos/tacloban-c130.jpg', alt: 'The team in scrubs with backpacks beside a C-130 on a rain-soaked runway' },
+      { src: '/photos/new-orleans-katrina.jpg', alt: 'Volunteers with a resident beside a storm-damaged house marked FEMA in New Orleans' },
     ],
   },
   {
@@ -129,7 +138,9 @@ const sections = [
               {photos && photos.length > 0 && (
                 <div class="photos">
                   {photos.map(({ src, alt }) => (
-                    <img src={src} alt={alt} loading="lazy" decoding="async" />
+                    <a href={src}>
+                      <img src={src} alt={alt} loading="lazy" decoding="async" />
+                    </a>
                   ))}
                 </div>
               )}
@@ -259,7 +270,7 @@ const sections = [
 
   .photos {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
     gap: 0.5rem;
     margin-top: 1.25rem;
   }
@@ -267,7 +278,7 @@ const sections = [
   .photos img {
     display: block;
     width: 100%;
-    aspect-ratio: 1;
+    aspect-ratio: 4 / 3;
     object-fit: cover;
     border-radius: 6px;
   }
