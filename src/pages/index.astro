@@ -1,6 +1,19 @@
 ---
 const title = 'Samperet.com';
 const description = 'Strategy, relationships, systems, design, & code.';
+
+// Copy is deliberately thin — edit freely.
+const sections = [
+  {
+    name: 'Acadialps.com',
+    line: 'Enterprise marketplace connecting innovative solutions, senior advisors, and enterprise customers.',
+    href: 'https://acadialps.com',
+  },
+  { name: 'Founders Wanted', line: 'Looking for builders to start something with.' },
+  { name: 'Automation', line: 'Systems that do the repetitive work.' },
+  { name: 'Design', line: 'Clear interfaces, considered details.' },
+  { name: 'jayaandfiona.com', line: "Jaya and Fiona's Fun Zone.", href: 'https://jayaandfiona.com' },
+];
 ---
 
 <!doctype html>
@@ -20,8 +33,19 @@ const description = 'Strategy, relationships, systems, design, & code.';
   </head>
   <body>
     <main>
-      <h1>Samperet.com</h1>
-      <h2>strategy, relationships, systems, design, &amp; code.</h2>
+      <header class="hero">
+        <h1>Samperet.com</h1>
+        <h2>strategy, relationships, systems, design, &amp; code.</h2>
+      </header>
+
+      {
+        sections.map(({ name, line, href }) => (
+          <section class="item">
+            <h3>{href ? <a href={href}>{name}</a> : name}</h3>
+            <p>{line}</p>
+          </section>
+        ))
+      }
     </main>
   </body>
 </html>
@@ -31,6 +55,7 @@ const description = 'Strategy, relationships, systems, design, & code.';
     --bg: #fafaf9;
     --fg: #111111;
     --muted: #57534e;
+    --rule: #e7e5e4;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -38,6 +63,7 @@ const description = 'Strategy, relationships, systems, design, & code.';
       --bg: #0c0c0c;
       --fg: #f5f5f4;
       --muted: #a8a29e;
+      --rule: #292524;
     }
   }
 
@@ -50,7 +76,6 @@ const description = 'Strategy, relationships, systems, design, & code.';
   html,
   body {
     margin: 0;
-    height: 100%;
   }
 
   body {
@@ -61,11 +86,24 @@ const description = 'Strategy, relationships, systems, design, & code.';
   }
 
   main {
-    min-height: 100%;
+    width: 80%;
+    margin: 0 auto;
+    padding-bottom: 6rem;
+  }
+
+  @media (max-width: 640px) {
+    main {
+      width: auto;
+      margin: 0 1rem;
+    }
+  }
+
+  .hero {
+    min-height: 70vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 2rem clamp(1rem, 8vw, 8rem);
+    padding: 4rem 0;
   }
 
   h1 {
@@ -83,5 +121,49 @@ const description = 'Strategy, relationships, systems, design, & code.';
     font-weight: 400;
     color: var(--muted);
     line-height: 1.4;
+  }
+
+  .item {
+    display: grid;
+    grid-template-columns: minmax(10rem, 1fr) 2fr;
+    gap: 0.5rem 2rem;
+    align-items: baseline;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .item:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  @media (max-width: 640px) {
+    .item {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  h3 a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--rule);
+    text-underline-offset: 0.2em;
+  }
+
+  h3 a:hover,
+  h3 a:focus-visible {
+    text-decoration-color: currentColor;
+  }
+
+  .item p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.5;
   }
 </style>
