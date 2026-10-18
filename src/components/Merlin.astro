@@ -1,0 +1,202 @@
+---
+// Merlin, the original Microsoft Agent character, played from his own sprite sheet
+// and frame data via clippyjs. Vivify supplies the CSS effects around him.
+import '../styles/vivify-subset.css';
+
+const moves = [
+  ['Wave', 'Wave'],
+  ['Greet', 'Greet'],
+  ['DoMagic1', 'Magic'],
+  ['Congratulate', 'Congratulate'],
+  ['Think', 'Think'],
+  ['Read', 'Read'],
+  ['Searching', 'Search'],
+  ['Surprised', 'Surprised'],
+  ['Confused', 'Confused'],
+  ['Announce', 'Announce'],
+];
+---
+
+<div class="merlin-ui" data-merlin-ui>
+  <button type="button" class="merlin-toggle" data-merlin-toggle aria-pressed="false">Summon Merlin</button>
+  <div class="merlin-moves" data-merlin-moves hidden>
+    {
+      moves.map(([anim, label]) => (
+        <button type="button" data-anim={anim}>
+          {label}
+        </button>
+      ))
+    }
+  </div>
+  <p class="merlin-hint">Click anywhere and he’ll point.</p>
+  <p class="sr-only" aria-live="polite" data-merlin-live></p>
+</div>
+
+<script>
+  import { initAgent } from 'clippyjs';
+  import MerlinLoaders from 'clippyjs/agents/merlin';
+
+  type Agent = Awaited<ReturnType<typeof initAgent>>;
+
+  const STORAGE_KEY = 'merlin:dismissed';
+  const ui = document.querySelector<HTMLElement>('[data-merlin-ui]')!;
+  const toggle = ui.querySelector<HTMLButtonElement>('[data-merlin-toggle]')!;
+  const movesEl = ui.querySelector<HTMLElement>('[data-merlin-moves]')!;
+  const live = ui.querySelector<HTMLElement>('[data-merlin-live]')!;
+
+  let agent: Agent | undefined;
+  let loading: Promise<Agent> | undefined;
+  let visible = false;
+
+  const load = () =>
+    (loading ??= initAgent({
+      agent: MerlinLoaders.agent,
+      // The sprite sheet ships as a cacheable PNG instead of a 1.4 MB base64 module.
+      map: async () => ({ default: '/merlin/map.png' }),
+      // Silent: no sounds on a web page unless asked for.
+      sound: async () => ({ default: {} }),
+    } as Parameters<typeof initAgent>[0]).then((a) => {
+      agent = a;
+      const el = (a as unknown as { _el: HTMLElement })._el;
+      el.setAttribute('role', 'img');
+      el.setAttribute('aria-label', 'Merlin the wizard');
+      el.dataset.merlinAgent = '';
+      return a;
+    }));
+
+  const say = (text: string) => {
+    agent?.speak(text);
+    live.textContent = text;
+  };
+
+  const setVisible = (on: boolean) => {
+    visible = on;
+    toggle.setAttribute('aria-pressed', String(on));
+    toggle.textContent = on ? 'Dismiss Merlin' : 'Summon Merlin';
+    movesEl.hidden = !on;
+    if (on) movesEl.classList.add('vivify', 'fadeInBottom');
+    try {
+      on ? localStorage.removeItem(STORAGE_KEY) : localStorage.setItem(STORAGE_KEY, '1');
+    } catch {}
+  };
+
+  const summon = async (greet = true) => {
+    const a = await load();
+    setVisible(true);
+    a.show();
+    if (greet) {
+      say('Hello! Click anywhere and I’ll point.');
+      a.play('Wave');
+    }
+  };
+
+  const dismiss = () => {
+    agent?.stop();
+    agent?.hide();
+    setVisible(false);
+  };
+
+  toggle.addEventListener('click', () => (visible ? dismiss() : summon()));
+
+  movesEl.addEventListener('click', (e) => {
+    const anim = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-anim]')?.dataset.anim;
+    if (!anim || !agent) return;
+    agent.stop();
+    agent.play(anim);
+  });
+
+  // Point at every click outside Merlin and his controls.
+  const marker = (x: number, y: number) => {
+    const dot = document.createElement('span');
+    dot.className = 'merlin-target vivify popIn';
+    dot.style.left = `${x}px`;
+    dot.style.top = `${y}px`;
+    document.body.appendChild(dot);
+    setTimeout(() => dot.classList.replace('popIn', 'fadeOut'), 700);
+    setTimeout(() => dot.remove(), 1500);
+  };
+
+  document.addEventListener('click', (e) => {
+    if (!visible || !agent) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-merlin-ui], [data-merlin-agent]')) return;
+    marker(e.pageX, e.pageY);
+    agent.stop();
+    agent.gestureAt(e.clientX, e.clientY);
+  });
+
+  // Appear on his own once the page is idle, unless dismissed before or motion is reduced.
+  let dismissed = false;
+  try {
+    dismissed = localStorage.getItem(STORAGE_KEY) === '1';
+  } catch {}
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!dismissed && !reduced) {
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 1200));
+    addEventListener('load', () => idle(() => summon()), { once: true });
+  }
+</script>
+
+<style is:global>
+  .merlin-ui {
+    margin-top: 1.25rem;
+  }
+
+  .merlin-ui button {
+    font: inherit;
+    font-size: 0.8125rem;
+    color: var(--fg);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+  }
+
+  .merlin-ui button:hover,
+  .merlin-ui button:focus-visible {
+    border-color: currentColor;
+  }
+
+  .merlin-toggle {
+    font-weight: 600;
+  }
+
+  .merlin-moves {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-top: 0.75rem;
+  }
+
+  .merlin-moves[hidden] {
+    display: none;
+  }
+
+  .text .merlin-hint {
+    margin: 0.75rem 0 0;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .merlin-target {
+    position: absolute;
+    z-index: 10000;
+    width: 28px;
+    height: 28px;
+    margin: -14px 0 0 -14px;
+    border: 2px solid #4338ca;
+    border-radius: 50%;
+    background: rgb(67 56 202 / 0.15);
+    pointer-events: none;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+</style>

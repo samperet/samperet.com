@@ -1,4 +1,6 @@
 ---
+import Merlin from '../components/Merlin.astro';
+
 const title = 'Samperet.com';
 const description = 'Strategy, relationships, systems, design, & code.';
 
@@ -87,27 +89,8 @@ const sections = [
             <div class="text">
               <p class="line">{line}</p>
               {body.map((para) => <p>{para}</p>)}
+              {merlin && <Merlin />}
             </div>
-            {merlin && (
-              <figure class="merlin">
-                <svg viewBox="0 0 120 140" role="img" aria-labelledby="merlin-title">
-                  <title id="merlin-title">A Merlin-style wizard, a nod to the Microsoft Agent character</title>
-                  <path d="M60 4 L84 62 H36 Z" fill="#4338ca" />
-                  <circle cx="54" cy="30" r="3" fill="#fde68a" />
-                  <circle cx="66" cy="46" r="2.5" fill="#fde68a" />
-                  <path d="M60 4 L68 0 L66 10 Z" fill="#4338ca" />
-                  <ellipse cx="60" cy="62" rx="32" ry="6" fill="#3730a3" />
-                  <circle cx="60" cy="76" r="15" fill="#f5d0b5" />
-                  <circle cx="54" cy="74" r="2" fill="#111" />
-                  <circle cx="66" cy="74" r="2" fill="#111" />
-                  <path d="M44 80 Q60 132 76 80 Q68 88 60 86 Q52 88 44 80 Z" fill="#f5f5f4" stroke="#d6d3d1" />
-                  <path d="M38 96 Q24 120 30 138 H90 Q96 120 82 96 Z" fill="#4338ca" />
-                  <line x1="96" y1="90" x2="110" y2="138" stroke="#92400e" stroke-width="4" stroke-linecap="round" />
-                  <circle cx="95" cy="87" r="5" fill="#fde68a" />
-                </svg>
-                <figcaption>Merlin says hi.</figcaption>
-              </figure>
-            )}
           </section>
         ))
       }
@@ -190,7 +173,7 @@ const sections = [
 
   .item {
     display: grid;
-    grid-template-columns: minmax(10rem, 1fr) 2fr auto;
+    grid-template-columns: minmax(10rem, 1fr) 2fr;
     gap: 0.5rem 2rem;
     align-items: start;
     padding: 2rem 0;
@@ -246,21 +229,4 @@ const sections = [
     line-height: 1.5;
   }
 
-  .merlin {
-    margin: 0;
-    width: 6rem;
-    text-align: center;
-  }
-
-  .merlin svg {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .merlin figcaption {
-    margin-top: 0.25rem;
-    font-size: 0.75rem;
-    color: var(--muted);
-  }
 </style>

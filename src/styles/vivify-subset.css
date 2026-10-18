@@ -1,0 +1,11 @@
+/* Subset of Vivify (https://github.com/Martz90/vivify), MIT License, (c) 2017 Martin Knize.
+   Only the animations the Merlin experience uses: popIn, fadeOut, fadeInBottom, pulsate. */
+.vivify{animation-duration:.8s;animation-fill-mode:both}
+.popIn{animation-name:popIn}
+@keyframes popIn{0%{transform:scale3d(0,0,0);opacity:0}20%{opacity:1}40%{animation-timing-function:cubic-bezier(0.47,0,0.745,0.715);transform:scale3d(1.08,1.08,1.08)}60%{animation-timing-function:cubic-bezier(0.42,0,0.58,1);transform:scale3d(1,1,1)}80%{animation-timing-function:cubic-bezier(0.42,0,0.58,1);transform:scale3d(1.03,1.03,1.03)}100%{animation-timing-function:cubic-bezier(0.25,0.46,0.45,0.94);transform:scale3d(1,1,1)}}
+.fadeOut{animation-name:fadeOut;animation-timing-function:cubic-bezier(0.455,0.03,0.515,0.955)}
+@keyframes fadeOut{0%{opacity:1}100%{opacity:0}}
+.fadeInBottom{animation-name:fadeInBottom;animation-timing-function:cubic-bezier(0.455,0.03,0.515,0.955)}
+@keyframes fadeInBottom{0%{transform:translate3d(0,400px,0);opacity:0}50%{opacity:.2}100%{transform:translate3d(0,0,0);opacity:1}}
+.pulsate{animation-name:pulsate;transform-origin:center}
+@keyframes pulsate{0%{animation-timing-function:cubic-bezier(0.25,0.46,0.45,0.94);transform:scale3d(1,1,1)}50%{transform:scale3d(0.8,0.8,0.8)}100%{animation-timing-function:cubic-bezier(0.895,0.03,0.685,0.22);transform:scale3d(1,1,1)}}
