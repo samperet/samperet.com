@@ -1,0 +1,354 @@
+---
+// Traffic dashboard: what visitors clicked, where they are, and the messages they sent
+// through Merlin. Password-protected by src/middleware.ts.
+import { db } from '../lib/db';
+
+export const prerender = false;
+
+const RANGES = [1, 7, 30, 90];
+const requested = Number(Astro.url.searchParams.get('days'));
+const days = RANGES.includes(requested) ? requested : 7;
+
+const query = await db().catch((err) => {
+  console.error('backend db failed', err);
+  return null;
+});
+
+type Count = { n: number };
+const since = `now() - make_interval(days => $1)`;
+const load = async () => {
+  if (!query) return null;
+  const [summary, clicks, interests, places, messages, recent] = await Promise.all([
+    query<{ visitors: number; views: number; clicks: number; messages: number }>(
+      `select count(distinct session)::int as visitors,
+              count(*) filter (where type = 'pageview')::int as views,
+              count(*) filter (where type = 'click')::int as clicks,
+              (select count(*)::int from messages where at > ${since}) as messages
+         from events where at > ${since}`,
+      [days],
+    ),
+    query<{ target: string } & Count>(
+      `select target, count(*)::int as n from events
+        where type = 'click' and at > ${since} group by target order by n desc, target limit 30`,
+      [days],
+    ),
+    query<{ topic: string } & Count>(
+      `select regexp_replace(target, '^(merlin:)?topic:', '') as topic, count(*)::int as n from events
+        where type = 'click' and target ~ '^(merlin:)?topic:' and at > ${since} group by topic order by n desc`,
+      [days],
+    ),
+    query<{ country: string | null; region: string | null; city: string | null; visitors: number }>(
+      `select country, region, city, count(distinct session)::int as visitors from events
+        where at > ${since} group by country, region, city order by visitors desc limit 30`,
+      [days],
+    ),
+    query<{ at: Date; name: string; contact: string | null; body: string; device: string; country: string | null; region: string | null; city: string | null }>(
+      `select at, name, contact, body, device, country, region, city from messages order by at desc limit 50`,
+    ),
+    query<{ at: Date; session: string | null; type: string; target: string | null; device: string; country: string | null; region: string | null; city: string | null }>(
+      `select at, session, type, target, device, country, region, city from events order by at desc limit 100`,
+    ),
+  ]);
+  return { summary: summary[0], clicks, interests, places, messages, recent };
+};
+const data = await load();
+
+const countryName = new Intl.DisplayNames(['en'], { type: 'region' });
+const place = (r: { country: string | null; region: string | null; city: string | null }) => {
+  if (!r.country) return 'Unknown';
+  let country = r.country;
+  try {
+    country = countryName.of(r.country) ?? r.country;
+  } catch {}
+  return [r.city, r.region, country].filter(Boolean).join(', ');
+};
+const iso = (d: Date | string) => new Date(d).toISOString();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Backend · Samperet.com</title>
+    <meta name="color-scheme" content="light dark" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Backend</h1>
+        <nav aria-label="Time range">
+          {RANGES.map((d) => (
+            <a href={`?days=${d}`} aria-current={d === days ? 'page' : undefined}>
+              {d === 1 ? '24 hours' : `${d} days`}
+            </a>
+          ))}
+        </nav>
+      </header>
+
+      {!data && (
+        <p class="note">No database connected. Set <code>DATABASE_URL</code> on the Vercel project to start logging.</p>
+      )}
+
+      {data && (
+        <>
+          <dl class="summary">
+            <div><dt>Visitors</dt><dd>{data.summary.visitors}</dd></div>
+            <div><dt>Page views</dt><dd>{data.summary.views}</dd></div>
+            <div><dt>Clicks</dt><dd>{data.summary.clicks}</dd></div>
+            <div><dt>Messages</dt><dd>{data.summary.messages}</dd></div>
+          </dl>
+
+          <section>
+            <h2>Messages</h2>
+            {data.messages.length === 0 ? <p class="note">No messages yet.</p> : (
+              <ul class="messages">
+                {data.messages.map((m) => (
+                  <li>
+                    <p class="meta">
+                      <strong>{m.name}</strong>
+                      {m.contact && <> · {m.contact}</>} · {place(m)} · {m.device} · <time datetime={iso(m.at)}>{iso(m.at)}</time>
+                    </p>
+                    <p class="body">{m.body}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <div class="grid">
+            <section>
+              <h2>Interests</h2>
+              {data.interests.length === 0 ? <p class="note">No topics chosen yet.</p> : (
+                <table>
+                  <thead><tr><th>Topic</th><th class="num">Choices</th></tr></thead>
+                  <tbody>{data.interests.map((r) => <tr><td>{r.topic}</td><td class="num">{r.n}</td></tr>)}</tbody>
+                </table>
+              )}
+            </section>
+
+            <section>
+              <h2>Geography</h2>
+              {data.places.length === 0 ? <p class="note">No visitors yet.</p> : (
+                <table>
+                  <thead><tr><th>Place</th><th class="num">Visitors</th></tr></thead>
+                  <tbody>{data.places.map((r) => <tr><td>{place(r)}</td><td class="num">{r.visitors}</td></tr>)}</tbody>
+                </table>
+              )}
+            </section>
+          </div>
+
+          <section>
+            <h2>What was clicked</h2>
+            {data.clicks.length === 0 ? <p class="note">No clicks yet.</p> : (
+              <table>
+                <thead><tr><th>Target</th><th class="num">Clicks</th></tr></thead>
+                <tbody>{data.clicks.map((r) => <tr><td><code>{r.target}</code></td><td class="num">{r.n}</td></tr>)}</tbody>
+              </table>
+            )}
+          </section>
+
+          <section>
+            <h2>Recent activity</h2>
+            {data.recent.length === 0 ? <p class="note">Nothing logged yet.</p> : (
+              <div class="scroll">
+                <table>
+                  <thead><tr><th>When</th><th>Visitor</th><th>Event</th><th>Place</th><th>Device</th></tr></thead>
+                  <tbody>
+                    {data.recent.map((r) => (
+                      <tr>
+                        <td><time datetime={iso(r.at)}>{iso(r.at)}</time></td>
+                        <td><code>{r.session?.slice(0, 8) ?? '—'}</code></td>
+                        <td><code>{r.type === 'pageview' ? 'page view' : r.target ?? r.type}</code></td>
+                        <td>{place(r)}</td>
+                        <td>{r.device}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        </>
+      )}
+    </main>
+
+    <script>
+      // Show times in the reader's own time zone.
+      const format = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+      for (const t of document.querySelectorAll('time[datetime]')) t.textContent = format.format(new Date(t.getAttribute('datetime')!));
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #fafaf9;
+    --fg: #111111;
+    --muted: #57534e;
+    --rule: #e7e5e4;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0c0c;
+      --fg: #f5f5f4;
+      --muted: #a8a29e;
+      --rule: #292524;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 0.9375rem/1.5 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  main {
+    width: min(64rem, 100% - 2rem);
+    margin: 0 auto;
+    padding: 3rem 0 5rem;
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 2rem;
+    letter-spacing: -0.03em;
+  }
+
+  h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.375rem;
+  }
+
+  nav a {
+    color: var(--fg);
+    text-decoration: none;
+    font-size: 0.8125rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+  }
+
+  nav a[aria-current='page'] {
+    background: var(--fg);
+    color: var(--bg);
+    border-color: var(--fg);
+  }
+
+  section {
+    margin-top: 2.5rem;
+  }
+
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 1rem;
+    margin: 2rem 0 0;
+  }
+
+  .summary div {
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+
+  .summary dt {
+    color: var(--muted);
+    font-size: 0.8125rem;
+  }
+
+  .summary dd {
+    margin: 0.25rem 0 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: 0 2rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.4rem 0.75rem 0.4rem 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+
+  th {
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 0.8125rem;
+  }
+
+  .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .scroll {
+    overflow-x: auto;
+  }
+
+  code {
+    font-size: 0.8125rem;
+  }
+
+  .note {
+    color: var(--muted);
+  }
+
+  .messages {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .messages li {
+    border-bottom: 1px solid var(--rule);
+    padding: 0.75rem 0;
+  }
+
+  .messages .meta {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.8125rem;
+  }
+
+  .messages .meta strong {
+    color: var(--fg);
+  }
+
+  .messages .body {
+    margin: 0.35rem 0 0;
+    white-space: pre-wrap;
+  }
+</style>

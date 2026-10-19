@@ -12,21 +12,40 @@ npm run build    # outputs to dist/
 
 Every section in `src/pages/index.astro` is a collapsed row (`<details>`) that opens on
 click, or from a link to its id (e.g. `/#travel`). Each lists its `topics`; choosing
-Professional, Personal, Family, Adventure or Send me a message — from Merlin's question or
-the buttons under the heading — opens the matching sections and closes the rest
-(`src/scripts/topics.ts`).
+Professional, Personal, Family or Adventure, from Merlin's question or the buttons under the
+heading, opens the matching sections and closes the rest (`src/scripts/topics.ts`).
+"Send me a message" opens a chat with Merlin instead.
 
-"Send me a message" opens the visitor's email app addressed to `contactEmail` in
-`src/pages/index.astro`. TODO: set that address; until then the form says messages aren't
-connected yet.
+## Backend, traffic and messages
+
+The site is static except for three on-demand routes on Vercel (`@astrojs/vercel`):
+
+- `POST /api/track`: page views and clicks from `src/scripts/track.ts`, each with a per-tab
+  session id, the device type and the visitor's city/region/country from Vercel's
+  geolocation headers. No IP address is stored; browsers sending Global Privacy Control or
+  Do Not Track, and known bots, are not logged.
+- `POST /api/message`: messages sent through Merlin's chat (name, optional contact, text).
+- `/backend`: the dashboard (visitors, page views, clicks, messages, interests, geography,
+  what was clicked, recent activity), behind HTTP Basic auth.
+
+Environment variables on the Vercel project (server-only):
+
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | Postgres connection string (Neon, Supabase, Vercel Postgres). Tables are created on first use. |
+| `BACKEND_PASSWORD` | Password for `/backend`; any username. Without it `/backend` stays locked. |
+
+Locally, without `DATABASE_URL`, `npm run dev` uses an in-memory PGlite database, so
+`BACKEND_PASSWORD=dev npm run dev` gives a working backend at http://localhost:4321/backend.
 
 ## Merlin
 
 `src/components/Merlin.astro` puts Merlin, the original Microsoft Agent character, on
-the homepage. He shows himself once the page is idle (unless the visitor dismissed him
-before, or prefers reduced motion), asks what the visitor is interested in and opens those
-sections, plays his own animations from the Automation section, and points at wherever you
-click. Clicking him asks again.
+the homepage, hidden behind a wizard-hat button in the bottom-right corner
+(`public/merlin/hat.svg`). Summoned, he asks what the visitor is interested in and opens
+those sections, takes messages for Sam through a short chat, plays his own animations from
+the Automation section, and points at wherever you click. Clicking him asks again; the hat
+hides him.
 
 - Animation engine and frame data: [clippyjs](https://github.com/pi0/clippyjs) (MIT).
 - Sprite sheet: `public/merlin/map.png`, extracted from clippyjs. The artwork is

@@ -1,6 +1,8 @@
 ---
-// Merlin, the original Microsoft Agent character, played from his own sprite sheet
-// and frame data via clippyjs. Vivify supplies the CSS effects around him.
+// Merlin, the original Microsoft Agent character, played from his own sprite sheet and frame
+// data via clippyjs. He waits behind a wizard-hat button in the corner; summoned, he asks what
+// the visitor is interested in (src/scripts/topics.ts) or takes a message for Sam
+// (/api/message). Vivify supplies the CSS effects around him.
 import '../styles/vivify-subset.css';
 
 const moves = [
@@ -22,13 +24,13 @@ const moves = [
   <div class="merlin-moves" data-merlin-moves hidden>
     {
       moves.map(([anim, label]) => (
-        <button type="button" data-anim={anim}>
+        <button type="button" data-anim={anim} data-track={`merlin:anim:${anim}`}>
           {label}
         </button>
       ))
     }
   </div>
-  <p class="merlin-hint">Click anywhere and he’ll point. Click him to ask again.</p>
+  <p class="merlin-hint">Or use the wizard hat in the corner. Click anywhere and he’ll point.</p>
   <p class="sr-only" aria-live="polite" data-merlin-live></p>
 </div>
 
@@ -36,10 +38,10 @@ const moves = [
   import { initAgent } from 'clippyjs';
   import MerlinLoaders from 'clippyjs/agents/merlin';
   import { TOPICS, isTopic, openTopic, type Topic } from '../scripts/topics';
+  import { sessionId } from '../scripts/track';
 
   type Agent = Awaited<ReturnType<typeof initAgent>>;
 
-  const STORAGE_KEY = 'merlin:dismissed';
   const ui = document.querySelector<HTMLElement>('[data-merlin-ui]')!;
   const toggle = ui.querySelector<HTMLButtonElement>('[data-merlin-toggle]')!;
   const movesEl = ui.querySelector<HTMLElement>('[data-merlin-moves]')!;
@@ -48,6 +50,8 @@ const moves = [
   let agent: Agent | undefined;
   let loading: Promise<Agent> | undefined;
   let visible = false;
+
+  const agentEl = () => (agent as unknown as { _el: HTMLElement } | undefined)?._el;
 
   const load = () =>
     (loading ??= initAgent({
@@ -58,12 +62,24 @@ const moves = [
       sound: async () => ({ default: {} }),
     } as Parameters<typeof initAgent>[0]).then((a) => {
       agent = a;
-      const el = (a as unknown as { _el: HTMLElement })._el;
+      const el = agentEl()!;
       el.setAttribute('role', 'img');
       el.setAttribute('aria-label', 'Merlin the wizard');
       el.dataset.merlinAgent = '';
+      el.dataset.track = 'merlin:character';
       return a;
     }));
+
+  // The wizard hat: Merlin's hiding place, bottom right, on every visit.
+  const hat = document.createElement('button');
+  hat.type = 'button';
+  hat.className = 'merlin-hat vivify popIn';
+  hat.dataset.merlinUi = '';
+  hat.dataset.track = 'merlin:hat';
+  hat.setAttribute('aria-label', 'Summon Merlin');
+  hat.setAttribute('aria-pressed', 'false');
+  hat.innerHTML = '<img src="/merlin/hat.svg" alt="" width="64" height="56" />';
+  document.body.appendChild(hat);
 
   const say = (text: string) => {
     agent?.speak(text);
@@ -72,70 +88,232 @@ const moves = [
 
   const setVisible = (on: boolean) => {
     visible = on;
-    toggle.setAttribute('aria-pressed', String(on));
+    for (const button of [toggle, hat]) button.setAttribute('aria-pressed', String(on));
     toggle.textContent = on ? 'Dismiss Merlin' : 'Summon Merlin';
+    hat.setAttribute('aria-label', on ? 'Hide Merlin' : 'Summon Merlin');
     movesEl.hidden = !on;
     if (on) movesEl.classList.add('vivify', 'fadeInBottom');
-    try {
-      on ? localStorage.removeItem(STORAGE_KEY) : localStorage.setItem(STORAGE_KEY, '1');
-    } catch {}
   };
 
-  // Merlin's question: a balloon-styled card beside him with one button per topic.
-  const agentEl = () => (agent as unknown as { _el: HTMLElement } | undefined)?._el;
+  // Merlin's card: a balloon-styled panel beside him that either asks what the visitor is
+  // interested in or runs the message chat.
+  const card = document.createElement('div');
+  card.className = 'merlin-ask';
+  card.dataset.merlinUi = '';
+  card.setAttribute('role', 'dialog');
+  card.hidden = true;
+  document.body.appendChild(card);
 
-  const ask = document.createElement('div');
-  ask.className = 'merlin-ask';
-  ask.dataset.merlinUi = '';
-  ask.setAttribute('role', 'dialog');
-  ask.setAttribute('aria-label', 'Merlin asks what you are interested in');
-  ask.hidden = true;
-  ask.innerHTML = `
-    <button type="button" class="merlin-ask-close" aria-label="Close">×</button>
-    <p>Hi! What are you interested in?</p>
-    <div class="merlin-ask-options">
-      ${Object.entries(TOPICS)
-        .map(([key, { label }]) => `<button type="button" data-ask="${key}">${label}</button>`)
-        .join('')}
-    </div>`;
-  document.body.appendChild(ask);
-
-  const placeAsk = () => {
+  const placeCard = () => {
     const el = agentEl();
-    if (!el || ask.hidden) return;
+    if (!el || card.hidden) return;
     const r = el.getBoundingClientRect();
-    const w = ask.offsetWidth;
-    const h = ask.offsetHeight;
+    const w = card.offsetWidth;
+    const h = card.offsetHeight;
     const left = Math.min(Math.max(8, r.right - w), innerWidth - w - 8);
     const above = r.top - h - 8;
-    ask.style.left = `${left}px`;
-    ask.style.top = `${above >= 8 ? above : Math.min(r.bottom + 8, innerHeight - h - 8)}px`;
+    card.style.left = `${left}px`;
+    card.style.top = `${above >= 8 ? above : Math.min(r.bottom + 8, innerHeight - h - 8)}px`;
   };
 
-  const showAsk = () => {
+  const popCard = () => {
     agent?.closeBalloon();
-    ask.hidden = false;
-    ask.classList.remove('popIn');
-    void ask.offsetWidth;
-    ask.classList.add('vivify', 'popIn');
-    placeAsk();
+    card.hidden = false;
+    card.classList.remove('popIn');
+    void card.offsetWidth;
+    card.classList.add('vivify', 'popIn');
+    placeCard();
+  };
+
+  const hideCard = () => {
+    card.hidden = true;
+  };
+
+  const closeButton = '<button type="button" class="merlin-ask-close" aria-label="Close">×</button>';
+
+  const showAsk = () => {
+    card.setAttribute('aria-label', 'Merlin asks what you are interested in');
+    card.innerHTML = `${closeButton}
+      <p class="merlin-ask-q">Hi! What are you interested in?</p>
+      <div class="merlin-ask-options">
+        ${Object.entries(TOPICS)
+          .map(([key, { label }]) => `<button type="button" data-ask="${key}" data-track="merlin:topic:${key}">${label}</button>`)
+          .join('')}
+      </div>`;
+    popCard();
     live.textContent = 'Merlin asks: what are you interested in?';
   };
 
-  const hideAsk = () => {
-    ask.hidden = true;
+  // The message chat: name, a way to reply (optional), then the message itself.
+  type Step = 'name' | 'contact' | 'message' | 'sending' | 'done';
+  let step: Step = 'name';
+  const draft = { name: '', contact: '', message: '' };
+
+  const showChat = () => {
+    step = 'name';
+    draft.name = draft.contact = draft.message = '';
+    card.setAttribute('aria-label', 'Send Sam a message through Merlin');
+    card.innerHTML = `${closeButton}
+      <div class="merlin-chat-log" aria-live="polite"></div>
+      <form class="merlin-chat-form">
+        <label class="sr-only" for="merlin-chat-input">Your reply</label>
+        <textarea id="merlin-chat-input" rows="1" maxlength="4000" required></textarea>
+        <input class="merlin-hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="merlin-chat-actions">
+          <button type="button" data-skip hidden>Skip</button>
+          <button type="submit" data-track="merlin:message:submit">Send</button>
+        </div>
+      </form>`;
+    popCard();
+    merlinSays('Happy to deliver a message to Sam. What’s your name?');
+    agent?.play('Write');
+    input().focus();
   };
 
-  ask.addEventListener('click', (e) => {
+  const log = () => card.querySelector<HTMLElement>('.merlin-chat-log')!;
+  const input = () => card.querySelector<HTMLTextAreaElement>('#merlin-chat-input')!;
+  const skip = () => card.querySelector<HTMLButtonElement>('[data-skip]')!;
+
+  const line = (who: 'merlin' | 'you', text: string) => {
+    const p = document.createElement('p');
+    p.className = `merlin-chat-${who}`;
+    p.textContent = text;
+    log().appendChild(p);
+    log().scrollTop = log().scrollHeight;
+    placeCard();
+  };
+  const merlinSays = (text: string) => line('merlin', text);
+
+  const prompt = (next: Step) => {
+    step = next;
+    const field = input();
+    field.value = '';
+    field.required = next !== 'contact';
+    field.rows = next === 'message' ? 4 : 1;
+    field.placeholder = next === 'contact' ? 'Email or phone' : next === 'message' ? 'Your message' : '';
+    skip().hidden = next !== 'contact';
+    field.focus();
+    placeCard();
+  };
+
+  const send = async () => {
+    step = 'sending';
+    merlinSays('Sending it by owl…');
+    agent?.play('DoMagic1');
+    try {
+      const res = await fetch('/api/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...draft,
+          website: card.querySelector<HTMLInputElement>('.merlin-hp')!.value,
+          session: sessionId(),
+        }),
+      });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok || !result.ok) throw new Error(result.error);
+      step = 'done';
+      merlinSays('Delivered! Sam will read it soon.');
+      agent?.play('Congratulate');
+      card.querySelector('.merlin-chat-form')!.innerHTML =
+        '<div class="merlin-chat-actions"><button type="button" data-restart>Back to the menu</button></div>';
+      placeCard();
+    } catch (err) {
+      merlinSays(`My magic fizzled${err instanceof Error && err.message ? `: ${err.message}` : '.'} Press Send to try again.`);
+      agent?.play('Sad');
+      step = 'message';
+      input().value = draft.message;
+      input().focus();
+    }
+  };
+
+  const answer = (value: string) => {
+    if (step === 'name') {
+      draft.name = value;
+      line('you', value);
+      merlinSays(`Nice to meet you, ${value}! How can Sam reach you? An email or phone number works, or skip.`);
+      prompt('contact');
+    } else if (step === 'contact') {
+      draft.contact = value;
+      line('you', value || '(skipped)');
+      merlinSays('What would you like to say?');
+      prompt('message');
+    } else if (step === 'message') {
+      draft.message = value;
+      line('you', value);
+      void send();
+    }
+  };
+
+  card.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const value = input().value.trim();
+    if (step === 'sending' || step === 'done' || (!value && step !== 'contact')) return;
+    answer(value);
+  });
+
+  card.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') return hideCard();
+    // Enter sends; Shift+Enter makes a new line in the message.
+    if (e.key === 'Enter' && !e.shiftKey && (e.target as HTMLElement).id === 'merlin-chat-input') {
+      e.preventDefault();
+      card.querySelector<HTMLFormElement>('.merlin-chat-form')?.requestSubmit();
+    }
+  });
+
+  card.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
-    if (target.closest('.merlin-ask-close')) return hideAsk();
+    if (target.closest('.merlin-ask-close')) return hideCard();
+    if (target.closest('[data-skip]')) return answer('');
+    if (target.closest('[data-restart]')) return showAsk();
     const topic = target.closest<HTMLButtonElement>('[data-ask]')?.dataset.ask;
     if (isTopic(topic)) openTopic(topic);
   });
 
-  addEventListener('resize', placeAsk);
+  addEventListener('resize', placeCard);
 
-  // Whichever chooser opened the topic, Merlin answers and points at the first section.
+  const summon = async () => {
+    const a = await load();
+    const el = agentEl()!;
+    // Appear just above the hat.
+    el.style.left = `${Math.max(8, innerWidth - 128 - 16)}px`;
+    el.style.top = `${Math.max(8, innerHeight - 128 - 96)}px`;
+    setVisible(true);
+    a.show();
+    return a;
+  };
+
+  // clippyjs's own hide() can leave its animation queue stuck when an animation is running, and
+  // he never shows again. So he plays Hide, then is disposed; the next summon builds a fresh one.
+  const dismiss = () => {
+    hideCard();
+    setVisible(false);
+    const leaving = agent;
+    agent = undefined;
+    loading = undefined;
+    if (!leaving) return;
+    leaving.stop();
+    if (!leaving.play('Hide', 3000, () => leaving.dispose())) leaving.dispose();
+  };
+
+  const summonAndAsk = async () => {
+    const a = await summon();
+    a.play('Wave');
+    setTimeout(showAsk, 900);
+  };
+
+  hat.addEventListener('click', () => (visible ? dismiss() : summonAndAsk()));
+  toggle.addEventListener('click', () => (visible ? dismiss() : summonAndAsk()));
+
+  movesEl.addEventListener('click', (e) => {
+    const anim = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-anim]')?.dataset.anim;
+    if (!anim || !agent) return;
+    agent.stop();
+    agent.play(anim);
+  });
+
+  // Whichever chooser opened the topic, Merlin answers and points at the first section; for a
+  // message he comes out (if hidden) and starts the chat.
   const reactions: Record<Topic, string> = {
     professional: 'Explain',
     personal: 'Think',
@@ -144,9 +322,15 @@ const moves = [
     message: 'Write',
   };
 
-  document.addEventListener('topic:open', (e) => {
+  document.addEventListener('topic:open', async (e) => {
     const { topic, target } = (e as CustomEvent<{ topic: Topic; target: HTMLElement | null }>).detail;
-    hideAsk();
+    if (topic === 'message') {
+      if (visible) agent?.stop();
+      else await summon();
+      showChat();
+      return;
+    }
+    hideCard();
     if (!visible || !agent) return;
     agent.stop();
     say(TOPICS[topic].reply);
@@ -158,45 +342,6 @@ const moves = [
         agent?.gestureAt(r.left + 40, r.top + 24);
       }, 700);
     }
-  });
-
-  const summon = async (greet = true) => {
-    const a = await load();
-    setVisible(true);
-    a.show();
-    if (greet) {
-      a.play('Wave');
-      setTimeout(showAsk, 900);
-    }
-  };
-
-  const dismiss = () => {
-    hideAsk();
-    agent?.stop();
-    agent?.hide();
-    setVisible(false);
-  };
-
-  // A click on Merlin (not a drag) asks again; letting go after a drag moves the card with him.
-  let downAt: [number, number] | undefined;
-  document.addEventListener('mousedown', (e) => {
-    if ((e.target as HTMLElement).closest('[data-merlin-agent]')) downAt = [e.clientX, e.clientY];
-  });
-  document.addEventListener('mouseup', (e) => {
-    if (!downAt) return;
-    const moved = Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 4;
-    downAt = undefined;
-    if (moved) setTimeout(placeAsk, 20);
-    else ask.hidden ? showAsk() : hideAsk();
-  });
-
-  toggle.addEventListener('click', () => (visible ? dismiss() : summon()));
-
-  movesEl.addEventListener('click', (e) => {
-    const anim = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-anim]')?.dataset.anim;
-    if (!anim || !agent) return;
-    agent.stop();
-    agent.play(anim);
   });
 
   // Point at every click outside Merlin and his controls.
@@ -220,16 +365,18 @@ const moves = [
     agent.gestureAt(e.clientX, e.clientY);
   });
 
-  // Appear on his own once the page is idle, unless dismissed before or motion is reduced.
-  let dismissed = false;
-  try {
-    dismissed = localStorage.getItem(STORAGE_KEY) === '1';
-  } catch {}
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!dismissed && !reduced) {
-    const idle = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 1200));
-    addEventListener('load', () => idle(() => summon()), { once: true });
-  }
+  // A click on Merlin (not a drag) brings the question back; after a drag the card follows him.
+  let downAt: [number, number] | undefined;
+  document.addEventListener('mousedown', (e) => {
+    if ((e.target as HTMLElement).closest('[data-merlin-agent]')) downAt = [e.clientX, e.clientY];
+  });
+  document.addEventListener('mouseup', (e) => {
+    if (!downAt) return;
+    const moved = Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 4;
+    downAt = undefined;
+    if (moved) setTimeout(placeCard, 20);
+    else if (card.hidden) showAsk();
+  });
 </script>
 
 <style is:global>
@@ -274,11 +421,55 @@ const moves = [
     color: var(--muted);
   }
 
+  .merlin-hat {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 10003;
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    filter: drop-shadow(0 4px 10px rgb(0 0 0 / 0.25));
+    transition: transform 0.2s;
+  }
+
+  .merlin-hat img {
+    display: block;
+    width: 64px;
+    height: auto;
+  }
+
+  .merlin-hat:hover,
+  .merlin-hat:focus-visible {
+    transform: rotate(-8deg) scale(1.08);
+  }
+
+  .merlin-hat:focus-visible {
+    outline: 2px solid #f5b400;
+    outline-offset: 2px;
+    border-radius: 50%;
+  }
+
+  .merlin-hat[aria-pressed='true'] img {
+    transform: rotate(14deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .merlin-hat {
+      transition: none;
+    }
+  }
+
   /* Styled after Merlin's own speech balloon. */
   .merlin-ask {
     position: fixed;
     z-index: 10002;
-    width: min(18rem, calc(100vw - 16px));
+    width: min(20rem, calc(100vw - 16px));
     padding: 0.75rem 0.85rem 0.85rem;
     background: #ffc;
     color: #000;
@@ -292,9 +483,72 @@ const moves = [
     display: none;
   }
 
-  .merlin-ask p {
+  .merlin-ask .merlin-ask-q {
     margin: 0 1.5rem 0.6rem 0;
     font-weight: 600;
+  }
+
+  .merlin-chat-log {
+    max-height: 14rem;
+    overflow-y: auto;
+    margin-right: 1.25rem;
+  }
+
+  .merlin-chat-log p {
+    margin: 0 0 0.45rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .merlin-chat-merlin {
+    font-weight: 600;
+  }
+
+  .merlin-chat-you {
+    margin-left: 1.25rem !important;
+    padding: 0.3rem 0.5rem;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 4px;
+  }
+
+  .merlin-chat-form {
+    display: grid;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+  }
+
+  .merlin-chat-form textarea {
+    font: inherit;
+    width: 100%;
+    resize: vertical;
+    color: #000;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 4px;
+    padding: 0.35rem 0.45rem;
+  }
+
+  .merlin-chat-form textarea:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 1px;
+  }
+
+  .merlin-chat-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.375rem;
+  }
+
+  .merlin-chat-actions [hidden] {
+    display: none;
+  }
+
+  .merlin-hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
   }
 
   .merlin-ask-options {

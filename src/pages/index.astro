@@ -5,9 +5,6 @@ import { TOPICS } from '../scripts/topics';
 const title = 'Samperet.com';
 const description = 'Strategy, relationships, systems, design, & code.';
 
-// TODO: the address "Send me a message" goes to. Until it is set, the form says messages aren't connected yet.
-const contactEmail = '';
-
 // Copy is deliberately thin — edit freely. `body` is the longer text under each row;
 // `topics` decides which of Merlin's questions (see scripts/topics.ts) opens the section.
 type Section = {
@@ -18,7 +15,6 @@ type Section = {
   href?: string;
   embed?: string;
   merlin?: boolean;
-  contact?: boolean;
   photos?: { src: string; alt: string }[];
 };
 
@@ -121,13 +117,6 @@ const sections: Section[] = [
       'Making things for them was my entrance to vibe coding, before the term was coined.',
     ],
   },
-  {
-    name: 'Send me a message',
-    topics: ['message'],
-    line: 'Questions, ideas, or just hello.',
-    body: [],
-    contact: true,
-  },
 ];
 
 const slug = (name: string) =>
@@ -157,7 +146,7 @@ const slug = (name: string) =>
         <nav class="topics" aria-label="Open sections by interest">
           {
             Object.entries(TOPICS).map(([key, { label }]) => (
-              <button type="button" data-topic={key} aria-pressed="false">
+              <button type="button" data-topic={key} data-track={`topic:${key}`} aria-pressed="false">
                 {label}
               </button>
             ))
@@ -166,7 +155,7 @@ const slug = (name: string) =>
       </header>
 
       {
-        sections.map(({ name, topics, line, href, embed, body, merlin, contact, photos }) => (
+        sections.map(({ name, topics, line, href, embed, body, merlin, photos }) => (
           <details class="item" id={slug(name)} data-topics={topics.join(' ')}>
             <summary>
               <h3>{href ? <a href={href}>{name}</a> : name}</h3>
@@ -177,20 +166,6 @@ const slug = (name: string) =>
               <div class="text">
                 {body.map((para) => <p>{para}</p>)}
                 {merlin && <Merlin />}
-                {contact && (
-                  <form class="contact" data-contact-form data-to={contactEmail}>
-                    <label>
-                      Name
-                      <input name="name" autocomplete="name" required />
-                    </label>
-                    <label>
-                      Message
-                      <textarea name="message" rows="5" required />
-                    </label>
-                    <button type="submit">Send</button>
-                    <p class="contact-status" role="status" data-contact-status />
-                  </form>
-                )}
               </div>
               {embed && (
                 <iframe
@@ -219,6 +194,9 @@ const slug = (name: string) =>
 
     <script>
       import { isTopic, openTopic } from '../scripts/topics';
+      import { startTracking } from '../scripts/track';
+
+      startTracking();
 
       document.querySelector('.topics')?.addEventListener('click', (e) => {
         const topic = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-topic]')?.dataset.topic;
@@ -233,21 +211,6 @@ const slug = (name: string) =>
       addEventListener('hashchange', fromHash);
       fromHash();
 
-      // Messages go out through the visitor's email app until a backend exists.
-      const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
-      form?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const status = form.querySelector<HTMLElement>('[data-contact-status]')!;
-        const to = form.dataset.to;
-        if (!to) {
-          status.textContent = 'Messages aren’t connected yet. Check back soon.';
-          return;
-        }
-        const data = new FormData(form);
-        const subject = `Hello from ${data.get('name')}`;
-        location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(String(data.get('message')))}`;
-        status.textContent = 'Opening your email app…';
-      });
     </script>
   </body>
 </html>
@@ -429,8 +392,7 @@ const slug = (name: string) =>
     margin-top: 2rem;
   }
 
-  .topics button,
-  .contact button {
+  .topics button {
     font: inherit;
     font-size: 0.875rem;
     color: var(--fg);
@@ -442,9 +404,7 @@ const slug = (name: string) =>
   }
 
   .topics button:hover,
-  .topics button:focus-visible,
-  .contact button:hover,
-  .contact button:focus-visible {
+  .topics button:focus-visible {
     border-color: currentColor;
   }
 
@@ -454,47 +414,6 @@ const slug = (name: string) =>
     border-color: var(--fg);
   }
 
-  .contact {
-    display: grid;
-    gap: 0.75rem;
-    max-width: 32rem;
-  }
-
-  .contact label {
-    display: grid;
-    gap: 0.25rem;
-    font-size: 0.875rem;
-  }
-
-  .contact input,
-  .contact textarea {
-    font: inherit;
-    color: var(--fg);
-    background: transparent;
-    border: 1px solid var(--rule);
-    border-radius: 6px;
-    padding: 0.5rem 0.65rem;
-  }
-
-  .contact input:focus-visible,
-  .contact textarea:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 1px;
-  }
-
-  .contact button {
-    justify-self: start;
-    font-weight: 600;
-  }
-
-  .text .contact-status {
-    margin: 0;
-    font-size: 0.875rem;
-  }
-
-  .text .contact-status:empty {
-    display: none;
-  }
 
   h3 {
     margin: 0;
