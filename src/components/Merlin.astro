@@ -77,8 +77,7 @@ const moves = [
   hat.dataset.merlinUi = '';
   hat.dataset.track = 'merlin:hat';
   hat.setAttribute('aria-label', 'Summon Merlin');
-  hat.setAttribute('aria-pressed', 'false');
-  hat.innerHTML = '<img src="/merlin/hat.svg" alt="" width="64" height="56" />';
+  hat.innerHTML = '<img src="/merlin/hat.webp" alt="" width="64" height="63" />';
   document.body.appendChild(hat);
 
   const say = (text: string) => {
@@ -88,9 +87,15 @@ const moves = [
 
   const setVisible = (on: boolean) => {
     visible = on;
-    for (const button of [toggle, hat]) button.setAttribute('aria-pressed', String(on));
+    toggle.setAttribute('aria-pressed', String(on));
     toggle.textContent = on ? 'Dismiss Merlin' : 'Summon Merlin';
-    hat.setAttribute('aria-label', on ? 'Hide Merlin' : 'Summon Merlin');
+    // The hat is where he hides: it disappears while he's out and comes back when he leaves.
+    hat.hidden = on;
+    if (!on) {
+      hat.classList.remove('popIn');
+      void hat.offsetWidth;
+      hat.classList.add('popIn');
+    }
     movesEl.hidden = !on;
     if (on) movesEl.classList.add('vivify', 'fadeInBottom');
   };
@@ -130,6 +135,7 @@ const moves = [
   };
 
   const closeButton = '<button type="button" class="merlin-ask-close" aria-label="Close">×</button>';
+  const awayButton = '<button type="button" class="merlin-away" data-away data-track="merlin:away">Send Merlin back to his hat</button>';
 
   const showAsk = () => {
     card.setAttribute('aria-label', 'Merlin asks what you are interested in');
@@ -139,7 +145,8 @@ const moves = [
         ${Object.entries(TOPICS)
           .map(([key, { label }]) => `<button type="button" data-ask="${key}" data-track="merlin:topic:${key}">${label}</button>`)
           .join('')}
-      </div>`;
+      </div>
+      ${awayButton}`;
     popCard();
     live.textContent = 'Merlin asks: what are you interested in?';
   };
@@ -266,6 +273,7 @@ const moves = [
     if (target.closest('.merlin-ask-close')) return hideCard();
     if (target.closest('[data-skip]')) return answer('');
     if (target.closest('[data-restart]')) return showAsk();
+    if (target.closest('[data-away]')) return dismiss();
     const topic = target.closest<HTMLButtonElement>('[data-ask]')?.dataset.ask;
     if (isTopic(topic)) openTopic(topic);
   });
@@ -275,9 +283,9 @@ const moves = [
   const summon = async () => {
     const a = await load();
     const el = agentEl()!;
-    // Appear just above the hat.
+    // Appear where the hat was, in the bottom-right corner.
     el.style.left = `${Math.max(8, innerWidth - 128 - 16)}px`;
-    el.style.top = `${Math.max(8, innerHeight - 128 - 96)}px`;
+    el.style.top = `${Math.max(8, innerHeight - 128 - 16)}px`;
     setVisible(true);
     a.show();
     return a;
@@ -302,7 +310,7 @@ const moves = [
     setTimeout(showAsk, 900);
   };
 
-  hat.addEventListener('click', () => (visible ? dismiss() : summonAndAsk()));
+  hat.addEventListener('click', () => void summonAndAsk());
   toggle.addEventListener('click', () => (visible ? dismiss() : summonAndAsk()));
 
   movesEl.addEventListener('click', (e) => {
@@ -438,6 +446,10 @@ const moves = [
     transition: transform 0.2s;
   }
 
+  .merlin-hat[hidden] {
+    display: none;
+  }
+
   .merlin-hat img {
     display: block;
     width: 64px;
@@ -453,10 +465,6 @@ const moves = [
     outline: 2px solid #f5b400;
     outline-offset: 2px;
     border-radius: 50%;
-  }
-
-  .merlin-hat[aria-pressed='true'] img {
-    transform: rotate(14deg);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -571,6 +579,23 @@ const moves = [
   .merlin-ask button:focus-visible {
     background: #000;
     color: #ffc;
+  }
+
+  .merlin-ask .merlin-away {
+    display: block;
+    margin: 0.65rem 0 0 auto;
+    padding: 0;
+    border: none;
+    background: transparent;
+    font-size: 0.8125rem;
+    text-decoration: underline;
+  }
+
+  .merlin-ask .merlin-away:hover,
+  .merlin-ask .merlin-away:focus-visible {
+    background: transparent;
+    color: #000;
+    text-decoration-thickness: 2px;
   }
 
   .merlin-ask .merlin-ask-close {
