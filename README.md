@@ -12,8 +12,10 @@ npm run build    # outputs to dist/
 
 Every section in `src/pages/index.astro` is a collapsed row (`<details>`) that opens on
 click, or from a link to its id (e.g. `/#travel`). Each lists its `topics`; choosing
-Professional, Personal, Family or Adventure, from Merlin's question or the buttons under the
-heading, opens the matching sections and closes the rest (`src/scripts/topics.ts`).
+Professional, Personal, Family or Adventure from Merlin's question opens the matching
+sections and closes the rest (`src/scripts/topics.ts`). Rows can nest: Adventure holds
+Humanitarian Relief and Travel (`src/components/Section.astro`). Photos open in a
+full-screen viewer (`src/components/PhotoViewer.astro`).
 "Send me a message" opens a chat with Merlin instead.
 
 ## Backend, traffic and messages

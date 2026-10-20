@@ -423,8 +423,7 @@ const moves = [
   document.addEventListener('click', (e) => {
     if (!visible || !agent) return;
     const target = e.target as HTMLElement;
-    // Topic choosers get Merlin's answer (topic:open) instead of a point.
-    if (target.closest('[data-merlin-ui], [data-merlin-agent], [data-topic]')) return;
+    if (target.closest('[data-merlin-ui], [data-merlin-agent]')) return;
     marker(e.pageX, e.pageY);
     agent.stop();
     agent.gestureAt(e.clientX, e.clientY);

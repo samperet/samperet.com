@@ -1,5 +1,6 @@
 // Interest topics: each homepage section lists the topics it belongs to in
-// data-topics. Opening a topic expands those sections and collapses the rest; "message"
+// data-topics (a parent row lists its children's too, so it opens with them). Opening a
+// topic expands those sections and collapses the rest; "message"
 // opens no section — Merlin starts a chat instead (src/components/Merlin.astro).
 
 export const TOPICS = {
@@ -26,10 +27,6 @@ export function openTopic(topic: Topic): HTMLDetailsElement | null {
     const match = (item.dataset.topics ?? '').split(' ').includes(topic);
     item.open = match;
     if (match) first ??= item;
-  }
-
-  for (const chip of document.querySelectorAll<HTMLButtonElement>('[data-topic]')) {
-    chip.setAttribute('aria-pressed', String(chip.dataset.topic === topic));
   }
 
   if (first) {
