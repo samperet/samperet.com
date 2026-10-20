@@ -43,7 +43,7 @@ Locally, without `DATABASE_URL`, `npm run dev` uses an in-memory PGlite database
 `src/components/Merlin.astro` puts Merlin, the original Microsoft Agent character, on
 the homepage, hidden behind a wizard-hat button in the bottom-right corner
 (`public/merlin/hat.webp`). Summoned, he asks what the visitor is interested in and opens
-those sections, takes messages for Sam through a short chat, plays his own animations from
+those sections, takes messages for Sam through a short chat, tells a few jokes, plays his own animations from
 the Automation section, and points at wherever you click. The hat hides while he's out;
 clicking him asks again, and "Send Merlin back to his hat" (or the Automation section's
 Dismiss button) puts him away.

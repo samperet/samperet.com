@@ -145,10 +145,65 @@ const moves = [
         ${Object.entries(TOPICS)
           .map(([key, { label }]) => `<button type="button" data-ask="${key}" data-track="merlin:topic:${key}">${label}</button>`)
           .join('')}
+        <button type="button" class="merlin-joke-button" data-joke data-track="merlin:joke">Tell me a joke</button>
       </div>
       ${awayButton}`;
     popCard();
     live.textContent = 'Merlin asks: what are you interested in?';
+  };
+
+  // A few jokes, told setup first; the punchline waits for the visitor. They come round in a
+  // shuffled order so nobody hears the same one twice in a row.
+  const JOKES = [
+    { setup: 'What’s a wizard’s favorite subject in school?', prompt: 'I give up', punchline: 'Spelling!' },
+    { setup: 'What do you call a wizard from outer space?', prompt: 'Tell me', punchline: 'A flying sorcerer.' },
+    { setup: 'How many wizards does it take to change a light bulb?', prompt: 'How many?', punchline: 'Depends what you want it changed into.' },
+    { setup: 'Why do programmers prefer dark mode?', prompt: 'Why?', punchline: 'Because light attracts bugs.' },
+    { setup: 'Why did the programmer quit his job?', prompt: 'Why?', punchline: 'He didn’t get arrays.' },
+    { setup: 'There are 10 kinds of people in the world…', prompt: 'Go on', punchline: 'Those who understand binary, and those who don’t.' },
+  ];
+  let jokeOrder: number[] = [];
+  let lastJoke = -1;
+  const nextJoke = () => {
+    if (!jokeOrder.length) {
+      jokeOrder = JOKES.map((_, i) => i).sort(() => Math.random() - 0.5);
+      if (jokeOrder[0] === lastJoke) jokeOrder.push(jokeOrder.shift()!);
+    }
+    return (lastJoke = jokeOrder.shift()!);
+  };
+
+  const tellJoke = () => {
+    const i = nextJoke();
+    const joke = JOKES[i];
+    card.setAttribute('aria-label', 'Merlin tells a joke');
+    card.innerHTML = `${closeButton}
+      <p class="merlin-ask-q"></p>
+      <div class="merlin-ask-options">
+        <button type="button" data-punchline data-track="merlin:joke:${i}:reveal"></button>
+      </div>`;
+    card.querySelector('.merlin-ask-q')!.textContent = joke.setup;
+    card.querySelector('[data-punchline]')!.textContent = joke.prompt;
+    popCard();
+    live.textContent = joke.setup;
+    agent?.stop();
+    agent?.play('Explain');
+    card.querySelector<HTMLButtonElement>('[data-punchline]')!.focus();
+  };
+
+  const revealPunchline = () => {
+    const joke = JOKES[lastJoke];
+    const punchline = document.createElement('p');
+    punchline.className = 'merlin-joke-punchline';
+    punchline.textContent = joke.punchline;
+    card.querySelector('.merlin-ask-q')!.after(punchline);
+    card.querySelector('.merlin-ask-options')!.innerHTML = `
+      <button type="button" data-joke data-track="merlin:joke:another">Another one</button>
+      <button type="button" data-restart>Back to the menu</button>`;
+    placeCard();
+    live.textContent = joke.punchline;
+    agent?.stop();
+    agent?.play(['Pleased', 'Congratulate', 'Surprised'][Math.floor(Math.random() * 3)]);
+    card.querySelector<HTMLButtonElement>('[data-joke]')!.focus();
   };
 
   // The message chat: name, a way to reply (optional), then the message itself.
@@ -273,6 +328,8 @@ const moves = [
     if (target.closest('.merlin-ask-close')) return hideCard();
     if (target.closest('[data-skip]')) return answer('');
     if (target.closest('[data-restart]')) return showAsk();
+    if (target.closest('[data-joke]')) return tellJoke();
+    if (target.closest('[data-punchline]')) return revealPunchline();
     if (target.closest('[data-away]')) return dismiss();
     const topic = target.closest<HTMLButtonElement>('[data-ask]')?.dataset.ask;
     if (isTopic(topic)) openTopic(topic);
@@ -579,6 +636,23 @@ const moves = [
   .merlin-ask button:focus-visible {
     background: #000;
     color: #ffc;
+  }
+
+  .merlin-ask .merlin-joke-button {
+    background: #000;
+    color: #ffc;
+  }
+
+  .merlin-ask .merlin-joke-button:hover,
+  .merlin-ask .merlin-joke-button:focus-visible {
+    background: #fff;
+    color: #000;
+  }
+
+  .merlin-joke-punchline {
+    margin: 0 1.5rem 0.6rem 0;
+    font-size: 1rem;
+    font-style: italic;
   }
 
   .merlin-ask .merlin-away {
