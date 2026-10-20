@@ -26,7 +26,8 @@ The site is static except for three on-demand routes on Vercel (`@astrojs/vercel
   session id, the device type and the visitor's city/region/country from Vercel's
   geolocation headers. No IP address is stored; browsers sending Global Privacy Control or
   Do Not Track, and known bots, are not logged.
-- `POST /api/message`: messages sent through Merlin's chat (name, optional contact, text).
+- `POST /api/message`: messages sent through Merlin's chat (name and text; he reminds
+  visitors to put a way to reply in the message).
 - `/backend`: the dashboard (visitors, page views, clicks, messages, interests, geography,
   what was clicked, recent activity), behind HTTP Basic auth.
 

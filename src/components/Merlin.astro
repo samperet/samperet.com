@@ -206,14 +206,14 @@ const moves = [
     card.querySelector<HTMLButtonElement>('[data-joke]')!.focus();
   };
 
-  // The message chat: name, a way to reply (optional), then the message itself.
-  type Step = 'name' | 'contact' | 'message' | 'sending' | 'done';
+  // The message chat: name, then the message, with a reminder to include a way to reply.
+  type Step = 'name' | 'message' | 'sending' | 'done';
   let step: Step = 'name';
-  const draft = { name: '', contact: '', message: '' };
+  const draft = { name: '', message: '' };
 
   const showChat = () => {
     step = 'name';
-    draft.name = draft.contact = draft.message = '';
+    draft.name = draft.message = '';
     card.setAttribute('aria-label', 'Send Sam a message through Merlin');
     card.innerHTML = `${closeButton}
       <div class="merlin-chat-log" aria-live="polite"></div>
@@ -222,7 +222,6 @@ const moves = [
         <textarea id="merlin-chat-input" rows="1" maxlength="4000" required></textarea>
         <input class="merlin-hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
         <div class="merlin-chat-actions">
-          <button type="button" data-skip hidden>Skip</button>
           <button type="submit" data-track="merlin:message:submit">Send</button>
         </div>
       </form>`;
@@ -234,7 +233,6 @@ const moves = [
 
   const log = () => card.querySelector<HTMLElement>('.merlin-chat-log')!;
   const input = () => card.querySelector<HTMLTextAreaElement>('#merlin-chat-input')!;
-  const skip = () => card.querySelector<HTMLButtonElement>('[data-skip]')!;
 
   const line = (who: 'merlin' | 'you', text: string) => {
     const p = document.createElement('p');
@@ -250,10 +248,8 @@ const moves = [
     step = next;
     const field = input();
     field.value = '';
-    field.required = next !== 'contact';
     field.rows = next === 'message' ? 4 : 1;
-    field.placeholder = next === 'contact' ? 'Email or phone' : next === 'message' ? 'Your message' : '';
-    skip().hidden = next !== 'contact';
+    field.placeholder = next === 'message' ? 'Your message, and how to reach you' : '';
     field.focus();
     placeCard();
   };
@@ -293,12 +289,7 @@ const moves = [
     if (step === 'name') {
       draft.name = value;
       line('you', value);
-      merlinSays(`Nice to meet you, ${value}! How can Sam reach you? An email or phone number works, or skip.`);
-      prompt('contact');
-    } else if (step === 'contact') {
-      draft.contact = value;
-      line('you', value || '(skipped)');
-      merlinSays('What would you like to say?');
+      merlinSays(`Nice to meet you, ${value}! What would you like to say? If you’d like a reply, include your email or phone number in the message.`);
       prompt('message');
     } else if (step === 'message') {
       draft.message = value;
@@ -310,7 +301,7 @@ const moves = [
   card.addEventListener('submit', (e) => {
     e.preventDefault();
     const value = input().value.trim();
-    if (step === 'sending' || step === 'done' || (!value && step !== 'contact')) return;
+    if (step === 'sending' || step === 'done' || !value) return;
     answer(value);
   });
 
@@ -326,7 +317,6 @@ const moves = [
   card.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     if (target.closest('.merlin-ask-close')) return hideCard();
-    if (target.closest('[data-skip]')) return answer('');
     if (target.closest('[data-restart]')) return showAsk();
     if (target.closest('[data-joke]')) return tellJoke();
     if (target.closest('[data-punchline]')) return revealPunchline();
