@@ -35,8 +35,14 @@ Environment variables on the Vercel project (server-only):
 
 | Variable | Purpose |
 |---|---|
-| `DATABASE_URL` | Postgres connection string (Neon, Supabase, Vercel Postgres). Tables are created on first use. |
+| `DATABASE_URL` or `POSTGRES_URL` | Postgres connection string. Connecting a database from the Vercel Marketplace (Neon, Supabase) sets these automatically. Tables are created on first use. |
 | `BACKEND_PASSWORD` | Password for `/backend`; any username. Without it `/backend` stays locked. |
+| `RESEND_KEY` | Resend API key: each message is also emailed to Sam. |
+| `MESSAGE_NOTIFY_TO` | Who gets those emails. Default `samperet@gmail.com`. |
+| `RESEND_FROM` | Sender, on a domain verified in Resend. Default `Merlin <merlin@samperet.com>`. |
+
+A message counts as delivered when either the database or the email took it, so one being
+down loses nothing. When the visitor's message contains an email address, replies go to it.
 
 Locally, without `DATABASE_URL`, `npm run dev` uses an in-memory PGlite database, so
 `BACKEND_PASSWORD=dev npm run dev` gives a working backend at http://localhost:4321/backend.

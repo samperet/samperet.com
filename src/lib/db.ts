@@ -1,7 +1,7 @@
 // The one database: visitor events and Merlin's messages. Production talks to Postgres at
-// DATABASE_URL; local development without it runs an in-memory PGlite instead. Tables are
+// DATABASE_URL (or POSTGRES_URL, which Vercel's database integrations set); local development without it runs an in-memory PGlite instead. Tables are
 // created on first use, so a fresh database needs no setup.
-import { DATABASE_URL } from 'astro:env/server';
+import { DATABASE_URL, POSTGRES_URL } from 'astro:env/server';
 
 type Row = Record<string, unknown>;
 export type Query = <T extends Row = Row>(text: string, params?: unknown[]) => Promise<T[]>;
@@ -39,10 +39,11 @@ const SCHEMA = `
 let ready: Promise<Query | null> | undefined;
 
 async function connect(): Promise<Query | null> {
-  if (DATABASE_URL) {
+  const url = DATABASE_URL || POSTGRES_URL;
+  if (url) {
     const { default: postgres } = await import('postgres');
     // prepare: false keeps it compatible with transaction-mode poolers (Supabase, Neon).
-    const sql = postgres(DATABASE_URL, { prepare: false, max: 1, idle_timeout: 20 });
+    const sql = postgres(url, { prepare: false, max: 1, idle_timeout: 20 });
     const query: Query = async (text, params = []) => (await sql.unsafe(text, params as never[])) as never;
     await sql.unsafe(SCHEMA);
     return query;
