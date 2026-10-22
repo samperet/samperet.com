@@ -29,7 +29,8 @@ def istft(X, length):
 X = stft(x)
 P = np.abs(X) ** 2
 freqs = np.fft.rfftfreq(N, 1 / sr)
-f0, f1 = int(59.5 * sr / H), int(67.5 * sr / H)          # the long pause: pure noise
+NOISE = (float(sys.argv[5]), float(sys.argv[6])) if len(sys.argv) > 6 else (59.5, 67.5)  # a pause: pure noise
+f0, f1 = int(NOISE[0] * sr / H), int(NOISE[1] * sr / H)
 noise = np.percentile(P[f0:f1], 90, axis=0)               # noise PSD per bin, generous
 alpha = np.where(freqs < 700, 3.0, 2.0)                   # subtract harder where the rumble is
 floor = 10 ** (-30 / 20)
@@ -75,7 +76,8 @@ for r in regions:
     while j < len(speech_f) - 1 and speech_f[j] and j * step - r[1] < 0.5: j += 1
     r[1] = min(j * step, len(y) / sr)
 regions = [r for r in regions if r[1] - r[0] > 0.25]
-LEAD, TAIL, GAP_MAX = 0.2, 0.5, 0.5
+LEAD, TAIL = 0.2, 0.5
+GAP_MAX = float(sys.argv[7]) if len(sys.argv) > 7 else 0.5   # pauses longer than this shrink to it
 keep = []
 cur = max(regions[0][0] - LEAD, 0)
 for (s, e), nxt in zip(regions, regions[1:] + [None]):

@@ -30,6 +30,8 @@
 </dialog>
 
 <script>
+  import { type Cue, cueAt, clock, loadCues, pickSource } from '../scripts/narration';
+
   const dialog = document.querySelector<HTMLDialogElement>('[data-viewer]')!;
   const img = dialog.querySelector<HTMLImageElement>('[data-viewer-img]')!;
   const caption = dialog.querySelector<HTMLElement>('[data-viewer-caption]')!;
@@ -44,7 +46,6 @@
 
   type Story = { title: string; audio: string; captions: string };
   type Photo = { src: string; alt: string; story?: Story };
-  type Cue = { start: number; end: number; text: string };
 
   let photos: Photo[] = [];
   let index = 0;
@@ -55,41 +56,6 @@
   audio.preload = 'none';
   let cues: Cue[] = [];
   let story: Story | undefined;
-  const cueCache = new Map<string, Promise<Cue[]>>();
-
-  // Enough of WebVTT for our own files: "mm:ss.mmm --> mm:ss.mmm" blocks with text lines.
-  const toSeconds = (stamp: string) =>
-    stamp.trim().split(':').reduce((total, part) => total * 60 + Number(part), 0);
-
-  const parseVtt = (text: string): Cue[] =>
-    text
-      .replace(/\r/g, '')
-      .split(/\n\n+/)
-      .map((block) => block.split('\n'))
-      .flatMap((lines) => {
-        const at = lines.findIndex((l) => l.includes('-->'));
-        if (at < 0) return [];
-        const [start, end] = lines[at].split('-->');
-        return [{ start: toSeconds(start), end: toSeconds(end), text: lines.slice(at + 1).join('\n').trim() }];
-      });
-
-  const loadCues = (url: string) => {
-    let pending = cueCache.get(url);
-    if (!pending) {
-      pending = fetch(url)
-        .then((r) => (r.ok ? r.text() : ''))
-        .then(parseVtt)
-        .catch(() => []);
-      cueCache.set(url, pending);
-    }
-    return pending;
-  };
-
-  // Stories ship as .m4a with an .mp3 beside it; browsers without AAC get the MP3.
-  const pickSource = (url: string) =>
-    url.endsWith('.m4a') && !audio.canPlayType('audio/mp4; codecs="mp4a.40.2"') ? url.replace(/\.m4a$/, '.mp3') : url;
-
-  const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
   const setPlaying = (on: boolean) => {
     playButton.setAttribute('aria-pressed', String(on));
@@ -116,7 +82,7 @@
     storyBar.hidden = false;
     subtitle.hidden = false;
     subtitle.textContent = '';
-    audio.src = pickSource(s.audio);
+    audio.src = pickSource(audio, s.audio);
     cues = await loadCues(s.captions);
     if (story !== s) return; // moved on while the captions loaded
     if (autoplay) audio.play().catch(() => setPlaying(false));
@@ -138,8 +104,7 @@
   });
   audio.addEventListener('timeupdate', () => {
     const t = audio.currentTime;
-    const cue = cues.find((c) => t >= c.start && t < c.end);
-    const text = cue?.text ?? '';
+    const text = cueAt(cues, t);
     if (subtitle.textContent !== text) subtitle.textContent = text;
     if (audio.duration) bar.style.width = `${(t / audio.duration) * 100}%`;
     time.textContent = clock(t);

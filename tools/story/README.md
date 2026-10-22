@@ -19,3 +19,8 @@ python3 transcribe.py final16.wav final_transcript.json
 python3 check_words.py final_transcript.json               # every word still there? (edit the script)
 python3 align.py final_transcript.json final.vtt           # subtitles timed to the final audio (edit CUES)
 ```
+
+For a narrated book, `clean.py` takes the noise sample's start and end and the longest pause
+to keep as extra arguments (`clean.py in.wav out.wav map.json transcript.json 95.0 97.4 1.3`),
+and `align_book.py final_transcript.json narration.vtt narration.json` matches the book's
+own lines (edit `INTRO`, `VERSES` and `ALIASES`) to the words as read.

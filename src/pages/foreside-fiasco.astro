@@ -12,11 +12,16 @@ const book = {
   width: 1400,
   height: 1082,
 };
-// TODO: narration — when Sam's recording arrives, add { audio, captions, pages: [{ page, at }] }
-// and the reader will play it and turn the pages on cue.
+// Sam reading the book: cleaned audio, subtitles, and when each verse starts (narration.json,
+// timed by tools/story/align_book.py). "Read it to me" plays it and turns the pages on cue.
+const narration = {
+  audio: `${book.dir}/narration.m4a`,
+  captions: `${book.dir}/narration.vtt`,
+  timing: `${book.dir}/narration.json`,
+};
 const pageList = Array.from({ length: book.pages }, (_, i) => i + 1);
 const pad = (n: number) => String(n).padStart(2, '0');
-const description = 'Foreside Fiasco, a picture book written by Sam Peret and illustrated by Cynthia Eiger. Read it page by page.';
+const description = 'Foreside Fiasco, a picture book written by Sam Peret and illustrated by Cynthia Eiger. Read it page by page, or let Sam read it to you.';
 ---
 
 <!doctype html>
@@ -66,7 +71,26 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
         </div>
       </div>
 
+      <p class="subtitle" data-subtitle aria-live="polite" hidden></p>
+
       <div class="controls" data-controls hidden>
+        <button
+          type="button"
+          class="read"
+          data-read
+          data-track="book:read-to-me"
+          data-audio={narration.audio}
+          data-captions={narration.captions}
+          data-timing={narration.timing}
+          aria-pressed="false"
+        >
+          <span class="read-icon" aria-hidden="true"></span>
+          <span data-read-label>Read it to me</span>
+        </button>
+        <div class="progress" data-progress hidden>
+          <div class="progress-track" data-seek><div class="progress-bar" data-bar></div></div>
+          <span class="time" data-time>0:00</span>
+        </div>
         <button type="button" data-prev data-track="book:prev" aria-label="Previous page">‹</button>
         <span class="counter" data-counter aria-live="polite">Cover</span>
         <button type="button" data-next data-track="book:next" aria-label="Next page">›</button>
@@ -74,13 +98,17 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
         <button type="button" data-fullscreen data-track="book:fullscreen">Full screen</button>
         <a href={book.pdf} download data-track="book:pdf">Download PDF</a>
       </div>
-      <p class="hint" data-hint hidden>Click or drag a page corner to turn it. Arrow keys work too.</p>
+      <p class="hint" data-hint hidden>
+        Turn the pages yourself (click or drag a corner, or use the arrow keys), or press Read it to me
+        and I’ll read it while the pages turn. Turning a page yourself pauses the reading.
+      </p>
       <noscript><p class="hint">Pages are shown in order below. <a href={book.pdf}>Download the PDF</a> to read it as a book.</p></noscript>
     </main>
 
     <script>
       import { PageFlip } from 'page-flip';
       import { startTracking } from '../scripts/track';
+      import { type Cue, cueAt, clock, loadCues, pickSource } from '../scripts/narration';
 
       startTracking();
 
@@ -135,6 +163,137 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
         if (e.key === 'ArrowRight' || e.key === 'PageDown') flip.flipNext();
         if (e.key === 'ArrowLeft' || e.key === 'PageUp') flip.flipPrev();
       });
+
+      // ---- Read it to me -----------------------------------------------------------------
+      // The narration's timing lists when the title, the dedication and each verse begin. The
+      // book follows the audio: shortly before each moment it turns to that page (the verse and
+      // its painting as a spread; on a phone the verse first, then the painting halfway through).
+      // Turning a page by hand pauses the reading; pressing play again brings the book back.
+
+      type Timing = {
+        intro: { page: number; start: number }[];
+        verses: { page: number; start: number; art: number; end: number }[];
+      };
+      type Turn = { at: number; landscape: number; portrait: number };
+
+      const readButton = document.querySelector<HTMLButtonElement>('[data-read]')!;
+      const readLabel = readButton.querySelector<HTMLElement>('[data-read-label]')!;
+      const progress = document.querySelector<HTMLElement>('[data-progress]')!;
+      const bar = document.querySelector<HTMLElement>('[data-bar]')!;
+      const time = document.querySelector<HTMLElement>('[data-time]')!;
+      const subtitle = document.querySelector<HTMLElement>('[data-subtitle]')!;
+
+      const audio = new Audio();
+      audio.preload = 'none';
+      let cues: Cue[] = [];
+      let turns: Turn[] = [];
+      let loaded: Promise<void> | undefined;
+      const LEAD = 0.7; // start a turn this long before the words, so the page lands as they begin
+
+      const load = () =>
+        (loaded ??= (async () => {
+          audio.src = pickSource(audio, readButton.dataset.audio!);
+          const [timing, loadedCues] = await Promise.all([
+            fetch(readButton.dataset.timing!).then((r) => r.json() as Promise<Timing>),
+            loadCues(readButton.dataset.captions!),
+          ]);
+          cues = loadedCues;
+          // Pages in the timing file count from 1; page-flip counts from 0.
+          turns = [
+            { at: 0, landscape: 0, portrait: 0 },
+            ...timing.intro.filter((p) => p.page > 1).map((p) => ({ at: p.start, landscape: p.page - 1, portrait: p.page - 1 })),
+            ...timing.verses.flatMap((v) => [
+              { at: v.start, landscape: v.page - 1, portrait: v.page - 1 },
+              { at: v.art, landscape: v.page - 1, portrait: v.page },
+            ]),
+          ];
+          const last = timing.verses[timing.verses.length - 1];
+          // After the last line, turn to "The End" (the page after the last painting).
+          turns.push({ at: last.end + 1.2, landscape: last.page + 1, portrait: last.page + 1 });
+        })());
+
+      const landscape = () => flip.getOrientation() === 'landscape';
+      // The page index that is showing, as a spread's first page when two show at once.
+      const showing = (i: number) => (landscape() ? (i === 0 ? 0 : i % 2 === 1 ? i : i - 1) : i);
+      const wantedAt = (t: number) => {
+        let want = 0;
+        for (const turn of turns) if (turn.at - LEAD <= t) want = landscape() ? turn.landscape : turn.portrait;
+        return want;
+      };
+
+      let busy = false; // page-flip is mid-turn
+      let ours = false; // the turn in progress is the narration's, not the reader's
+      flip.on('changeState', (e) => {
+        busy = e.data !== 'read';
+      });
+      flip.on('flip', () => {
+        if (ours) ours = false;
+        else if (!audio.paused) audio.pause(); // the reader turned a page: let them explore
+      });
+
+      const follow = (jump = false) => {
+        if (busy || !turns.length) return;
+        const want = wantedAt(audio.currentTime);
+        const now = flip.getCurrentPageIndex();
+        if (showing(want) === showing(now)) return;
+        ours = true;
+        // One spread away animates; further (after a seek or a wander) goes straight there.
+        if (!jump && Math.abs(showing(want) - showing(now)) <= (landscape() ? 2 : 1)) flip.flip(want);
+        else {
+          flip.turnToPage(want);
+          ours = false;
+          update();
+        }
+      };
+
+      const setReading = (on: boolean) => {
+        readButton.setAttribute('aria-pressed', String(on));
+        readButton.classList.toggle('playing', on);
+        readLabel.textContent = on ? 'Pause' : audio.ended ? 'Read it again' : audio.currentTime > 0 ? 'Keep reading' : 'Read it to me';
+      };
+
+      audio.addEventListener('play', () => {
+        setReading(true);
+        follow(true);
+      });
+      audio.addEventListener('pause', () => setReading(false));
+      audio.addEventListener('ended', () => {
+        setReading(false);
+        subtitle.textContent = '';
+      });
+      audio.addEventListener('timeupdate', () => {
+        const t = audio.currentTime;
+        const text = cueAt(cues, t);
+        if (subtitle.textContent !== text) subtitle.textContent = text;
+        if (audio.duration) bar.style.width = `${(t / audio.duration) * 100}%`;
+        time.textContent = clock(t);
+        if (!audio.paused) follow();
+      });
+
+      readButton.addEventListener('click', async () => {
+        await load();
+        progress.hidden = false;
+        subtitle.hidden = false;
+        if (!audio.paused) return audio.pause();
+        if (audio.ended) audio.currentTime = 0;
+        audio.play().catch(() => setReading(false));
+      });
+
+      document.querySelector('[data-seek]')!.addEventListener('click', (e) => {
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        if (!audio.duration) return;
+        audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+        follow(true);
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === ' ' && !(e.target as HTMLElement).closest('button, a, input, textarea')) {
+          e.preventDefault();
+          readButton.click();
+        }
+      });
+
+      flip.on('changeOrientation', () => follow(true));
 
       const fs = document.querySelector<HTMLButtonElement>('[data-fullscreen]')!;
       if (!document.fullscreenEnabled) fs.hidden = true;
@@ -330,6 +489,98 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
 
   .spacer {
     flex: 1;
+  }
+
+  .subtitle {
+    min-height: 1.5em;
+    margin: 0.85rem auto 0;
+    max-width: 44rem;
+    text-align: center;
+    font-size: clamp(1rem, 2.2vw, 1.25rem);
+    line-height: 1.4;
+    font-style: italic;
+  }
+
+  .subtitle[hidden] {
+    display: none;
+  }
+
+  .controls .read {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.45rem 1.05rem 0.45rem 0.8rem;
+    font-weight: 600;
+    color: var(--bg);
+    background: var(--fg);
+    border-color: var(--fg);
+  }
+
+  .controls .read:hover,
+  .controls .read:focus-visible {
+    opacity: 0.88;
+  }
+
+  .read-icon {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0.4rem 0 0.4rem 0.65rem;
+    border-color: transparent transparent transparent currentColor;
+  }
+
+  .read.playing .read-icon {
+    width: 0.6rem;
+    height: 0.75rem;
+    border-width: 0 0.2rem;
+    border-color: currentColor;
+  }
+
+  .progress {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex: 1 1 10rem;
+    min-width: 8rem;
+  }
+
+  .progress[hidden] {
+    display: none;
+  }
+
+  .progress-track {
+    position: relative;
+    flex: 1;
+    height: 0.85rem;
+    cursor: pointer;
+  }
+
+  .progress-track::before,
+  .progress-bar {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 3px;
+    margin-top: -1.5px;
+    border-radius: 2px;
+  }
+
+  .progress-track::before {
+    right: 0;
+    background: var(--rule);
+  }
+
+  .progress-bar {
+    width: 0;
+    background: var(--fg);
+  }
+
+  .time {
+    min-width: 2.4rem;
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
   }
 
   .hint {
