@@ -1,0 +1,344 @@
+---
+// Foreside Fiasco, the picture book, as a page-turning flipbook. Pages are images rendered
+// from the PDF (public/books/foreside-fiasco/); page-flip animates the turns. Without
+// JavaScript the pages simply stack, and the PDF is always there to download.
+const book = {
+  title: 'Foreside Fiasco',
+  byline: 'Written by Sam Peret · Illustrated by Cynthia Eiger · Acadia Publishing, 2025',
+  pages: 26,
+  dir: '/books/foreside-fiasco',
+  pdf: '/books/foreside-fiasco.pdf',
+  // Page proportions from the PDF (landscape letter).
+  width: 1400,
+  height: 1082,
+};
+// TODO: narration — when Sam's recording arrives, add { audio, captions, pages: [{ page, at }] }
+// and the reader will play it and turn the pages on cue.
+const pageList = Array.from({ length: book.pages }, (_, i) => i + 1);
+const pad = (n: number) => String(n).padStart(2, '0');
+const description = 'Foreside Fiasco, a picture book written by Sam Peret and illustrated by Cynthia Eiger. Read it page by page.';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Foreside Fiasco · Samperet.com</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={new URL('/foreside-fiasco/', Astro.site)} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:title" content="Foreside Fiasco" />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={new URL('/foreside-fiasco/', Astro.site)} />
+    <meta property="og:type" content="book" />
+    <meta property="og:image" content={new URL(`${book.dir}/01.webp`, Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="color-scheme" content="light dark" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="back" href="/">← Samperet.com</a>
+      <div>
+        <h1>{book.title}</h1>
+        <p class="byline">{book.byline}</p>
+      </div>
+    </header>
+
+    <main>
+      <div class="stage" data-stage>
+        <div class="book" data-book data-pages={book.pages} data-width={book.width} data-height={book.height}>
+          {
+            pageList.map((n) => (
+              <div class="page" data-density={n === 1 || n === book.pages ? 'hard' : 'soft'}>
+                <img
+                  src={`${book.dir}/${pad(n)}.webp`}
+                  alt={n === 1 ? `${book.title}, cover` : `Page ${n}`}
+                  width={book.width}
+                  height={book.height}
+                  loading={n <= 3 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  draggable="false"
+                />
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="controls" data-controls hidden>
+        <button type="button" data-prev data-track="book:prev" aria-label="Previous page">‹</button>
+        <span class="counter" data-counter aria-live="polite">Cover</span>
+        <button type="button" data-next data-track="book:next" aria-label="Next page">›</button>
+        <span class="spacer"></span>
+        <button type="button" data-fullscreen data-track="book:fullscreen">Full screen</button>
+        <a href={book.pdf} download data-track="book:pdf">Download PDF</a>
+      </div>
+      <p class="hint" data-hint hidden>Click or drag a page corner to turn it. Arrow keys work too.</p>
+      <noscript><p class="hint">Pages are shown in order below. <a href={book.pdf}>Download the PDF</a> to read it as a book.</p></noscript>
+    </main>
+
+    <script>
+      import { PageFlip } from 'page-flip';
+      import { startTracking } from '../scripts/track';
+
+      startTracking();
+
+      const stage = document.querySelector<HTMLElement>('[data-stage]')!;
+      const bookEl = document.querySelector<HTMLElement>('[data-book]')!;
+      const controls = document.querySelector<HTMLElement>('[data-controls]')!;
+      const counter = document.querySelector<HTMLElement>('[data-counter]')!;
+      const hint = document.querySelector<HTMLElement>('[data-hint]')!;
+      const total = Number(bookEl.dataset.pages);
+      const W = Number(bookEl.dataset.width);
+      const H = Number(bookEl.dataset.height);
+
+      const flip = new PageFlip(bookEl, {
+        width: W,
+        height: H,
+        size: 'stretch',
+        minWidth: 240,
+        maxWidth: 1400,
+        minHeight: 186,
+        maxHeight: 1082,
+        showCover: true,
+        usePortrait: true,
+        autoSize: true,
+        mobileScrollSupport: false,
+        flippingTime: 900,
+        maxShadowOpacity: 0.45,
+        showPageCorners: true,
+      });
+      flip.loadFromHTML(bookEl.querySelectorAll('.page'));
+      document.documentElement.classList.add('flip-ready');
+      controls.hidden = false;
+      hint.hidden = false;
+
+      const label = () => {
+        const i = flip.getCurrentPageIndex();
+        if (i === 0) return 'Cover';
+        if (i >= total - 1) return 'Back cover';
+        const landscape = flip.getOrientation() === 'landscape';
+        // With the cover alone, spreads pair odd indexes with the next page: show "2–3 of 26".
+        const left = landscape ? (i % 2 === 1 ? i : i - 1) : i;
+        const right = landscape ? Math.min(left + 1, total - 1) : left;
+        return landscape && right !== left ? `${left + 1}–${right + 1} of ${total}` : `${left + 1} of ${total}`;
+      };
+      const update = () => (counter.textContent = label());
+      flip.on('flip', update);
+      flip.on('changeOrientation', update);
+      update();
+
+      document.querySelector('[data-prev]')!.addEventListener('click', () => flip.flipPrev());
+      document.querySelector('[data-next]')!.addEventListener('click', () => flip.flipNext());
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'PageDown') flip.flipNext();
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') flip.flipPrev();
+      });
+
+      const fs = document.querySelector<HTMLButtonElement>('[data-fullscreen]')!;
+      if (!document.fullscreenEnabled) fs.hidden = true;
+      fs.addEventListener('click', () => {
+        if (document.fullscreenElement) void document.exitFullscreen();
+        else void stage.requestFullscreen().catch(() => {});
+      });
+      document.addEventListener('fullscreenchange', () => {
+        fs.textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen';
+        // Give the stage its new size, then let the book refit.
+        setTimeout(() => flip.update(), 50);
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #fafaf9;
+    --fg: #111111;
+    --muted: #57534e;
+    --rule: #e7e5e4;
+    --stage: #e7e5e4;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0c0c;
+      --fg: #f5f5f4;
+      --muted: #a8a29e;
+      --rule: #292524;
+      --stage: #171412;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .top {
+    display: grid;
+    gap: 0.75rem;
+    width: min(80rem, 100% - 2rem);
+    margin: 0 auto;
+    padding: 1.5rem 0 1rem;
+  }
+
+  .back {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9375rem;
+  }
+
+  .back:hover,
+  .back:focus-visible {
+    color: var(--fg);
+    text-decoration: underline;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  .byline {
+    margin: 0.25rem 0 0;
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  main {
+    width: min(80rem, 100% - 2rem);
+    margin: 0 auto;
+    padding-bottom: 4rem;
+  }
+
+  /* The stage is the grey table the book lies on; full screen fills it. */
+  .stage {
+    display: grid;
+    place-items: center;
+    padding: clamp(0.75rem, 3vw, 2.5rem);
+    border-radius: 12px;
+    background: var(--stage);
+  }
+
+  .stage:fullscreen {
+    padding: 2rem;
+    border-radius: 0;
+  }
+
+  .book {
+    width: 100%;
+    max-width: 1400px;
+  }
+
+  /* Before page-flip takes over (and without JavaScript) pages stack with a gap. */
+  html:not(.flip-ready) .book {
+    display: grid;
+    gap: 1rem;
+    max-width: 48rem;
+  }
+
+  .page {
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+  }
+
+  html:not(.flip-ready) .page {
+    border-radius: 6px;
+  }
+
+  .page img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* A faint fold line where the two pages meet. */
+  .flip-ready .page[data-density='soft']:nth-child(even) img {
+    box-shadow: inset -24px 0 24px -24px rgb(0 0 0 / 0.25);
+  }
+
+  .flip-ready .page[data-density='soft']:nth-child(odd) img {
+    box-shadow: inset 24px 0 24px -24px rgb(0 0 0 / 0.25);
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .controls[hidden] {
+    display: none;
+  }
+
+  .controls button,
+  .controls a {
+    font: inherit;
+    font-size: 0.875rem;
+    color: var(--fg);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .controls [data-prev],
+  .controls [data-next] {
+    width: 2.5rem;
+    padding: 0.25rem 0 0.35rem;
+    font-size: 1.5rem;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .controls button:hover,
+  .controls button:focus-visible,
+  .controls a:hover,
+  .controls a:focus-visible {
+    border-color: currentColor;
+  }
+
+  .counter {
+    min-width: 7rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  .hint {
+    margin: 0.75rem 0 0;
+    color: var(--muted);
+    font-size: 0.8125rem;
+  }
+
+  .hint[hidden] {
+    display: none;
+  }
+</style>

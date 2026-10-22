@@ -24,6 +24,14 @@ without AAC. The bear shark is the first one; `tools/story/` has the scripts tha
 the recording, cut the pauses, added the entrance and exit and timed the subtitles.
 "Send me a message" opens a chat with Merlin instead.
 
+## Foreside Fiasco
+
+`/foreside-fiasco/` is the picture book as a flipbook (`src/pages/foreside-fiasco.astro`,
+animated by [page-flip](https://github.com/Nodlik/StPageFlip), MIT). Pages are WebP images
+rendered from the PDF at 150 dpi (`pdftoppm -r 150 -png book.pdf page`, then resized to
+1400 px wide) in `public/books/foreside-fiasco/`; the PDF itself is at
+`public/books/foreside-fiasco.pdf`. Narration is a TODO in that page's frontmatter.
+
 ## Backend, traffic and messages
 
 The site is static except for three on-demand routes on Vercel (`@astrojs/vercel`):

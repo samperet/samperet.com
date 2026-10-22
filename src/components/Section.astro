@@ -20,13 +20,15 @@ export type SectionData = {
   embed?: string;
   merlin?: boolean;
   photos?: Photo[];
+  // A linked cover image (a book, a project page): opens its own page, not the viewer.
+  cover?: { src: string; alt: string; href: string; label: string; width: number; height: number };
   children?: SectionData[];
 };
 
 type Props = { section: SectionData; child?: boolean };
 
 const { section, child = false } = Astro.props;
-const { name, line, href, embed, body = [], merlin, photos = [], children = [] } = section;
+const { name, line, href, embed, body = [], merlin, photos = [], cover, children = [] } = section;
 
 const slug = (value: string) =>
   value.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -59,6 +61,12 @@ const Heading = child ? 'h4' : 'h3';
         referrerpolicy="strict-origin-when-cross-origin"
         sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
       />
+    )}
+    {cover && (
+      <a class="cover" href={cover.href}>
+        <img src={cover.src} alt={cover.alt} width={cover.width} height={cover.height} loading="lazy" decoding="async" />
+        <span class="story-badge"><span aria-hidden="true">📖</span> {cover.label}</span>
+      </a>
     )}
     {photos.length > 0 && (
       <div class="photos">

@@ -3,7 +3,7 @@ import Section, { type SectionData } from '../components/Section.astro';
 import PhotoViewer from '../components/PhotoViewer.astro';
 
 const title = 'Samperet.com';
-const description = 'Strategy, relationships, systems, design, & code.';
+const description = 'Strategy, relationships, systems & design.';
 
 // Copy is deliberately thin — edit freely. `body` is the longer text under each row;
 // `topics` decides which of Merlin's questions (see scripts/topics.ts) opens the section.
@@ -108,6 +108,23 @@ const sections: SectionData[] = [
     ],
   },
   {
+    name: 'Foreside Fiasco',
+    topics: ['personal', 'family'],
+    line: 'A picture book I wrote, illustrated by Cynthia Eiger.',
+    body: [
+      'Dedicated to Steve, Lurana and the Foreside Manor. Acadia Publishing, 2025.',
+      'Read it page by page, or download the PDF.',
+    ],
+    cover: {
+      src: '/books/foreside-fiasco/cover-560.webp',
+      alt: 'Foreside Fiasco cover: a shingled house with green shutters under a summer sky',
+      href: '/foreside-fiasco/',
+      label: 'Read the book',
+      width: 560,
+      height: 433,
+    },
+  },
+  {
     name: 'jayaandfiona.com',
     topics: ['family'],
     line: 'Jaya and Fiona’s Fun Zone.',
@@ -146,7 +163,7 @@ const sections: SectionData[] = [
       <header class="hero">
         <div class="hero-text">
           <h1>Samperet.com</h1>
-          <h2>strategy, relationships, systems, design, &amp; code.</h2>
+          <h2>strategy, relationships, systems &amp; design.</h2>
         </div>
         <img
           class="portrait"
@@ -431,10 +448,27 @@ const sections: SectionData[] = [
     max-width: 60ch;
   }
 
-  /* Embeds and photo rows span the heading and text columns. */
+  /* Embeds, photo rows and covers span the heading and text columns. */
   .body .embed,
-  .body .photos {
+  .body .photos,
+  .body .cover {
     grid-column: 1 / -1;
+  }
+
+  .cover {
+    position: relative;
+    display: block;
+    width: min(100%, 28rem);
+    margin-top: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+  }
+
+  .cover img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   .photos {
