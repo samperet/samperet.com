@@ -2,7 +2,8 @@
 // Merlin, the original Microsoft Agent character, played from his own sprite sheet and frame
 // data via clippyjs. He waits behind a wizard-hat button in the corner; summoned, he asks what
 // the visitor is interested in (src/scripts/topics.ts) or takes a message for Sam
-// (/api/message). Vivify supplies the CSS effects around him.
+// (/api/message). Everything he says is in one card styled by the design system; Vivify
+// supplies the click marker.
 import '../styles/vivify-subset.css';
 ---
 
@@ -51,19 +52,14 @@ import '../styles/vivify-subset.css';
   hat.innerHTML = '<img src="/merlin/hat.webp" alt="" width="64" height="63" />';
   document.body.appendChild(hat);
 
-  const say = (text: string) => {
-    agent?.speak(text);
-    live.textContent = text;
-  };
-
   const setVisible = (on: boolean) => {
     visible = on;
     // The hat is where he hides: it disappears while he's out and comes back when he leaves.
     hat.hidden = on;
   };
 
-  // Merlin's card: a balloon-styled panel beside him that either asks what the visitor is
-  // interested in or runs the message chat.
+  // Merlin's card: one panel beside him for everything he says, asks and takes down. It follows
+  // the site's design system (/branding/); his own yellow clippyjs balloon is never used.
   const card = document.createElement('div');
   card.className = 'merlin-ask';
   card.dataset.merlinUi = '';
@@ -78,17 +74,22 @@ import '../styles/vivify-subset.css';
     const w = card.offsetWidth;
     const h = card.offsetHeight;
     const left = Math.min(Math.max(8, r.right - w), innerWidth - w - 8);
-    const above = r.top - h - 8;
+    const above = r.top - h - 12;
     card.style.left = `${left}px`;
-    card.style.top = `${above >= 8 ? above : Math.min(r.bottom + 8, innerHeight - h - 8)}px`;
+    card.style.top = `${above >= 8 ? above : Math.min(r.bottom + 12, innerHeight - h - 8)}px`;
   };
 
+  // The card fades up once when it opens, because the visitor asked for it; after that its
+  // contents change in place.
   const popCard = () => {
     agent?.closeBalloon();
+    const opening = card.hidden;
     card.hidden = false;
-    card.classList.remove('popIn');
-    void card.offsetWidth;
-    card.classList.add('vivify', 'popIn');
+    if (opening) {
+      card.classList.remove('is-in');
+      void card.offsetWidth;
+      card.classList.add('is-in');
+    }
     placeCard();
   };
 
@@ -96,22 +97,49 @@ import '../styles/vivify-subset.css';
     card.hidden = true;
   };
 
-  const closeButton = '<button type="button" class="merlin-ask-close" aria-label="Close">×</button>';
-  const awayButton = '<button type="button" class="merlin-away" data-away data-track="merlin:away">Send Merlin back to his hat</button>';
+  const esc = (t: string) => t.replace(/[&<>"]/g, (c) => `&${({ '&': 'amp', '<': 'lt', '>': 'gt', '"': 'quot' } as Record<string, string>)[c]};`);
+
+  // Every view is the same frame: a name line with the close button, the body, and a way to
+  // send him back to his hat.
+  const frame = (label: string, body: string, foot = true) => {
+    card.setAttribute('aria-label', label);
+    card.innerHTML = `
+      <header class="merlin-head">
+        <span class="merlin-name">Merlin</span>
+        <button type="button" class="merlin-ask-close" aria-label="Close">×</button>
+      </header>
+      <div class="merlin-body">${body}</div>
+      ${foot ? '<footer class="merlin-foot"><button type="button" class="merlin-away" data-away data-track="merlin:away" aria-label="Silencio: send Merlin back to his hat">Silencio</button></footer>' : ''}`;
+    popCard();
+  };
+
+  // A choice is a row: label on the left, an arrow that steps right on hover. Never a pill.
+  const option = (attrs: string, label: string, kind = '') =>
+    `<li><button type="button" class="merlin-option ${kind}" ${attrs}><span>${esc(label)}</span><span class="arrow" aria-hidden="true">→</span></button></li>`;
 
   const showAsk = () => {
-    card.setAttribute('aria-label', 'Merlin asks what you are interested in');
-    card.innerHTML = `${closeButton}
-      <p class="merlin-ask-q">Hi! What are you interested in?</p>
-      <div class="merlin-ask-options">
+    frame(
+      'Merlin asks what you are interested in',
+      `<p class="merlin-say">What are you interested in?</p>
+      <ul class="merlin-options">
         ${Object.entries(TOPICS)
-          .map(([key, { label }]) => `<button type="button" data-ask="${key}" data-track="merlin:topic:${key}">${label}</button>`)
+          .map(([key, { label }]) => option(`data-ask="${key}" data-track="merlin:topic:${key}"`, label))
           .join('')}
-        <button type="button" class="merlin-joke-button" data-joke data-track="merlin:joke">Tell me a joke</button>
-      </div>
-      ${awayButton}`;
-    popCard();
+        ${option('data-joke data-track="merlin:joke"', 'Tell me a joke', 'is-aside')}
+      </ul>`,
+    );
     live.textContent = 'Merlin asks: what are you interested in?';
+    card.querySelector<HTMLButtonElement>('.merlin-option')?.focus({ preventScroll: true });
+  };
+
+  // What he says after a choice, in the card rather than his old balloon.
+  const say = (text: string) => {
+    frame(
+      'Merlin',
+      `<p class="merlin-say">${esc(text)}</p>
+      <ul class="merlin-options">${option('data-restart', 'Something else')}</ul>`,
+    );
+    live.textContent = text;
   };
 
   // A few jokes, told setup first; the punchline waits for the visitor. They come round in a
@@ -137,35 +165,32 @@ import '../styles/vivify-subset.css';
   const tellJoke = () => {
     const i = nextJoke();
     const joke = JOKES[i];
-    card.setAttribute('aria-label', 'Merlin tells a joke');
-    card.innerHTML = `${closeButton}
-      <p class="merlin-ask-q"></p>
-      <div class="merlin-ask-options">
-        <button type="button" data-punchline data-track="merlin:joke:${i}:reveal"></button>
-      </div>`;
-    card.querySelector('.merlin-ask-q')!.textContent = joke.setup;
-    card.querySelector('[data-punchline]')!.textContent = joke.prompt;
-    popCard();
+    frame(
+      'Merlin tells a joke',
+      `<p class="merlin-say">${esc(joke.setup)}</p>
+      <ul class="merlin-options">${option(`data-punchline data-track="merlin:joke:${i}:reveal"`, joke.prompt)}</ul>`,
+    );
     live.textContent = joke.setup;
     agent?.stop();
     agent?.play('Explain');
-    card.querySelector<HTMLButtonElement>('[data-punchline]')!.focus();
+    card.querySelector<HTMLButtonElement>('[data-punchline]')!.focus({ preventScroll: true });
   };
 
   const revealPunchline = () => {
     const joke = JOKES[lastJoke];
-    const punchline = document.createElement('p');
-    punchline.className = 'merlin-joke-punchline';
-    punchline.textContent = joke.punchline;
-    card.querySelector('.merlin-ask-q')!.after(punchline);
-    card.querySelector('.merlin-ask-options')!.innerHTML = `
-      <button type="button" data-joke data-track="merlin:joke:another">Another one</button>
-      <button type="button" data-restart>Back to the menu</button>`;
-    placeCard();
+    frame(
+      'Merlin tells a joke',
+      `<p class="merlin-say is-muted">${esc(joke.setup)}</p>
+      <p class="merlin-punchline">${esc(joke.punchline)}</p>
+      <ul class="merlin-options">
+        ${option('data-joke data-track="merlin:joke:another"', 'Another one')}
+        ${option('data-restart', 'Back to the menu')}
+      </ul>`,
+    );
     live.textContent = joke.punchline;
     agent?.stop();
     agent?.play(['Pleased', 'Congratulate', 'Surprised'][Math.floor(Math.random() * 3)]);
-    card.querySelector<HTMLButtonElement>('[data-joke]')!.focus();
+    card.querySelector<HTMLButtonElement>('[data-joke]')!.focus({ preventScroll: true });
   };
 
   // The message chat: name, then the message, with a reminder to include a way to reply.
@@ -176,19 +201,20 @@ import '../styles/vivify-subset.css';
   const showChat = () => {
     step = 'name';
     draft.name = draft.message = '';
-    card.setAttribute('aria-label', 'Send Sam a message through Merlin');
-    card.innerHTML = `${closeButton}
-      <div class="merlin-chat-log" aria-live="polite"></div>
+    frame(
+      'Send Sam a message through Merlin',
+      `<div class="merlin-chat-log" aria-live="polite"></div>
       <form class="merlin-chat-form">
         <label class="sr-only" for="merlin-chat-input">Your reply</label>
-        <textarea id="merlin-chat-input" rows="1" maxlength="4000" required></textarea>
+        <textarea id="merlin-chat-input" rows="1" maxlength="4000" required placeholder="Your name"></textarea>
         <input class="merlin-hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
         <div class="merlin-chat-actions">
-          <button type="submit" data-track="merlin:message:submit">Send</button>
+          <span class="merlin-hint">Enter to send</span>
+          <button type="submit" class="btn btn-primary merlin-send" data-track="merlin:message:submit">Send</button>
         </div>
-      </form>`;
-    popCard();
-    merlinSays('Happy to deliver a message to Sam. What’s your name?');
+      </form>`,
+    );
+    merlinSays('Happy to carry a message to Sam. What’s your name?');
     agent?.play('Write');
     input().focus();
   };
@@ -211,7 +237,8 @@ import '../styles/vivify-subset.css';
     const field = input();
     field.value = '';
     field.rows = next === 'message' ? 4 : 1;
-    field.placeholder = next === 'message' ? 'Your message, and how to reach you' : '';
+    field.placeholder = next === 'message' ? 'Your message, and how to reach you' : 'Your name';
+    card.querySelector('.merlin-hint')!.textContent = next === 'message' ? 'Enter to send · Shift+Enter for a new line' : 'Enter to send';
     field.focus();
     placeCard();
   };
@@ -235,8 +262,7 @@ import '../styles/vivify-subset.css';
       step = 'done';
       merlinSays('Delivered! Sam will read it soon.');
       agent?.play('Congratulate');
-      card.querySelector('.merlin-chat-form')!.innerHTML =
-        '<div class="merlin-chat-actions"><button type="button" data-restart>Back to the menu</button></div>';
+      card.querySelector('.merlin-chat-form')!.outerHTML = `<ul class="merlin-options">${option('data-restart', 'Back to the menu')}</ul>`;
       placeCard();
     } catch (err) {
       merlinSays(`My magic fizzled${err instanceof Error && err.message ? `: ${err.message}` : '.'} Press Send to try again.`);
@@ -339,7 +365,6 @@ import '../styles/vivify-subset.css';
       showChat();
       return;
     }
-    hideCard();
     if (!visible || !agent) return;
     agent.stop();
     say(TOPICS[topic].reply);
@@ -421,7 +446,7 @@ import '../styles/vivify-subset.css';
   }
 
   .merlin-hat:focus-visible {
-    outline: 2px solid var(--beach, #f5b400);
+    outline: 2px solid var(--focus);
     outline-offset: 2px;
     border-radius: var(--radius, 3px);
   }
@@ -432,83 +457,264 @@ import '../styles/vivify-subset.css';
     }
   }
 
-  /* Styled after Merlin's own speech balloon. */
+  /* Merlin's card, in the site's system: raised paper, a hairline, one shadow because it floats.
+     He says things in Fraunces; the visitor answers in the sans. */
   .merlin-ask {
     position: fixed;
     z-index: 10002;
-    width: min(20rem, calc(100vw - 16px));
-    padding: 0.75rem 0.85rem 0.85rem;
-    background: #ffc;
-    color: #000;
-    border: 1px solid #000;
-    border-radius: 6px;
-    font: 0.875rem/1.4 'Microsoft Sans Serif', Tahoma, system-ui, sans-serif;
-    box-shadow: 0 6px 20px rgb(0 0 0 / 0.15);
+    width: min(21rem, calc(100vw - 16px));
+    padding: var(--s3) var(--s4) var(--s4);
+    background: var(--bg-raised);
+    color: var(--fg);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: 1.5;
   }
 
   .merlin-ask[hidden] {
     display: none;
   }
 
-  .merlin-ask .merlin-ask-q {
-    margin: 0 1.5rem 0.6rem 0;
-    font-weight: 600;
+  .merlin-ask.is-in {
+    animation: merlin-in var(--fast) var(--ease);
   }
 
+  @keyframes merlin-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  .merlin-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--s2);
+  }
+
+  /* His name, with a square of Beach: the last trace of the yellow balloon. */
+  .merlin-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .merlin-name::before {
+    content: '';
+    width: 0.6em;
+    height: 0.6em;
+    background: var(--beach);
+  }
+
+  .merlin-ask .merlin-ask-close {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin: -0.25rem -0.4rem 0 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius);
+    background: none;
+    color: var(--muted);
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .merlin-ask .merlin-ask-close:hover,
+  .merlin-ask .merlin-ask-close:focus-visible {
+    color: var(--fg);
+  }
+
+  .merlin-say {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    line-height: var(--leading-snug);
+    letter-spacing: -0.01em;
+  }
+
+  .merlin-say.is-muted {
+    color: var(--muted);
+    font-size: var(--text-base);
+  }
+
+  .merlin-punchline {
+    margin-top: var(--s2);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--text-lg);
+    line-height: var(--leading-snug);
+  }
+
+  /* ---- Options: rows on hairlines ------------------------------------------------------ */
+
+  .merlin-options {
+    list-style: none;
+    margin: var(--s3) 0 0;
+    padding: 0;
+  }
+
+  .merlin-options li + li {
+    border-top: var(--hairline);
+  }
+
+  .merlin-option {
+    display: flex;
+    width: 100%;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s3);
+    padding: var(--s2) 0;
+    border: 0;
+    background: none;
+    color: var(--fg);
+    font-weight: 500;
+    text-align: left;
+    transition: color var(--fast) var(--ease);
+  }
+
+  .merlin-option .arrow {
+    color: var(--faint);
+    transition: transform var(--fast) var(--ease), color var(--fast) var(--ease);
+  }
+
+  .merlin-option:hover,
+  .merlin-option:focus-visible {
+    color: var(--accent-text);
+  }
+
+  .merlin-option:hover .arrow,
+  .merlin-option:focus-visible .arrow {
+    color: var(--accent-text);
+    transform: translateX(0.2em);
+  }
+
+  .merlin-option:focus-visible {
+    outline-offset: 0;
+  }
+
+  .merlin-options li:has(.is-aside) {
+    margin-top: var(--s2);
+    border-top-color: var(--rule-strong);
+  }
+
+  .merlin-option.is-aside {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  .merlin-foot {
+    margin-top: var(--s3);
+    padding-top: var(--s2);
+    border-top: var(--hairline);
+    text-align: right;
+  }
+
+  .merlin-ask .merlin-away {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 0.18em;
+  }
+
+  .merlin-ask .merlin-away:hover,
+  .merlin-ask .merlin-away:focus-visible {
+    color: var(--fg);
+    text-decoration-color: var(--accent);
+  }
+
+  /* ---- The message chat ---------------------------------------------------------------- */
+
   .merlin-chat-log {
-    max-height: 14rem;
+    display: grid;
+    gap: var(--s2);
+    max-height: 15rem;
     overflow-y: auto;
-    margin-right: 1.25rem;
   }
 
   .merlin-chat-log p {
-    margin: 0 0 0.45rem;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
 
-  .merlin-chat-merlin {
-    font-weight: 600;
+  .merlin-chat-log p + p {
+    margin-top: 0;
   }
 
+  .merlin-chat-merlin {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    line-height: var(--leading-snug);
+    letter-spacing: -0.01em;
+  }
+
+  /* The visitor's words: set in from the right, a rule of the accent beside them. */
   .merlin-chat-you {
-    margin-left: 1.25rem !important;
-    padding: 0.3rem 0.5rem;
-    background: #fff;
-    border: 1px solid #000;
-    border-radius: 4px;
+    margin-left: var(--s6);
+    padding: var(--s1) 0 var(--s1) var(--s3);
+    border-left: 2px solid var(--accent);
+    color: var(--muted);
   }
 
   .merlin-chat-form {
     display: grid;
-    gap: 0.4rem;
-    margin-top: 0.25rem;
+    gap: var(--s2);
+    margin-top: var(--s3);
   }
 
   .merlin-chat-form textarea {
-    font: inherit;
     width: 100%;
+    padding: var(--s2) var(--s3);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
     resize: vertical;
-    color: #000;
-    background: #fff;
-    border: 1px solid #000;
-    border-radius: 4px;
-    padding: 0.35rem 0.45rem;
+    transition: border-color var(--fast) var(--ease);
+  }
+
+  .merlin-chat-form textarea::placeholder {
+    color: var(--faint);
+  }
+
+  .merlin-chat-form textarea:focus {
+    border-color: var(--fg);
   }
 
   .merlin-chat-form textarea:focus-visible {
-    outline: 2px solid #000;
     outline-offset: 1px;
   }
 
   .merlin-chat-actions {
     display: flex;
-    justify-content: flex-end;
-    gap: 0.375rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s3);
   }
 
-  .merlin-chat-actions [hidden] {
-    display: none;
+  .merlin-hint {
+    color: var(--faint);
+    font-size: var(--text-xs);
+  }
+
+  .merlin-ask .merlin-send {
+    padding: 0.4rem 0.9rem;
   }
 
   .merlin-hp {
@@ -516,75 +722,6 @@ import '../styles/vivify-subset.css';
     left: -10000px;
     width: 1px;
     height: 1px;
-  }
-
-  .merlin-ask-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.375rem;
-  }
-
-  .merlin-ask button {
-    font: inherit;
-    color: #000;
-    background: #fff;
-    border: 1px solid #000;
-    border-radius: 4px;
-    padding: 0.3rem 0.6rem;
-    cursor: pointer;
-  }
-
-  .merlin-ask button:hover,
-  .merlin-ask button:focus-visible {
-    background: #000;
-    color: #ffc;
-  }
-
-  .merlin-ask .merlin-joke-button {
-    background: #000;
-    color: #ffc;
-  }
-
-  .merlin-ask .merlin-joke-button:hover,
-  .merlin-ask .merlin-joke-button:focus-visible {
-    background: #fff;
-    color: #000;
-  }
-
-  .merlin-joke-punchline {
-    margin: 0 1.5rem 0.6rem 0;
-    font-size: 1rem;
-    font-style: italic;
-  }
-
-  .merlin-ask .merlin-away {
-    display: block;
-    margin: 0.65rem 0 0 auto;
-    padding: 0;
-    border: none;
-    background: transparent;
-    font-size: 0.8125rem;
-    text-decoration: underline;
-  }
-
-  .merlin-ask .merlin-away:hover,
-  .merlin-ask .merlin-away:focus-visible {
-    background: transparent;
-    color: #000;
-    text-decoration-thickness: 2px;
-  }
-
-  .merlin-ask .merlin-ask-close {
-    position: absolute;
-    top: 0.35rem;
-    right: 0.35rem;
-    width: 1.5rem;
-    height: 1.5rem;
-    padding: 0;
-    line-height: 1;
-    border: none;
-    background: transparent;
-    font-size: 1.1rem;
   }
 
   .merlin-target {

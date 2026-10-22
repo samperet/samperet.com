@@ -100,11 +100,14 @@ Locally, without `DATABASE_URL`, `npm run dev` uses an in-memory PGlite database
 the homepage, hidden behind a wizard-hat button in the bottom-right corner
 (`public/merlin/hat.webp`). Summoned, he asks what the visitor is interested in and opens
 those sections, takes messages for Sam through a short chat, tells a few jokes, and points
-at wherever you click. The hat hides while he's out; clicking him asks again, and "Send
-Merlin back to his hat" puts him away. He's on the homepage and the Career page.
+at wherever you click. The hat hides while he's out; clicking him asks again, and
+"Silencio" puts him away. He's on every page except the backend and the brand guide.
+
+Everything he says, asks and takes down appears in one card built from the design system
+(see `/branding/#merlin`); clippyjs's own yellow speech balloon is never used.
 
 - Animation engine and frame data: [clippyjs](https://github.com/pi0/clippyjs) (MIT).
 - Sprite sheet: `public/merlin/map.png`, extracted from clippyjs. The artwork is
   Microsoft's, from the discontinued Microsoft Agent.
-- CSS effects (click marker, controls entrance): a subset of
+- CSS effect for the click marker: a subset of
   [Vivify](https://github.com/Martz90/vivify) (MIT) in `src/styles/vivify-subset.css`.
