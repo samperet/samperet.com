@@ -32,6 +32,7 @@ const LOGOS = {
   snhu: { src: '/logos/snhu.png', width: 209, height: 200 },
   altmba: { src: '/logos/altmba.png', width: 763, height: 160 },
   bdo: { src: '/logos/bdo.png', width: 416, height: 160 },
+  nurv: { src: '/logos/nurv.png', width: 565, height: 160 },
 } satisfies Record<string, Logo>;
 const logoStyle = (l: Logo) => `--logo: url(${l.src}); aspect-ratio: ${l.width} / ${l.height}`;
 
@@ -142,6 +143,7 @@ const roles: Role[] = [
   {
     id: 'cloud-nurv',
     name: 'Cloud Nurv',
+    logo: LOGOS.nurv,
     title: 'Business Development & Operations',
     dates: 'February 2013 – February 2014',
     place: 'Perth, Australia',
