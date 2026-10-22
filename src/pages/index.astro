@@ -1,5 +1,6 @@
 ---
 import Section, { type SectionData } from '../components/Section.astro';
+import Merlin from '../components/Merlin.astro';
 import PhotoViewer from '../components/PhotoViewer.astro';
 
 const title = 'Samperet.com';
@@ -9,7 +10,7 @@ const description = 'Strategy, relationships, systems & design.';
 // `topics` decides which of Merlin's questions (see scripts/topics.ts) opens the section.
 const sections: SectionData[] = [
   {
-    name: 'Acadialps.com',
+    name: 'ALPS',
     topics: ['professional'],
     line: 'A strategic sales channel built for C-suite conversations.',
     href: 'https://acadialps.com',
@@ -43,24 +44,6 @@ const sections: SectionData[] = [
         story: { title: 'The story of the bear shark', audio: '/stories/bear-shark.m4a', captions: '/stories/bear-shark.vtt' },
       },
       { src: '/photos/airbnb-wood-ball.jpg', alt: 'Selfie in safety glasses in a workshop, in front of a giant sphere made of patchwork wood' },
-    ],
-  },
-  {
-    name: 'Automation',
-    topics: ['professional'],
-    line: 'Automating things since childhood.',
-    merlin: true,
-    body: [
-      'I was automating things as a young child: building games in HyperCard, and later designing home automation routines in Xcode.',
-    ],
-  },
-  {
-    name: 'Design',
-    topics: ['professional'],
-    line: 'Deep attention to detail.',
-    body: [
-      'Aesthetic design, systems design, and onboarding UX design all capture my deep attention to detail.',
-      'I enjoy elements of surprise and delight, context awareness, and memorable user experiences.',
     ],
   },
   {
@@ -164,17 +147,8 @@ const sections: SectionData[] = [
         <div class="hero-text">
           <h1>Samperet.com</h1>
           <h2>strategy, relationships, systems &amp; design.</h2>
+          <a class="career-link" href="/career/" data-track="nav:career">Career <span aria-hidden="true">→</span></a>
         </div>
-        <img
-          class="portrait"
-          src="/photos/sam-peret.webp"
-          srcset="/photos/sam-peret-400.webp 400w, /photos/sam-peret.webp 800w"
-          sizes="(max-width: 640px) 9rem, 18rem"
-          width="800"
-          height="1000"
-          alt="Sam Peret, smiling, in a dark pinstripe jacket and open blue shirt"
-          fetchpriority="high"
-        />
       </header>
 
       {
@@ -183,6 +157,7 @@ const sections: SectionData[] = [
     </main>
 
     <PhotoViewer />
+    <Merlin />
 
     <script>
       import { startTracking } from '../scripts/track';
@@ -252,33 +227,36 @@ const sections: SectionData[] = [
   .hero {
     min-height: 70vh;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem 3rem;
+    flex-direction: column;
+    justify-content: center;
     padding: 4rem 0;
   }
 
-  .portrait {
-    flex: none;
-    width: 18rem;
-    height: auto;
-    border-radius: 12px;
-    object-fit: cover;
+  .career-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    background: var(--fg);
+    color: var(--bg);
+    font-weight: 600;
+    text-decoration: none;
   }
 
-  @media (max-width: 640px) {
-    .hero {
-      flex-direction: column-reverse;
-      align-items: flex-start;
-      justify-content: center;
-    }
+  .career-link span {
+    transition: transform 0.2s;
+  }
 
-    .portrait {
-      width: 9rem;
-      border-radius: 50%;
-      aspect-ratio: 1;
-      object-position: 50% 20%;
-    }
+  .career-link:hover span,
+  .career-link:focus-visible span {
+    transform: translateX(3px);
+  }
+
+  .career-link:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: 3px;
   }
 
   h1 {

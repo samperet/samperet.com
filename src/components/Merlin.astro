@@ -4,35 +4,9 @@
 // the visitor is interested in (src/scripts/topics.ts) or takes a message for Sam
 // (/api/message). Vivify supplies the CSS effects around him.
 import '../styles/vivify-subset.css';
-
-const moves = [
-  ['Wave', 'Wave'],
-  ['Greet', 'Greet'],
-  ['DoMagic1', 'Magic'],
-  ['Congratulate', 'Congratulate'],
-  ['Think', 'Think'],
-  ['Read', 'Read'],
-  ['Searching', 'Search'],
-  ['Surprised', 'Surprised'],
-  ['Confused', 'Confused'],
-  ['Announce', 'Announce'],
-];
 ---
 
-<div class="merlin-ui" data-merlin-ui>
-  <button type="button" class="merlin-toggle" data-merlin-toggle aria-pressed="false">Summon Merlin</button>
-  <div class="merlin-moves" data-merlin-moves hidden>
-    {
-      moves.map(([anim, label]) => (
-        <button type="button" data-anim={anim} data-track={`merlin:anim:${anim}`}>
-          {label}
-        </button>
-      ))
-    }
-  </div>
-  <p class="merlin-hint">Or use the wizard hat in the corner. Click anywhere and he’ll point.</p>
-  <p class="sr-only" aria-live="polite" data-merlin-live></p>
-</div>
+<p class="sr-only" aria-live="polite" data-merlin-ui data-merlin-live></p>
 
 <script>
   import { initAgent } from 'clippyjs';
@@ -42,10 +16,7 @@ const moves = [
 
   type Agent = Awaited<ReturnType<typeof initAgent>>;
 
-  const ui = document.querySelector<HTMLElement>('[data-merlin-ui]')!;
-  const toggle = ui.querySelector<HTMLButtonElement>('[data-merlin-toggle]')!;
-  const movesEl = ui.querySelector<HTMLElement>('[data-merlin-moves]')!;
-  const live = ui.querySelector<HTMLElement>('[data-merlin-live]')!;
+  const live = document.querySelector<HTMLElement>('[data-merlin-live]')!;
 
   let agent: Agent | undefined;
   let loading: Promise<Agent> | undefined;
@@ -87,8 +58,6 @@ const moves = [
 
   const setVisible = (on: boolean) => {
     visible = on;
-    toggle.setAttribute('aria-pressed', String(on));
-    toggle.textContent = on ? 'Dismiss Merlin' : 'Summon Merlin';
     // The hat is where he hides: it disappears while he's out and comes back when he leaves.
     hat.hidden = on;
     if (!on) {
@@ -96,8 +65,6 @@ const moves = [
       void hat.offsetWidth;
       hat.classList.add('popIn');
     }
-    movesEl.hidden = !on;
-    if (on) movesEl.classList.add('vivify', 'fadeInBottom');
   };
 
   // Merlin's card: a balloon-styled panel beside him that either asks what the visitor is
@@ -358,14 +325,6 @@ const moves = [
   };
 
   hat.addEventListener('click', () => void summonAndAsk());
-  toggle.addEventListener('click', () => (visible ? dismiss() : summonAndAsk()));
-
-  movesEl.addEventListener('click', (e) => {
-    const anim = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-anim]')?.dataset.anim;
-    if (!anim || !agent) return;
-    agent.stop();
-    agent.play(anim);
-  });
 
   // Whichever chooser opened the topic, Merlin answers and points at the first section; for a
   // message he comes out (if hidden) and starts the chat.
@@ -434,47 +393,6 @@ const moves = [
 </script>
 
 <style is:global>
-  .merlin-ui {
-    margin-top: 1.25rem;
-  }
-
-  .merlin-ui button {
-    font: inherit;
-    font-size: 0.8125rem;
-    color: var(--fg);
-    background: transparent;
-    border: 1px solid var(--rule);
-    border-radius: 999px;
-    padding: 0.35rem 0.75rem;
-    cursor: pointer;
-  }
-
-  .merlin-ui button:hover,
-  .merlin-ui button:focus-visible {
-    border-color: currentColor;
-  }
-
-  .merlin-toggle {
-    font-weight: 600;
-  }
-
-  .merlin-moves {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.375rem;
-    margin-top: 0.75rem;
-  }
-
-  .merlin-moves[hidden] {
-    display: none;
-  }
-
-  .text .merlin-hint {
-    margin: 0.75rem 0 0;
-    font-size: 0.75rem;
-    color: var(--muted);
-  }
-
   .merlin-hat {
     position: fixed;
     right: 16px;

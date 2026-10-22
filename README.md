@@ -24,6 +24,16 @@ without AAC. The bear shark is the first one; `tools/story/` has the scripts tha
 the recording, cut the pauses, added the entrance and exit and timed the subtitles.
 "Send me a message" opens a chat with Merlin instead.
 
+## Career
+
+`/career/` (`src/pages/career.astro`) is an interactive CV: the full-length portrait, ALPS
+(Acadia Leadership Partners), Founders Wanted and Airbnb on a timeline. Each highlight is
+tagged with the tagline's four skills; choosing one lights up the matching highlights and
+dims the rest. Numbers count up as they scroll in, the side list follows the role in view,
+the bear-shark story plays from the Airbnb photos, "Send me a message" opens Merlin's chat,
+and Print gives a clean one-page version. Roles, highlights and skills are data at the top
+of the file; dates and titles are left out until Sam supplies them.
+
 ## Foreside Fiasco
 
 `/foreside-fiasco/` is the picture book as a flipbook (`src/pages/foreside-fiasco.astro`,
@@ -72,10 +82,9 @@ Locally, without `DATABASE_URL`, `npm run dev` uses an in-memory PGlite database
 `src/components/Merlin.astro` puts Merlin, the original Microsoft Agent character, on
 the homepage, hidden behind a wizard-hat button in the bottom-right corner
 (`public/merlin/hat.webp`). Summoned, he asks what the visitor is interested in and opens
-those sections, takes messages for Sam through a short chat, tells a few jokes, plays his own animations from
-the Automation section, and points at wherever you click. The hat hides while he's out;
-clicking him asks again, and "Send Merlin back to his hat" (or the Automation section's
-Dismiss button) puts him away.
+those sections, takes messages for Sam through a short chat, tells a few jokes, and points
+at wherever you click. The hat hides while he's out; clicking him asks again, and "Send
+Merlin back to his hat" puts him away. He's on the homepage and the Career page.
 
 - Animation engine and frame data: [clippyjs](https://github.com/pi0/clippyjs) (MIT).
 - Sprite sheet: `public/merlin/map.png`, extracted from clippyjs. The artwork is
