@@ -62,7 +62,7 @@ const Heading = child ? 'h4' : 'h3';
     {cover && (
       <a class="cover" href={cover.href}>
         <img src={cover.src} alt={cover.alt} width={cover.width} height={cover.height} loading="lazy" decoding="async" />
-        <span class="story-badge"><span aria-hidden="true">📖</span> {cover.label}</span>
+        <span class="badge">{cover.label} <span aria-hidden="true">→</span></span>
       </a>
     )}
     {photos.length > 0 && (
@@ -77,7 +77,7 @@ const Heading = child ? 'h4' : 'h3';
           >
             <img src={src} alt={alt} loading="lazy" decoding="async" />
             {story && (
-              <span class="story-badge">
+              <span class="badge">
                 <span aria-hidden="true">▶</span> {story.title}
               </span>
             )}

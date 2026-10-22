@@ -2,6 +2,8 @@
 // Foreside Fiasco, the picture book, as a page-turning flipbook. Pages are images rendered
 // from the PDF (public/books/foreside-fiasco/); page-flip animates the turns. Without
 // JavaScript the pages simply stack, and the PDF is always there to download.
+import Base from '../layouts/Base.astro';
+
 const book = {
   title: 'Foreside Fiasco',
   byline: 'Written by Sam Peret · Illustrated by Cynthia Eiger · Acadia Publishing, 2025',
@@ -24,24 +26,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 const description = 'Foreside Fiasco, a picture book written by Sam Peret and illustrated by Cynthia Eiger. Read it page by page, or let Sam read it to you.';
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Foreside Fiasco · Samperet.com</title>
-    <meta name="description" content={description} />
-    <link rel="canonical" href={new URL('/foreside-fiasco/', Astro.site)} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta property="og:title" content="Foreside Fiasco" />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={new URL('/foreside-fiasco/', Astro.site)} />
-    <meta property="og:type" content="book" />
-    <meta property="og:image" content={new URL(`${book.dir}/01.webp`, Astro.site)} />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="color-scheme" content="light dark" />
-  </head>
-  <body>
+<Base title="Foreside Fiasco · Samperet.com" description={description} path="/foreside-fiasco/" ogType="book" ogImage={`${book.dir}/01.webp`}>
     <header class="top">
       <a class="back" href="/">← Samperet.com</a>
       <div>
@@ -307,42 +292,17 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
         setTimeout(() => flip.update(), 50);
       });
     </script>
-  </body>
-</html>
+</Base>
 
 <style is:global>
   :root {
-    --bg: #fafaf9;
-    --fg: #111111;
-    --muted: #57534e;
-    --rule: #e7e5e4;
-    --stage: #e7e5e4;
+    --stage: #e9e7e1;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #0c0c0c;
-      --fg: #f5f5f4;
-      --muted: #a8a29e;
-      --rule: #292524;
-      --stage: #171412;
+      --stage: #111213;
     }
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  html,
-  body {
-    margin: 0;
-  }
-
-  body {
-    background: var(--bg);
-    color: var(--fg);
-    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
   }
 
   .top {
@@ -366,10 +326,7 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
   }
 
   h1 {
-    margin: 0;
-    font-size: clamp(1.75rem, 4vw, 2.5rem);
-    letter-spacing: -0.03em;
-    line-height: 1.1;
+    font-size: var(--text-2xl);
   }
 
   .byline {
@@ -389,7 +346,7 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
     display: grid;
     place-items: center;
     padding: clamp(0.75rem, 3vw, 2.5rem);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     background: var(--stage);
   }
 
@@ -417,7 +374,7 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
   }
 
   html:not(.flip-ready) .page {
-    border-radius: 6px;
+    border-radius: var(--radius-lg);
   }
 
   .page img {
@@ -452,14 +409,13 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
 
   .controls button,
   .controls a {
-    font: inherit;
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
+    font-weight: 500;
     color: var(--fg);
     background: transparent;
-    border: 1px solid var(--rule);
-    border-radius: 999px;
-    padding: 0.4rem 0.9rem;
-    cursor: pointer;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    padding: 0.45rem 0.9rem;
     text-decoration: none;
   }
 
@@ -496,7 +452,8 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
     margin: 0.85rem auto 0;
     max-width: 44rem;
     text-align: center;
-    font-size: clamp(1rem, 2.2vw, 1.25rem);
+    font-family: var(--font-display);
+    font-size: clamp(1.125rem, 2.2vw, 1.375rem);
     line-height: 1.4;
     font-style: italic;
   }
@@ -511,14 +468,15 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
     gap: 0.55rem;
     padding: 0.45rem 1.05rem 0.45rem 0.8rem;
     font-weight: 600;
-    color: var(--bg);
-    background: var(--fg);
-    border-color: var(--fg);
+    color: #fff;
+    background: var(--accent);
+    border-color: var(--accent);
   }
 
   .controls .read:hover,
   .controls .read:focus-visible {
-    opacity: 0.88;
+    background: var(--accent-text);
+    border-color: var(--accent-text);
   }
 
   .read-icon {
@@ -573,7 +531,7 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
 
   .progress-bar {
     width: 0;
-    background: var(--fg);
+    background: var(--accent);
   }
 
   .time {

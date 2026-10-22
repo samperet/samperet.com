@@ -8,6 +8,23 @@ npm run dev      # http://localhost:4321
 npm run build    # outputs to dist/
 ```
 
+## Design system
+
+Every page is built on `src/layouts/Base.astro` (the one `<head>`, the shared styles, Merlin and
+the photo viewer) from two stylesheets:
+
+- `src/styles/tokens.css` — the palette (Rausch, Hackberry, Kazan, Babu, Lima, Beach, Ebisu,
+  Tirol, Foggy, Hof), the semantic colours pages actually use (`--bg`, `--fg`, `--muted`,
+  `--rule`, `--accent`, `--focus`…), the four skill colours, type scale, spacing (`--s1`–`--s9`),
+  radius (3px; never a pill), motion and dark mode.
+- `src/styles/base.css` — reset, type (Fraunces for display, the system sans for body), links,
+  `.arrow-link`, buttons, `.toggle`, `.tag` (metadata only), `.mark` (skill marks), `.badge`.
+
+Fraunces is self-hosted at build time through Astro's `fonts` config (`astro.config.mjs`).
+The rules: hairlines not boxes, one accent, no pills except metadata, nothing animates on its
+own, one flourish per page. **`/branding/`** is the unlinked, `noindex` style guide that shows
+all of it; keep it current when a token or component changes.
+
 ## Sections and topics
 
 Every section in `src/pages/index.astro` is a collapsed row (`<details>`) that opens on

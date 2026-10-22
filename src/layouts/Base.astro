@@ -1,0 +1,63 @@
+---
+// The one <head> and the shared styles. Pages pass what differs: title, description, path,
+// and whether Merlin and the photo viewer ride along.
+import { Font } from 'astro:assets';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import Merlin from '../components/Merlin.astro';
+import PhotoViewer from '../components/PhotoViewer.astro';
+
+type Props = {
+  title: string;
+  description: string;
+  path: string;
+  ogImage?: string;
+  ogType?: string;
+  noindex?: boolean;
+  merlin?: boolean;
+  viewer?: boolean;
+  bodyClass?: string;
+};
+
+const {
+  title,
+  description,
+  path,
+  ogImage = '/og.jpg',
+  ogType = 'website',
+  noindex = false,
+  merlin = true,
+  viewer = true,
+  bodyClass,
+} = Astro.props;
+
+const url = new URL(path, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex ? <meta name="robots" content="noindex, nofollow" /> : <link rel="canonical" href={url} />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a1b1c" media="(prefers-color-scheme: dark)" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:image" content={new URL(ogImage, Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <Font cssVariable="--font-fraunces" preload />
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <slot />
+    {viewer && <PhotoViewer />}
+    {merlin && <Merlin />}
+  </body>
+</html>

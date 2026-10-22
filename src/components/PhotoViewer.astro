@@ -244,7 +244,7 @@
     max-width: 100%;
     max-height: calc(100dvh - 9rem);
     object-fit: contain;
-    border-radius: 6px;
+    border-radius: var(--radius-lg, 6px);
     box-shadow: 0 10px 40px rgb(0 0 0 / 0.5);
     touch-action: pan-y;
     user-select: none;
@@ -288,7 +288,7 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.4rem 0.75rem 0.4rem 0.4rem;
-    border-radius: 999px;
+    border-radius: var(--radius, 3px);
     background: rgb(0 0 0 / 0.6);
     backdrop-filter: blur(6px);
   }
@@ -355,7 +355,7 @@
     height: 3px;
     width: 0;
     border-radius: 2px;
-    background: #fff;
+    background: var(--rausch, #ff5a5f);
   }
 
   .viewer-time {
@@ -390,7 +390,7 @@
     height: 3rem;
     padding: 0 0 0.2rem;
     border: none;
-    border-radius: 50%;
+    border-radius: var(--radius, 3px);
     background: rgb(255 255 255 / 0.12);
     color: #fff;
     font-size: 2rem;

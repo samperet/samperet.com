@@ -1,0 +1,784 @@
+---
+// The brand style guide. Unlinked and noindex: it exists for whoever builds on the site.
+import Base from '../layouts/Base.astro';
+
+const palette = [
+  { name: 'Rausch', hex: '#ff5a5f', role: 'The accent. CTAs, the dot in the wordmark, the Relationships mark. Fills and large type only — small text uses Accent text.' },
+  { name: 'Hackberry', hex: '#7b0051', role: 'The Strategy mark. Reads at 4.5:1 on paper, so it may carry small text.' },
+  { name: 'Kazan', hex: '#007a87', role: 'The Systems mark and the focus ring in light mode.' },
+  { name: 'Babu', hex: '#00d1c1', role: 'Systems mark and focus ring in dark mode, where Kazan sinks. Never on white.' },
+  { name: 'Lima', hex: '#8ce071', role: 'Reserved. A success state, when the site gets one.' },
+  { name: 'Beach', hex: '#ffb400', role: 'The Design mark and Merlin’s balloon. Decorative; never text.' },
+  { name: 'Ebisu', hex: '#fea88f', role: 'Reserved. A warm tint for illustration.' },
+  { name: 'Tirol', hex: '#b3a76b', role: 'Reserved. Paper-adjacent; a possible sepia for archival photos.' },
+  { name: 'Foggy', hex: '#9ca19a', role: 'Faint text and disabled states. Not for body copy.' },
+  { name: 'Hof', hex: '#565a5d', role: 'Muted text: ledes, eyebrows, captions. Body ink is Hof darkened to #232527.' },
+];
+
+const semantic = [
+  ['--bg', 'Paper. Warm white, not pure white.'],
+  ['--bg-raised', 'Cards and the photo viewer chrome.'],
+  ['--fg', 'Ink. Headings, body, borders on primary buttons.'],
+  ['--muted', 'Secondary text.'],
+  ['--faint', 'Tertiary text, hints.'],
+  ['--rule', 'Hairlines between rows.'],
+  ['--rule-strong', 'Link underlines at rest, quiet button borders.'],
+  ['--accent', 'One colour that means "act here".'],
+  ['--accent-text', 'The accent when it has to be read at small sizes.'],
+  ['--focus', 'The focus ring. Never the accent, so focus is never mistaken for a CTA.'],
+];
+
+const type = [
+  { token: '--text-display', sample: 'Samperet.com', note: 'Wordmark only' },
+  { token: '--text-2xl', sample: 'A page title', note: 'h1' },
+  { token: '--text-xl', sample: 'A section title', note: 'h2' },
+  { token: '--text-lg', sample: 'A row title, or a lede', note: 'h3, .lede' },
+  { token: '--text-md', sample: 'A nested row title', note: 'h4' },
+  { token: '--text-base', sample: 'Body copy, sixteen pixels, a 62-character measure.', note: 'p' },
+  { token: '--text-sm', sample: 'Buttons, toggles, captions', note: '.btn, .toggle' },
+  { token: '--text-xs', sample: 'EYEBROWS, MARKS, TAGS', note: '.eyebrow, .mark, .tag' },
+];
+
+const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+---
+
+<Base
+  title="Brand guide · Samperet.com"
+  description="The design system behind samperet.com: palette, type, spacing, components, motion and voice."
+  path="/branding/"
+  noindex
+  merlin={false}
+  viewer={false}
+>
+  <main class="wrap guide">
+    <header class="guide-head">
+      <a class="back" href="/">← samperet.com</a>
+      <span class="eyebrow">Brand guide</span>
+      <h1>Minimal, but fun. Professional, but clever.</h1>
+      <p class="lede measure">
+        Everything on the site is built from this page. If a thing here is not on this page, it should
+        be, or it should not be on the site.
+      </p>
+      <nav class="guide-toc" aria-label="On this page">
+        <a href="#principles">Principles</a>
+        <a href="#wordmark">Wordmark</a>
+        <a href="#colour">Colour</a>
+        <a href="#type">Type</a>
+        <a href="#space">Space &amp; shape</a>
+        <a href="#components">Components</a>
+        <a href="#motion">Motion</a>
+        <a href="#voice">Voice</a>
+        <a href="#merlin">Merlin</a>
+        <a href="#rules">Do / Don’t</a>
+      </nav>
+    </header>
+
+    <section id="principles" class="guide-section">
+      <h2>Principles</h2>
+      <ol class="principles">
+        <li>
+          <h3>Hairlines, not boxes.</h3>
+          <p>Structure comes from rules and whitespace. Nothing is wrapped in a card unless it floats.</p>
+        </li>
+        <li>
+          <h3>One accent.</h3>
+          <p>Rausch means “act here”. It appears once per view, twice at most. Everything else is ink and paper.</p>
+        </li>
+        <li>
+          <h3>Nothing moves on its own.</h3>
+          <p>No animation on load, on scroll or on a timer. Motion only answers a click, a hover or a key.</p>
+        </li>
+        <li>
+          <h3>No pills.</h3>
+          <p>Rounded capsules are banned, except as metadata in a system (an id, a format, a state). Topics, skills and navigation are text, marks or underlines.</p>
+        </li>
+        <li>
+          <h3>Clever, once.</h3>
+          <p>A page earns one flourish: the accent dot, the ampersand, a wizard’s hat. Not three.</p>
+        </li>
+        <li>
+          <h3>Serif says, sans does.</h3>
+          <p>Fraunces for what is said (headings, ledes, stats). The system sans for what is done (body, controls).</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="wordmark" class="guide-section">
+      <h2>Wordmark</h2>
+      <div class="specimen wordmark-specimen">
+        <p class="wordmark">Samperet<span class="dot">.</span>com</p>
+      </div>
+      <p class="measure">
+        Fraunces, weight 500, letter-spacing −0.02em, with the dot in Rausch. The dot is the only
+        coloured glyph. The favicon is the “S” on a Rausch square with a 3px radius. Never set the
+        wordmark in the sans, never in all caps, never with a drop shadow.
+      </p>
+      <div class="specimen row-specimen">
+        <img src="/favicon.svg" alt="Favicon: a white serif S on a Rausch square" width="48" height="48" />
+        <span class="muted">favicon.svg · 32×32 · rx 3</span>
+      </div>
+    </section>
+
+    <section id="colour" class="guide-section">
+      <h2>Colour</h2>
+      <p class="measure">The palette is the ten colours Sam supplied. Pages never use them directly; they use the semantic names below, except where a colour is the point: a skill mark, a swatch.</p>
+      <ul class="swatches">
+        {palette.map((c) => (
+          <li class="swatch">
+            <span class="chip" style={`background:${c.hex}`}></span>
+            <span class="swatch-name">{c.name}</span>
+            <span class="tag">{c.hex}</span>
+            <p class="swatch-role">{c.role}</p>
+          </li>
+        ))}
+      </ul>
+
+      <h3>Semantic tokens</h3>
+      <dl class="tokens">
+        {semantic.map(([token, note]) => (
+          <div class="token">
+            <dt><span class="chip chip-sm" style={`background:var(${token})`}></span><code>{token}</code></dt>
+            <dd>{note}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <h3>The four skills</h3>
+      <p class="measure">The tagline names four things; each owns a palette colour and a mark. The mark is a square swatch and a small-caps name. It is never a pill.</p>
+      <div class="specimen marks-specimen">
+        <span class="mark mark-strategy">Strategy</span>
+        <span class="mark mark-relationships">Relationships</span>
+        <span class="mark mark-systems">Systems</span>
+        <span class="mark mark-design">Design</span>
+      </div>
+
+      <h3>Dark mode</h3>
+      <p class="measure">
+        Follows the system. Paper becomes #1a1b1c, ink #f1efe9. Rausch stays; its text variant lifts to
+        #ff8a8e. Kazan hands the Systems mark and the focus ring to Babu.
+      </p>
+    </section>
+
+    <section id="type" class="guide-section">
+      <h2>Type</h2>
+      <p class="measure">
+        <strong>Fraunces</strong> (self-hosted, 400–600, with italics) for headings, ledes, stats and the
+        wordmark. The <strong>system sans</strong> for everything else, so body text renders the way the
+        reader’s machine already renders text. A mono stack for tags.
+      </p>
+      <ul class="type-scale">
+        {type.map((t) => (
+          <li class="type-row">
+            <code>{t.token}</code>
+            <span class="type-sample" style={`font-size:var(${t.token})`}>{t.sample}</span>
+            <span class="muted type-note">{t.note}</span>
+          </li>
+        ))}
+      </ul>
+      <div class="specimen">
+        <p class="lede">A lede is Fraunces italic in muted ink, <span class="amp">&amp;</span> the ampersand may take the accent.</p>
+        <span class="eyebrow">An eyebrow sits above a title</span>
+      </div>
+    </section>
+
+    <section id="space" class="guide-section">
+      <h2>Space &amp; shape</h2>
+      <p class="measure">A 4px base. Nine steps, named <code>--s1</code> to <code>--s9</code>. Rows breathe at s5, sections at s8.</p>
+      <ul class="space-scale">
+        {space.map((n) => (
+          <li>
+            <span class="space-bar" style={`width:var(--s${n})`}></span>
+            <code>--s{n}</code>
+          </li>
+        ))}
+      </ul>
+      <h3>Radius</h3>
+      <div class="specimen shapes">
+        <div class="shape" style="border-radius:var(--radius)"><code>--radius</code> 3px<br /><span class="muted">controls, tags, badges</span></div>
+        <div class="shape" style="border-radius:var(--radius-lg)"><code>--radius-lg</code> 6px<br /><span class="muted">photos, embeds</span></div>
+        <div class="shape shape-no" style="border-radius:999px"><code>999px</code><br /><span class="muted">never</span></div>
+      </div>
+      <h3>Depth</h3>
+      <p class="measure">One shadow, <code>--shadow</code>, for things that float: a book cover, Merlin’s card, the photo viewer. Nothing in the flow of the page has a shadow.</p>
+    </section>
+
+    <section id="components" class="guide-section">
+      <h2>Components</h2>
+
+      <h3>Buttons</h3>
+      <p class="measure">Rectangles with a 3px radius. The primary is ink; the accent is for the one action the page is about; quiet is for the rest.</p>
+      <div class="specimen row-specimen">
+        <button class="btn btn-primary">Send me a message</button>
+        <button class="btn btn-accent">Read it to me</button>
+        <button class="btn">Default</button>
+        <button class="btn btn-quiet">Print</button>
+        <button class="btn btn-icon" aria-label="Close">×</button>
+      </div>
+
+      <h3>Arrow link</h3>
+      <p class="measure">The call to action in running text. Text with a 2px accent underline; the arrow moves on hover and nowhere else.</p>
+      <div class="specimen row-specimen">
+        <a class="arrow-link" href="/career/">Career <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="arrow-link" href="/foreside-fiasco/">Read the book <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+
+      <h3>Toggles</h3>
+      <p class="measure">A filter written as text. The underline colour says what it is; weight says whether it is on. Used for the Career page lens.</p>
+      <div class="specimen row-specimen" data-toggles>
+        <button class="toggle" aria-pressed="true" style="--toggle-color: var(--skill-strategy)">Strategy</button>
+        <button class="toggle" aria-pressed="false" style="--toggle-color: var(--skill-relationships)">Relationships</button>
+        <button class="toggle" aria-pressed="false" style="--toggle-color: var(--skill-systems)">Systems</button>
+        <button class="toggle" aria-pressed="false" style="--toggle-color: var(--skill-design)">Design</button>
+      </div>
+
+      <h3>Tag (metadata only)</h3>
+      <p class="measure">Mono, bordered, square. For an id, a hex code, a file format, a state. <strong>Never</strong> for a topic, a skill or a category.</p>
+      <div class="specimen row-specimen">
+        <span class="tag">#ff5a5f</span>
+        <span class="tag">.m4a</span>
+        <span class="tag">2.0.7</span>
+        <span class="tag">noindex</span>
+      </div>
+
+      <h3>Badge</h3>
+      <p class="measure">A label over an image: play a story, read the book. Accent on white, 3px radius. Only ever on top of a photo or cover.</p>
+      <div class="specimen badge-specimen">
+        <span class="badge">▶ The bear shark</span>
+        <span class="badge">Read the book →</span>
+      </div>
+
+      <h3>Row</h3>
+      <p class="measure">The homepage unit. A hairline, a title and its topics on the left, a line on the right, a chevron that turns accent when open. Collapsed by default; the content lives inside.</p>
+      <div class="specimen">
+        <details class="row-demo">
+          <summary>
+            <span class="row-title"><span class="row-h">Airbnb</span><span class="muted">Hosting · Design</span></span>
+            <span class="row-line">One of the first 2,000 hosts.</span>
+            <span class="row-chev" aria-hidden="true">›</span>
+          </summary>
+          <p class="row-body measure">Body copy sits under the hairline. Photos and embeds span the full row.</p>
+        </details>
+      </div>
+
+      <h3>Stat</h3>
+      <p class="measure">A number in Fraunces, large, accent; its label in small caps beneath. Static: it never counts up.</p>
+      <div class="specimen row-specimen">
+        <div class="stat"><span class="stat-n">220+</span><span class="eyebrow">Senior advisors</span></div>
+        <div class="stat"><span class="stat-n">2,000</span><span class="eyebrow">Hosts, then</span></div>
+      </div>
+    </section>
+
+    <section id="motion" class="guide-section">
+      <h2>Motion</h2>
+      <ul class="plain">
+        <li><strong>Only in reply.</strong> Hover, focus, click, key. Never on load, scroll, or a timer.</li>
+        <li><strong>Two durations.</strong> <code>--fast</code> 150ms for colour and transform; <code>--slow</code> 350ms for things that open.</li>
+        <li><strong>One easing.</strong> <code>cubic-bezier(0.2, 0.7, 0.2, 1)</code>: quick out, soft in.</li>
+        <li><strong>Reduced motion wins.</strong> With <code>prefers-reduced-motion</code>, everything is instant.</li>
+        <li><strong>The exceptions are the toys.</strong> Merlin, the photo viewer, the page flip. Each starts only when the visitor asks.</li>
+      </ul>
+    </section>
+
+    <section id="voice" class="guide-section">
+      <h2>Voice</h2>
+      <p class="measure">First person, present tense, short. Say the thing; let the photo or the number do the rest.</p>
+      <div class="voice">
+        <div>
+          <span class="eyebrow">Like this</span>
+          <p>“One of the first 2,000 hosts. Brian Chesky’s favourite table. A honeybee room.”</p>
+        </div>
+        <div>
+          <span class="eyebrow">Not this</span>
+          <p class="muted">“As an early-adopter and passionate advocate of the sharing economy, I was thrilled to…”</p>
+        </div>
+      </div>
+      <ul class="plain">
+        <li>Lower-case taglines. Sentence case everywhere else. Small caps only for eyebrows and marks.</li>
+        <li>Numbers as numerals, with the thin space done by the font.</li>
+        <li>Jokes belong to Merlin. The copy is dry.</li>
+      </ul>
+    </section>
+
+    <section id="merlin" class="guide-section">
+      <h2>Merlin</h2>
+      <div class="merlin-spec">
+        <img class="merlin-hat-img" src="/merlin/hat.webp" alt="The wizard’s hat that summons Merlin" width="96" height="96" />
+        <div>
+          <p class="measure">
+            The mascot: Microsoft’s 1990s Merlin, unchanged. He is hidden behind his hat in the corner
+            and appears only when summoned. He is the site’s one deliberate exception: his balloon is
+            Beach yellow, his type is the system sans, and he moves on his own once he is out. The hat
+            never animates by itself.
+          </p>
+          <p class="measure">He asks what you are interested in, opens the matching rows, points at what you click, tells a joke if asked, and takes a message. He does not sell.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="rules" class="guide-section">
+      <h2>Do / Don’t</h2>
+      <div class="rules">
+        <ul class="do">
+          <li>Use the semantic tokens.</li>
+          <li>Separate with hairlines.</li>
+          <li>Put the accent on the one thing to click.</li>
+          <li>Let Fraunces carry the personality.</li>
+          <li>Make motion answer the visitor.</li>
+          <li>Write short.</li>
+        </ul>
+        <ul class="dont">
+          <li>Pills for topics, skills, nav or anything but metadata.</li>
+          <li>Autoplay, count-ups, scroll reveals, pulsing dots.</li>
+          <li>Gradients, glass, glow, more than one shadow.</li>
+          <li>Rausch as small text (use <code>--accent-text</code>).</li>
+          <li>Cards inside cards.</li>
+          <li>A second flourish on the same page.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // The toggle specimen is live so the "on" state can be felt.
+    document.querySelectorAll<HTMLButtonElement>('[data-toggles] .toggle').forEach((b) => {
+      b.addEventListener('click', () => b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')));
+    });
+  </script>
+</Base>
+
+<style>
+  .guide {
+    padding: var(--s7) 0 var(--s9);
+  }
+
+  .guide-head {
+    display: grid;
+    gap: var(--s4);
+    padding-bottom: var(--s6);
+    border-bottom: var(--hairline);
+  }
+
+  .back {
+    font-size: var(--text-sm);
+    color: var(--muted);
+    text-decoration: none;
+    justify-self: start;
+  }
+
+  .guide-toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2) var(--s5);
+    margin-top: var(--s2);
+    font-size: var(--text-sm);
+  }
+
+  .guide-toc a {
+    text-decoration: none;
+    color: var(--muted);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+
+  .guide-toc a:hover {
+    color: var(--fg);
+    border-color: var(--accent);
+  }
+
+  .guide-section {
+    padding: var(--s7) 0;
+    border-bottom: var(--hairline);
+  }
+
+  .guide-section > h2 {
+    margin-bottom: var(--s5);
+  }
+
+  .guide-section h3 {
+    margin: var(--s6) 0 var(--s3);
+  }
+
+  .principles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    gap: var(--s5) var(--s7);
+    counter-reset: p;
+  }
+
+  .principles li {
+    counter-increment: p;
+    padding-top: var(--s3);
+    border-top: var(--hairline);
+  }
+
+  .principles li::before {
+    content: counter(p, decimal-leading-zero);
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--faint);
+    margin-bottom: var(--s2);
+  }
+
+  .principles h3 {
+    margin: 0 0 var(--s2);
+  }
+
+  .specimen {
+    padding: var(--s5);
+    border: var(--hairline);
+    border-radius: var(--radius);
+    margin: var(--s4) 0;
+  }
+
+  .row-specimen {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s4);
+  }
+
+  .wordmark {
+    font-family: var(--font-display);
+    font-size: var(--text-display);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .wordmark .dot {
+    color: var(--accent);
+  }
+
+  .swatches {
+    list-style: none;
+    margin: var(--s5) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: var(--s5) var(--s4);
+  }
+
+  .swatch {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--s1) var(--s3);
+    align-items: center;
+  }
+
+  .chip {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 1;
+    grid-column: 1 / -1;
+    border-radius: var(--radius);
+    border: 1px solid rgb(0 0 0 / 0.06);
+  }
+
+  .chip-sm {
+    width: 1rem;
+    height: 1rem;
+    aspect-ratio: auto;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: var(--s2);
+    grid-column: auto;
+  }
+
+  .swatch-name {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+  }
+
+  .swatch-role {
+    grid-column: 1 / -1;
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .tokens {
+    margin: 0;
+    display: grid;
+    gap: 0;
+  }
+
+  .token {
+    display: grid;
+    grid-template-columns: 14rem 1fr;
+    gap: var(--s4);
+    padding: var(--s3) 0;
+    border-top: var(--hairline);
+    font-size: var(--text-sm);
+  }
+
+  .token dt {
+    display: flex;
+    align-items: center;
+  }
+
+  .token dd {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  .marks-specimen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s5);
+  }
+
+  .type-scale {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .type-row {
+    display: grid;
+    grid-template-columns: 9rem 1fr auto;
+    align-items: baseline;
+    gap: var(--s4);
+    padding: var(--s3) 0;
+    border-top: var(--hairline);
+  }
+
+  .type-row code {
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+
+  .type-sample {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+  }
+
+  .type-row:nth-child(n + 6) .type-sample {
+    font-family: var(--font-body);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .type-row:last-child .type-sample {
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  .type-note {
+    font-size: var(--text-xs);
+  }
+
+  .space-scale {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--s2);
+  }
+
+  .space-scale li {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    font-size: var(--text-sm);
+  }
+
+  .space-bar {
+    display: block;
+    height: 0.75rem;
+    background: var(--fg);
+  }
+
+  .shapes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s4);
+  }
+
+  .shape {
+    padding: var(--s4) var(--s5);
+    border: 1px solid var(--fg);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+  }
+
+  .shape-no {
+    border-style: dashed;
+    border-color: var(--rule-strong);
+    color: var(--muted);
+  }
+
+  .badge-specimen {
+    display: flex;
+    gap: var(--s4);
+    background: var(--hof);
+    border-radius: var(--radius-lg);
+  }
+
+  .row-demo {
+    border-top: var(--hairline);
+    border-bottom: var(--hairline);
+  }
+
+  .row-demo summary {
+    display: grid;
+    grid-template-columns: minmax(10rem, 1fr) 2fr 1.5rem;
+    gap: var(--s4);
+    align-items: baseline;
+    padding: var(--s4) 0;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .row-demo summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .row-title {
+    display: grid;
+    gap: var(--s1);
+    font-size: var(--text-sm);
+  }
+
+  .row-h {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 500;
+  }
+
+  .row-line {
+    color: var(--muted);
+  }
+
+  .row-chev {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--faint);
+    justify-self: end;
+    transition: transform var(--fast) var(--ease), color var(--fast) var(--ease);
+  }
+
+  .row-demo[open] .row-chev {
+    transform: rotate(90deg);
+    color: var(--accent);
+  }
+
+  .row-demo summary:hover .row-chev {
+    color: var(--accent);
+  }
+
+  .row-body {
+    padding: 0 0 var(--s5);
+    color: var(--muted);
+  }
+
+  .stat {
+    display: grid;
+    gap: var(--s1);
+    padding-right: var(--s6);
+  }
+
+  .stat-n {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    color: var(--accent-text);
+    line-height: 1;
+  }
+
+  .plain {
+    margin: var(--s4) 0 0;
+    padding-left: 1.2em;
+    display: grid;
+    gap: var(--s2);
+    max-width: var(--measure);
+  }
+
+  .voice {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--s5);
+    margin: var(--s5) 0;
+  }
+
+  .voice p {
+    margin-top: var(--s2);
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+  }
+
+  .merlin-spec {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--s5);
+    align-items: start;
+  }
+
+  .merlin-hat-img {
+    width: 6rem;
+    height: auto;
+  }
+
+  .rules {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--s6);
+  }
+
+  .rules ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--s2);
+  }
+
+  .rules li {
+    padding-left: 1.4em;
+    position: relative;
+  }
+
+  .rules li::before {
+    position: absolute;
+    left: 0;
+    font-weight: 700;
+  }
+
+  .do li::before {
+    content: '✓';
+    color: var(--kazan);
+  }
+
+  .dont li::before {
+    content: '✕';
+    color: var(--accent-text);
+  }
+
+  @media (max-width: 640px) {
+    .token,
+    .type-row {
+      grid-template-columns: 1fr;
+      gap: var(--s1);
+    }
+
+    .merlin-spec {
+      grid-template-columns: 1fr;
+    }
+
+    .row-demo summary {
+      grid-template-columns: 1fr 1.5rem;
+    }
+
+    .row-line {
+      grid-column: 1;
+    }
+  }
+</style>

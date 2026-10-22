@@ -1,10 +1,8 @@
 ---
-// Career: an interactive CV. Filter by the four things on the homepage tagline and the
-// highlights that show them light up; numbers count up as they scroll in; Print gives a
-// clean one-pager. Every fact here comes from Sam; dates and titles are left out until he
-// supplies them.
-import PhotoViewer from '../components/PhotoViewer.astro';
-import Merlin from '../components/Merlin.astro';
+// Career: the CV as a page. Three chapters, each with a few highlights. The four words on
+// the tagline are the lens: choose one and the highlights that show it stay, the rest step
+// back. Nothing moves on its own. Print gives a clean one-pager.
+import Base from '../layouts/Base.astro';
 
 type Skill = 'strategy' | 'relationships' | 'systems' | 'design';
 type Highlight = { text: string; skills: Skill[] };
@@ -14,9 +12,8 @@ type Role = {
   full?: string;
   href?: string;
   summary: string;
-  stat?: { value: number; suffix?: string; label: string };
+  stat?: { value: string; label: string };
   highlights: Highlight[];
-  tags?: string[];
   photos?: { src: string; alt: string; story?: { title: string; audio: string; captions: string } }[];
 };
 
@@ -34,7 +31,7 @@ const roles: Role[] = [
     full: 'Acadia Leadership Partners',
     href: 'https://acadialps.com',
     summary: 'A strategic sales channel built for C-suite conversations.',
-    stat: { value: 220, suffix: '+', label: 'senior advisors recruited' },
+    stat: { value: '220+', label: 'senior advisors recruited' },
     highlights: [
       { text: 'Recruited 220+ senior advisors, many of them former Big 4 consultants.', skills: ['relationships'] },
       { text: 'Built a strategic sales channel dedicated to C-suite conversations.', skills: ['strategy', 'relationships', 'systems'] },
@@ -49,13 +46,12 @@ const roles: Role[] = [
       { text: 'Commercialized them by injecting marketing, recruiting, and seed money.', skills: ['strategy', 'relationships'] },
       { text: 'Launched AI Parkinson’s detection, NASA-based rock blasting, and IoT consumer devices.', skills: ['strategy', 'systems'] },
     ],
-    tags: ['AI Parkinson’s detection', 'NASA-based rock blasting', 'IoT consumer devices'],
   },
   {
     id: 'airbnb',
     name: 'Airbnb',
     summary: 'Early host, then a founding member of the Portland office.',
-    stat: { value: 2000, label: 'first hosts, and I was one' },
+    stat: { value: '2,000', label: 'first hosts, and I was one of them' },
     highlights: [
       { text: 'One of the first 2,000 hosts. My host ID was too short to use as a badge number.', skills: ['relationships'] },
       { text: 'PDX founder: in the first batch of hires to open the Portland office.', skills: ['relationships', 'strategy'] },
@@ -77,525 +73,309 @@ const roles: Role[] = [
 const description = 'Sam Peret’s career: ALPS (Acadia Leadership Partners), Founders Wanted and Airbnb. Strategy, relationships, systems and design.';
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Career · Sam Peret</title>
-    <meta name="description" content={description} />
-    <link rel="canonical" href={new URL('/career/', Astro.site)} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta property="og:title" content="Sam Peret · Career" />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={new URL('/career/', Astro.site)} />
-    <meta property="og:type" content="profile" />
-    <meta property="og:image" content={new URL('/og.jpg', Astro.site)} />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="color-scheme" content="light dark" />
-  </head>
-  <body>
-    <div class="page">
-      <aside class="side">
-        <a class="back" href="/">← Samperet.com</a>
-        <img
-          class="portrait"
-          src="/photos/sam-peret-full-1000.webp"
-          srcset="/photos/sam-peret-full-560.webp 560w, /photos/sam-peret-full-1000.webp 1000w"
-          sizes="(max-width: 860px) 60vw, 22rem"
-          width="1000"
-          height="1500"
-          alt="Sam Peret, smiling, hands in pockets, in a dark pinstripe suit and open blue shirt"
-          fetchpriority="high"
-        />
-        <nav class="toc" aria-label="Roles">
-          {roles.map((r) => <a href={`#${r.id}`} data-toc={r.id}>{r.name}</a>)}
-        </nav>
-      </aside>
+<Base title="Career · Sam Peret" description={description} path="/career/" ogType="profile">
+  <div class="wrap page">
+    <aside class="side">
+      <a class="back" href="/">← Samperet.com</a>
+      <img
+        class="portrait"
+        src="/photos/sam-peret-full-1000.webp"
+        srcset="/photos/sam-peret-full-560.webp 560w, /photos/sam-peret-full-1000.webp 1000w"
+        sizes="(max-width: 900px) 60vw, 20rem"
+        width="1000"
+        height="1500"
+        alt="Sam Peret, smiling, hands in pockets, in a dark pinstripe suit and open blue shirt"
+        fetchpriority="high"
+      />
+      <nav class="toc" aria-label="Chapters">
+        {roles.map((r) => <a href={`#${r.id}`} data-toc={r.id}>{r.name}</a>)}
+      </nav>
+    </aside>
 
-      <main>
-        <header class="head">
-          <h1>Sam Peret</h1>
-          <p class="lede">Strategy, relationships, systems &amp; design.</p>
-          <div class="actions">
-            <button type="button" class="primary" data-contact data-track="career:message">Send me a message</button>
-            <button type="button" data-print data-track="career:print">Print / save as PDF</button>
-          </div>
-        </header>
-
-        <div class="filters" role="group" aria-label="Highlight by skill">
-          <span class="filters-label">Show me</span>
-          {SKILLS.map((s) => <button type="button" data-skill={s.key} aria-pressed="false" data-track={`career:skill:${s.key}`}>{s.label}</button>)}
+    <main>
+      <header class="head">
+        <h1>Sam Peret</h1>
+        <p class="lede">strategy, relationships, systems <span class="amp">&amp;</span> design.</p>
+        <div class="actions">
+          <button type="button" class="btn btn-primary" data-contact data-track="career:message">Send me a message</button>
+          <button type="button" class="btn btn-quiet" data-print data-track="career:print">Print or save as PDF</button>
         </div>
+      </header>
 
-        <ol class="roles">
-          {
-            roles.map((r) => (
-              <li class="role" id={r.id} data-skills={[...new Set(r.highlights.flatMap((h) => h.skills))].join(' ')}>
-                <details open>
-                  <summary>
-                    <span class="dot" aria-hidden="true" />
-                    <span class="role-head">
-                      <h2>{r.name}</h2>
-                      {r.full && <span class="full">{r.full}</span>}
-                      <span class="summary">{r.summary}</span>
-                    </span>
-                    <span class="chevron" aria-hidden="true" />
-                  </summary>
-                  <div class="role-body">
-                    {r.stat && (
-                      <p class="stat">
-                        <span class="stat-value" data-count={r.stat.value} data-suffix={r.stat.suffix ?? ''}>
-                          {r.stat.value.toLocaleString('en-US')}{r.stat.suffix}
-                        </span>
-                        <span class="stat-label">{r.stat.label}</span>
-                      </p>
-                    )}
-                    <ul class="highlights">
-                      {r.highlights.map((h) => (
-                        <li data-skills={h.skills.join(' ')}>
-                          {h.text}
-                          <span class="skill-tags">{h.skills.map((s) => <span class={`tag tag-${s}`}>{s}</span>)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    {r.tags && <p class="tags">{r.tags.map((t) => <span>{t}</span>)}</p>}
-                    {r.photos && (
-                      <div class="photos">
-                        {r.photos.map(({ src, alt, story }) => (
-                          <a
-                            href={src}
-                            class:list={{ 'has-story': story }}
-                            data-story-title={story?.title}
-                            data-story-audio={story?.audio}
-                            data-story-captions={story?.captions}
-                          >
-                            <img src={src} alt={alt} loading="lazy" decoding="async" />
-                            {story && (
-                              <span class="story-badge">
-                                <span aria-hidden="true">▶</span> {story.title}
-                              </span>
-                            )}
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                    {r.href && (
-                      <a class="visit" href={r.href} data-track={`career:visit:${r.id}`}>
-                        Visit {new URL(r.href).hostname.replace(/^www\./, '')} <span aria-hidden="true">↗</span>
-                      </a>
-                    )}
-                  </div>
-                </details>
-              </li>
-            ))
-          }
-        </ol>
-      </main>
-    </div>
-
-    <PhotoViewer />
-    <Merlin />
-
-    <script>
-      import { startTracking } from '../scripts/track';
-      import { openTopic } from '../scripts/topics';
-
-      startTracking();
-
-      // Skill filter: one at a time; the chosen skill lights up its highlights and dims the rest.
-      const roles = document.querySelectorAll<HTMLElement>('.role');
-      const chips = document.querySelectorAll<HTMLButtonElement>('[data-skill]');
-      let active: string | null = null;
-      const applyFilter = () => {
-        document.body.classList.toggle('filtering', active !== null);
-        for (const chip of chips) chip.setAttribute('aria-pressed', String(chip.dataset.skill === active));
-        for (const role of roles) {
-          const has = active !== null && (role.dataset.skills ?? '').split(' ').includes(active);
-          role.classList.toggle('match', has);
-          if (has) role.querySelector('details')!.open = true;
-          for (const li of role.querySelectorAll<HTMLElement>('.highlights li'))
-            li.classList.toggle('match', active !== null && (li.dataset.skills ?? '').split(' ').includes(active));
+      <div class="lens" role="group" aria-label="Highlight by skill">
+        <span class="eyebrow">Show me</span>
+        {
+          SKILLS.map((s) => (
+            <button type="button" class="toggle" style={`--toggle-color: var(--skill-${s.key})`} data-skill={s.key} aria-pressed="false" data-track={`career:skill:${s.key}`}>
+              {s.label}
+            </button>
+          ))
         }
-      };
-      for (const chip of chips)
-        chip.addEventListener('click', () => {
-          active = active === chip.dataset.skill ? null : chip.dataset.skill!;
-          applyFilter();
-        });
+      </div>
 
-      // Numbers count up the first time they scroll into view.
-      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const counters = document.querySelectorAll<HTMLElement>('[data-count]');
-      if (!reduced && 'IntersectionObserver' in window) {
-        const io = new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (!entry.isIntersecting) continue;
-              io.unobserve(entry.target);
-              const el = entry.target as HTMLElement;
-              const end = Number(el.dataset.count);
-              const suffix = el.dataset.suffix ?? '';
-              const t0 = performance.now();
-              const step = (now: number) => {
-                const k = Math.min((now - t0) / 1200, 1);
-                const eased = 1 - Math.pow(1 - k, 3);
-                el.textContent = `${Math.round(end * eased).toLocaleString('en-US')}${k === 1 ? suffix : ''}`;
-                if (k < 1) requestAnimationFrame(step);
-              };
-              el.textContent = '0';
-              requestAnimationFrame(step);
-            }
-          },
-          { threshold: 0.6 },
-        );
-        counters.forEach((c) => io.observe(c));
+      <ol class="roles">
+        {
+          roles.map((r) => (
+            <li class="role" id={r.id} data-skills={[...new Set(r.highlights.flatMap((h) => h.skills))].join(' ')}>
+              <header class="role-head">
+                <h2>{r.name}</h2>
+                {r.full && <p class="full">{r.full}</p>}
+                <p class="summary">{r.summary}</p>
+              </header>
+              {r.stat && (
+                <p class="stat">
+                  <span class="stat-value">{r.stat.value}</span>
+                  <span class="stat-label">{r.stat.label}</span>
+                </p>
+              )}
+              <ul class="highlights">
+                {r.highlights.map((h) => (
+                  <li data-skills={h.skills.join(' ')}>
+                    <span class="text">{h.text}</span>
+                    <span class="marks">{h.skills.map((s) => <span class={`mark mark-${s}`}>{s}</span>)}</span>
+                  </li>
+                ))}
+              </ul>
+              {r.photos && (
+                <div class="photos">
+                  {r.photos.map(({ src, alt, story }) => (
+                    <a
+                      href={src}
+                      class:list={{ 'has-story': story }}
+                      data-story-title={story?.title}
+                      data-story-audio={story?.audio}
+                      data-story-captions={story?.captions}
+                    >
+                      <img src={src} alt={alt} loading="lazy" decoding="async" />
+                      {story && (
+                        <span class="badge">
+                          <span aria-hidden="true">▶</span> {story.title}
+                        </span>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              )}
+              {r.href && (
+                <a class="arrow-link visit" href={r.href} data-track={`career:visit:${r.id}`}>
+                  {new URL(r.href).hostname.replace(/^www\./, '')} <span class="arrow" aria-hidden="true">↗</span>
+                </a>
+              )}
+            </li>
+          ))
+        }
+      </ol>
+    </main>
+  </div>
+
+  <script>
+    import { startTracking } from '../scripts/track';
+    import { openTopic } from '../scripts/topics';
+
+    startTracking();
+
+    // The lens: one skill at a time. Its highlights keep their colour; the rest step back.
+    const roles = document.querySelectorAll<HTMLElement>('.role');
+    const toggles = document.querySelectorAll<HTMLButtonElement>('[data-skill]');
+    let active: string | null = null;
+    const apply = () => {
+      document.body.classList.toggle('lensing', active !== null);
+      for (const t of toggles) t.setAttribute('aria-pressed', String(t.dataset.skill === active));
+      for (const role of roles) {
+        role.classList.toggle('match', active !== null && (role.dataset.skills ?? '').split(' ').includes(active));
+        for (const li of role.querySelectorAll<HTMLElement>('.highlights li'))
+          li.classList.toggle('match', active !== null && (li.dataset.skills ?? '').split(' ').includes(active));
       }
-
-      // The side list marks the role in view.
-      const toc = document.querySelectorAll<HTMLAnchorElement>('[data-toc]');
-      if ('IntersectionObserver' in window) {
-        const spy = new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries)
-              if (entry.isIntersecting)
-                for (const a of toc) a.classList.toggle('current', a.dataset.toc === entry.target.id);
-          },
-          { rootMargin: '-40% 0px -55% 0px' },
-        );
-        roles.forEach((r) => spy.observe(r));
-      }
-
-      document.querySelector('[data-contact]')!.addEventListener('click', () => openTopic('message'));
-
-      // Print everything open, filters off.
-      document.querySelector('[data-print]')!.addEventListener('click', () => window.print());
-      addEventListener('beforeprint', () => {
-        active = null;
-        applyFilter();
-        roles.forEach((r) => (r.querySelector('details')!.open = true));
+    };
+    for (const t of toggles)
+      t.addEventListener('click', () => {
+        active = active === t.dataset.skill ? null : t.dataset.skill!;
+        apply();
       });
-    </script>
-  </body>
-</html>
+
+    // The side list marks the chapter in view.
+    const toc = document.querySelectorAll<HTMLAnchorElement>('[data-toc]');
+    if ('IntersectionObserver' in window) {
+      const spy = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries)
+            if (entry.isIntersecting) for (const a of toc) a.classList.toggle('current', a.dataset.toc === entry.target.id);
+        },
+        { rootMargin: '-35% 0px -55% 0px' },
+      );
+      roles.forEach((r) => spy.observe(r));
+    }
+
+    document.querySelector('[data-contact]')!.addEventListener('click', () => openTopic('message'));
+    document.querySelector('[data-print]')!.addEventListener('click', () => window.print());
+    addEventListener('beforeprint', () => {
+      active = null;
+      apply();
+    });
+  </script>
+</Base>
 
 <style is:global>
-  :root {
-    --bg: #fafaf9;
-    --fg: #111111;
-    --muted: #57534e;
-    --rule: #e7e5e4;
-    --strategy: #1d4ed8;
-    --relationships: #be185d;
-    --systems: #047857;
-    --design: #b45309;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0c0c0c;
-      --fg: #f5f5f4;
-      --muted: #a8a29e;
-      --rule: #292524;
-      --strategy: #93c5fd;
-      --relationships: #f9a8d4;
-      --systems: #6ee7b7;
-      --design: #fcd34d;
-    }
-  }
-
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
-
-  html,
-  body {
-    margin: 0;
-  }
-
-  body {
-    background: var(--bg);
-    color: var(--fg);
-    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    line-height: 1.5;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
-  }
-
   .page {
     display: grid;
-    grid-template-columns: 22rem 1fr;
-    gap: 4rem;
-    width: min(72rem, 100% - 2rem);
-    margin: 0 auto;
-    padding: 2rem 0 6rem;
+    grid-template-columns: 20rem 1fr;
+    gap: var(--s8);
+    padding: var(--s6) 0 var(--s9);
   }
 
   .side {
     position: sticky;
-    top: 1.5rem;
+    top: var(--s5);
     align-self: start;
     display: grid;
-    gap: 1.25rem;
+    gap: var(--s5);
   }
 
   .back {
     color: var(--muted);
     text-decoration: none;
-    font-size: 0.9375rem;
+    font-size: var(--text-sm);
   }
 
   .back:hover,
   .back:focus-visible {
     color: var(--fg);
-    text-decoration: underline;
   }
 
   .portrait {
-    display: block;
     width: 100%;
     height: auto;
-    border-radius: 14px;
+    border-radius: var(--radius);
     background: #ddd8e8;
   }
 
   .toc {
     display: grid;
-    gap: 0.15rem;
-    border-left: 2px solid var(--rule);
+    gap: var(--s1);
   }
 
   .toc a {
-    padding: 0.3rem 0 0.3rem 0.9rem;
-    margin-left: -2px;
-    border-left: 2px solid transparent;
+    display: flex;
+    gap: var(--s2);
     color: var(--muted);
     text-decoration: none;
-    font-size: 0.9375rem;
+    font-size: var(--text-sm);
+  }
+
+  .toc a::before {
+    content: '';
+    width: 1.25rem;
+    border-top: 1px solid currentColor;
+    transform: translateY(0.75em);
+    transition: width var(--fast) var(--ease);
   }
 
   .toc a:hover,
   .toc a:focus-visible,
   .toc a.current {
     color: var(--fg);
-    border-left-color: var(--fg);
+  }
+
+  .toc a.current::before {
+    width: 2rem;
+    border-color: var(--accent);
   }
 
   main {
     min-width: 0;
-    padding-top: 2.25rem;
+    padding-top: var(--s7);
   }
 
-  h1 {
-    margin: 0;
-    font-size: clamp(2.5rem, 6vw, 4.25rem);
-    letter-spacing: -0.04em;
-    line-height: 1;
+  .head h1 {
+    font-size: var(--text-display);
+    font-weight: 500;
+    letter-spacing: -0.03em;
   }
 
-  .lede {
-    margin: 0.75rem 0 0;
-    color: var(--muted);
-    font-size: clamp(1.125rem, 2.2vw, 1.375rem);
+  .head .lede {
+    margin-top: var(--s3);
+    font-size: clamp(1.25rem, 1rem + 1.5vw, 1.75rem);
   }
 
   .actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 1.5rem;
+    gap: var(--s2);
+    margin-top: var(--s5);
   }
 
-  button {
-    font: inherit;
-    cursor: pointer;
-  }
+  /* ---- The lens ------------------------------------------------------------------------ */
 
-  .actions button,
-  .filters button {
-    font-size: 0.875rem;
-    color: var(--fg);
-    background: transparent;
-    border: 1px solid var(--rule);
-    border-radius: 999px;
-    padding: 0.45rem 1rem;
-  }
-
-  .actions button:hover,
-  .actions button:focus-visible,
-  .filters button:hover,
-  .filters button:focus-visible {
-    border-color: currentColor;
-  }
-
-  .actions .primary {
-    background: var(--fg);
-    color: var(--bg);
-    border-color: var(--fg);
-    font-weight: 600;
-  }
-
-  .filters {
+  .lens {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 3rem 0 1rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--rule);
+    align-items: baseline;
+    gap: var(--s3) var(--s5);
+    margin: var(--s8) 0 var(--s2);
+    padding-top: var(--s5);
+    border-top: var(--hairline);
   }
 
-  .filters-label {
-    color: var(--muted);
-    font-size: 0.875rem;
-    margin-right: 0.25rem;
+  .lens .eyebrow {
+    margin-right: var(--s2);
   }
 
-  .filters button::before {
-    content: '';
-    display: inline-block;
-    width: 0.55rem;
-    height: 0.55rem;
-    margin-right: 0.45rem;
-    border-radius: 50%;
-    vertical-align: 0.05em;
-  }
-
-  .filters [data-skill='strategy']::before { background: var(--strategy); }
-  .filters [data-skill='relationships']::before { background: var(--relationships); }
-  .filters [data-skill='systems']::before { background: var(--systems); }
-  .filters [data-skill='design']::before { background: var(--design); }
-
-  .filters button[aria-pressed='true'] {
-    background: var(--fg);
-    color: var(--bg);
-    border-color: var(--fg);
-  }
+  /* ---- Chapters ------------------------------------------------------------------------ */
 
   .roles {
     list-style: none;
     margin: 0;
     padding: 0;
-    position: relative;
-  }
-
-  /* The timeline rail */
-  .roles::before {
-    content: '';
-    position: absolute;
-    left: 0.45rem;
-    top: 2rem;
-    bottom: 2rem;
-    width: 2px;
-    background: var(--rule);
   }
 
   .role {
-    position: relative;
-    scroll-margin-top: 1.5rem;
-    transition: opacity 0.25s;
+    padding: var(--s7) 0;
+    border-top: var(--hairline);
+    scroll-margin-top: var(--s5);
+    transition: opacity var(--slow) var(--ease);
   }
 
-  .filtering .role:not(.match) {
-    opacity: 0.35;
+  .role:first-child {
+    border-top: 0;
+    padding-top: var(--s6);
   }
 
-  .role summary {
-    display: grid;
-    grid-template-columns: 1rem 1fr 1.5rem;
-    gap: 1.25rem;
-    align-items: start;
-    padding: 1.75rem 0 1rem;
-    cursor: pointer;
-    list-style: none;
+  .lensing .role:not(.match) {
+    opacity: 0.4;
   }
 
-  .role summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .role summary:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 4px;
-  }
-
-  .dot {
-    width: 1rem;
-    height: 1rem;
-    margin-top: 0.55rem;
-    border-radius: 50%;
-    background: var(--bg);
-    border: 2px solid var(--fg);
-    position: relative;
-    z-index: 1;
-  }
-
-  .role-head {
-    display: grid;
-    gap: 0.15rem;
-  }
-
-  .role h2 {
-    margin: 0;
-    font-size: clamp(1.5rem, 3vw, 2rem);
+  .role-head h2 {
+    font-size: var(--text-2xl);
     letter-spacing: -0.02em;
-    line-height: 1.2;
   }
 
   .full {
+    margin-top: var(--s1);
     color: var(--muted);
-    font-size: 0.9375rem;
+    font-size: var(--text-sm);
   }
 
   .summary {
-    margin-top: 0.35rem;
-    font-size: 1.0625rem;
-  }
-
-  .chevron {
-    justify-self: end;
-    width: 0.6rem;
-    height: 0.6rem;
-    margin-top: 0.85rem;
-    border-right: 2px solid var(--muted);
-    border-bottom: 2px solid var(--muted);
-    transform: rotate(45deg);
-    transition: transform 0.2s;
-  }
-
-  details[open] > summary .chevron {
-    transform: translateY(0.25rem) rotate(-135deg);
-  }
-
-  .role-body {
-    padding: 0 0 2rem 2.25rem;
-    border-bottom: 1px solid var(--rule);
+    margin-top: var(--s3);
+    font-size: var(--text-md);
+    max-width: var(--measure);
   }
 
   .stat {
     display: flex;
     align-items: baseline;
-    gap: 0.75rem;
-    margin: 0 0 1rem;
+    gap: var(--s3);
+    margin-top: var(--s5);
   }
 
   .stat-value {
-    font-size: clamp(2.25rem, 5vw, 3rem);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    letter-spacing: -0.02em;
     line-height: 1;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
   }
 
   .stat-label {
@@ -603,69 +383,44 @@ const description = 'Sam Peret’s career: ALPS (Acadia Leadership Partners), Fo
   }
 
   .highlights {
-    margin: 0;
-    padding: 0;
     list-style: none;
-    display: grid;
-    gap: 0.6rem;
+    margin: var(--s5) 0 0;
+    padding: 0;
+    max-width: var(--measure);
   }
 
   .highlights li {
-    position: relative;
-    padding: 0.55rem 0.75rem 0.55rem 1rem;
-    border-left: 3px solid var(--rule);
-    border-radius: 0 6px 6px 0;
-    transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+    display: grid;
+    gap: var(--s1);
+    padding: var(--s3) 0 var(--s3) var(--s4);
+    border-left: 2px solid var(--rule);
+    transition: opacity var(--slow) var(--ease), border-color var(--slow) var(--ease);
   }
 
-  .filtering .role.match .highlights li:not(.match) {
-    opacity: 0.45;
+  .highlights li + li {
+    margin-top: var(--s1);
+  }
+
+  .lensing .role.match .highlights li:not(.match) {
+    opacity: 0.4;
   }
 
   .highlights li.match {
-    background: color-mix(in srgb, var(--fg) 6%, transparent);
     border-left-color: var(--fg);
   }
 
-  .skill-tags {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 0.3rem;
-    margin-left: 0.4rem;
-    vertical-align: 0.1em;
-  }
-
-  .tag {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .tag-strategy { color: var(--strategy); }
-  .tag-relationships { color: var(--relationships); }
-  .tag-systems { color: var(--systems); }
-  .tag-design { color: var(--design); }
-
-  .tags {
+  .marks {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
-    margin: 1rem 0 0;
-  }
-
-  .tags span {
-    padding: 0.3rem 0.7rem;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--fg) 7%, transparent);
-    font-size: 0.875rem;
+    gap: var(--s3);
   }
 
   .photos {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-    gap: 0.5rem;
-    margin-top: 1.25rem;
+    gap: var(--s2);
+    margin-top: var(--s5);
+    max-width: 40rem;
   }
 
   .photos a {
@@ -674,39 +429,34 @@ const description = 'Sam Peret’s career: ALPS (Acadia Leadership Partners), Fo
   }
 
   .photos img {
-    display: block;
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: var(--radius-lg);
   }
 
-  .story-badge {
+  .photos a:hover img,
+  .photos a:focus-visible img {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  .photos .badge {
     position: absolute;
-    left: 0.6rem;
-    bottom: 0.6rem;
-    max-width: calc(100% - 1.2rem);
-    padding: 0.3rem 0.65rem;
-    border-radius: 999px;
-    background: rgb(0 0 0 / 0.65);
-    color: #fff;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    line-height: 1.3;
+    left: var(--s3);
+    bottom: var(--s3);
+    max-width: calc(100% - var(--s6));
   }
 
   .visit {
-    display: inline-block;
-    margin-top: 1.25rem;
-    color: var(--fg);
-    font-size: 0.9375rem;
-    text-underline-offset: 0.2em;
+    margin-top: var(--s5);
+    font-size: var(--text-sm);
   }
 
-  @media (max-width: 860px) {
+  @media (max-width: 900px) {
     .page {
       grid-template-columns: 1fr;
-      gap: 1.5rem;
+      gap: var(--s5);
     }
 
     .side {
@@ -726,54 +476,18 @@ const description = 'Sam Peret’s career: ALPS (Acadia Leadership Partners), Fo
     }
   }
 
-  @media (max-width: 520px) {
-    .role-body {
-      padding-left: 0;
-    }
-
-    .roles::before {
-      display: none;
-    }
-
-    .role summary {
-      grid-template-columns: 1fr 1.5rem;
-    }
-
-    .dot {
-      display: none;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .role,
-    .highlights li,
-    .chevron {
-      transition: none;
-    }
-  }
-
   @media print {
-    :root {
-      --bg: #fff;
-      --fg: #000;
-      --muted: #444;
-      --rule: #ccc;
-    }
-
     .back,
     .toc,
     .actions,
-    .filters,
-    .photos,
-    .chevron,
-    .merlin-hat,
-    .viewer {
+    .lens,
+    .photos {
       display: none !important;
     }
 
     .page {
-      grid-template-columns: 9rem 1fr;
-      gap: 2rem;
+      grid-template-columns: 8rem 1fr;
+      gap: var(--s5);
       width: 100%;
       padding: 0;
     }
@@ -785,15 +499,16 @@ const description = 'Sam Peret’s career: ALPS (Acadia Leadership Partners), Fo
     .role {
       opacity: 1 !important;
       break-inside: avoid;
+      padding: var(--s4) 0;
     }
 
     .highlights li {
-      padding: 0.2rem 0 0.2rem 0.75rem;
-      background: none !important;
+      opacity: 1 !important;
     }
 
     .visit::after {
       content: ' (' attr(href) ')';
+      font-weight: 400;
     }
   }
 </style>

@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, envField } from 'astro/config';
+import { defineConfig, envField, fontProviders } from 'astro/config';
 import vercel from '@astrojs/vercel';
 
 // Static site. The on-demand routes are the tracking beacon and Merlin's messages
@@ -8,6 +8,20 @@ export default defineConfig({
   site: 'https://samperet.com',
   output: 'static',
   adapter: vercel(),
+  // Fraunces is the display face (headings, the wordmark, the tagline); body text is the
+  // system font. Self-hosted at build, so nothing is fetched from Google at runtime.
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: 'Fraunces',
+      cssVariable: '--font-fraunces',
+      weights: [400, 500, 600],
+      styles: ['normal', 'italic'],
+      subsets: ['latin'],
+      fallbacks: ['Iowan Old Style', 'Georgia', 'serif'],
+      formats: ['woff2'],
+    },
+  ],
   env: {
     schema: {
       // Any Postgres connection string (Neon, Supabase, Vercel Postgres). Vercel's database

@@ -1,6 +1,7 @@
 ---
 // Traffic dashboard: what visitors clicked, where they are, and the messages they sent
 // through Merlin. Password-protected by src/middleware.ts.
+import Base from '../layouts/Base.astro';
 import { db } from '../lib/db';
 
 export const prerender = false;
@@ -65,16 +66,7 @@ const place = (r: { country: string | null; region: string | null; city: string 
 const iso = (d: Date | string) => new Date(d).toISOString();
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex, nofollow" />
-    <title>Backend · Samperet.com</title>
-    <meta name="color-scheme" content="light dark" />
-  </head>
-  <body>
+<Base title="Backend · Samperet.com" description="Traffic and messages for samperet.com." path="/backend/" noindex merlin={false} viewer={false}>
     <main>
       <header>
         <h1>Backend</h1>
@@ -179,37 +171,9 @@ const iso = (d: Date | string) => new Date(d).toISOString();
       const format = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
       for (const t of document.querySelectorAll('time[datetime]')) t.textContent = format.format(new Date(t.getAttribute('datetime')!));
     </script>
-  </body>
-</html>
+</Base>
 
 <style is:global>
-  :root {
-    --bg: #fafaf9;
-    --fg: #111111;
-    --muted: #57534e;
-    --rule: #e7e5e4;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0c0c0c;
-      --fg: #f5f5f4;
-      --muted: #a8a29e;
-      --rule: #292524;
-    }
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--fg);
-    font: 0.9375rem/1.5 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  }
-
   main {
     width: min(64rem, 100% - 2rem);
     margin: 0 auto;
@@ -224,15 +188,9 @@ const iso = (d: Date | string) => new Date(d).toISOString();
     gap: 1rem;
   }
 
-  h1 {
-    margin: 0;
-    font-size: 2rem;
-    letter-spacing: -0.03em;
-  }
-
   h2 {
-    margin: 0 0 0.75rem;
-    font-size: 1rem;
+    margin-bottom: var(--s3);
+    font-size: var(--text-md);
   }
 
   nav {
@@ -243,9 +201,9 @@ const iso = (d: Date | string) => new Date(d).toISOString();
   nav a {
     color: var(--fg);
     text-decoration: none;
-    font-size: 0.8125rem;
-    border: 1px solid var(--rule);
-    border-radius: 999px;
+    font-size: var(--text-sm);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
     padding: 0.3rem 0.75rem;
   }
 
@@ -267,9 +225,8 @@ const iso = (d: Date | string) => new Date(d).toISOString();
   }
 
   .summary div {
-    border: 1px solid var(--rule);
-    border-radius: 8px;
-    padding: 1rem;
+    border-top: 2px solid var(--fg);
+    padding: var(--s3) 0;
   }
 
   .summary dt {
@@ -279,8 +236,9 @@ const iso = (d: Date | string) => new Date(d).toISOString();
 
   .summary dd {
     margin: 0.25rem 0 0;
-    font-size: 1.75rem;
-    font-weight: 600;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 500;
     font-variant-numeric: tabular-nums;
   }
 

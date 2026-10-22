@@ -44,7 +44,7 @@ import '../styles/vivify-subset.css';
   // The wizard hat: Merlin's hiding place, bottom right, on every visit.
   const hat = document.createElement('button');
   hat.type = 'button';
-  hat.className = 'merlin-hat vivify popIn';
+  hat.className = 'merlin-hat';
   hat.dataset.merlinUi = '';
   hat.dataset.track = 'merlin:hat';
   hat.setAttribute('aria-label', 'Summon Merlin');
@@ -60,11 +60,6 @@ import '../styles/vivify-subset.css';
     visible = on;
     // The hat is where he hides: it disappears while he's out and comes back when he leaves.
     hat.hidden = on;
-    if (!on) {
-      hat.classList.remove('popIn');
-      void hat.offsetWidth;
-      hat.classList.add('popIn');
-    }
   };
 
   // Merlin's card: a balloon-styled panel beside him that either asks what the visitor is
@@ -426,9 +421,9 @@ import '../styles/vivify-subset.css';
   }
 
   .merlin-hat:focus-visible {
-    outline: 2px solid #f5b400;
+    outline: 2px solid var(--beach, #f5b400);
     outline-offset: 2px;
-    border-radius: 50%;
+    border-radius: var(--radius, 3px);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -598,18 +593,10 @@ import '../styles/vivify-subset.css';
     width: 28px;
     height: 28px;
     margin: -14px 0 0 -14px;
-    border: 2px solid #4338ca;
+    border: 2px solid var(--rausch, #ff5a5f);
     border-radius: 50%;
-    background: rgb(67 56 202 / 0.15);
+    background: rgb(255 90 95 / 0.18);
     pointer-events: none;
   }
 
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
 </style>
