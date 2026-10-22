@@ -195,20 +195,20 @@ a:focus-visible {
 .btn-primary:focus-visible {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .btn-accent {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .btn-accent:hover,
 .btn-accent:focus-visible {
-  background: var(--accent-text);
-  border-color: var(--accent-text);
-  color: #fff;
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: var(--on-accent);
 }
 
 .btn-quiet {
@@ -308,7 +308,7 @@ a:focus-visible {
   padding: 0.3rem 0.6rem;
   border-radius: var(--radius);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.02em;

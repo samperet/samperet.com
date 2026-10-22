@@ -3,13 +3,13 @@
 import Base from '../layouts/Base.astro';
 
 const palette = [
-  { name: 'Rausch', hex: '#ff5a5f', role: 'The accent. CTAs, the dot in the wordmark, the Relationships mark. Fills and large type only — small text uses Accent text.' },
-  { name: 'Hackberry', hex: '#7b0051', role: 'The Strategy mark. Reads at 4.5:1 on paper, so it may carry small text.' },
-  { name: 'Kazan', hex: '#007a87', role: 'The Systems mark and the focus ring in light mode.' },
-  { name: 'Babu', hex: '#00d1c1', role: 'Systems mark and focus ring in dark mode, where Kazan sinks. Never on white.' },
+  { name: 'Kazan', hex: '#007a87', role: 'The hero colour. CTAs, stats, link underlines, badges, the favicon. Reads at 5:1 on paper, so it may carry text.' },
+  { name: 'Rausch', hex: '#ff5a5f', role: 'The dot in Samperet.com. Nothing else, anywhere.' },
+  { name: 'Hackberry', hex: '#7b0051', role: 'The Strategy mark and the focus ring in light mode.' },
+  { name: 'Babu', hex: '#00d1c1', role: 'The Systems mark, and the hero colour in dark mode, where Kazan sinks. Never as text on paper.' },
   { name: 'Lima', hex: '#8ce071', role: 'Reserved. A success state, when the site gets one.' },
-  { name: 'Beach', hex: '#ffb400', role: 'The Design mark and Merlin’s balloon. Decorative; never text.' },
-  { name: 'Ebisu', hex: '#fea88f', role: 'Reserved. A warm tint for illustration.' },
+  { name: 'Beach', hex: '#ffb400', role: 'The Design mark, Merlin’s balloon and the dark-mode focus ring. Never text.' },
+  { name: 'Ebisu', hex: '#fea88f', role: 'The Relationships mark. Decorative; never text.' },
   { name: 'Tirol', hex: '#b3a76b', role: 'Reserved. Paper-adjacent; a possible sepia for archival photos.' },
   { name: 'Foggy', hex: '#9ca19a', role: 'Faint text and disabled states. Not for body copy.' },
   { name: 'Hof', hex: '#565a5d', role: 'Muted text: ledes, eyebrows, captions. Body ink is Hof darkened to #232527.' },
@@ -23,8 +23,10 @@ const semantic = [
   ['--faint', 'Tertiary text, hints.'],
   ['--rule', 'Hairlines between rows.'],
   ['--rule-strong', 'Link underlines at rest, quiet button borders.'],
-  ['--accent', 'One colour that means "act here".'],
-  ['--accent-text', 'The accent when it has to be read at small sizes.'],
+  ['--accent', 'Kazan. The one colour that means "act here".'],
+  ['--accent-strong', 'The accent on hover and press.'],
+  ['--on-accent', 'Text on an accent fill: white, or ink in dark mode.'],
+  ['--dot', 'Rausch, for the dot in the domain. Its only use.'],
   ['--focus', 'The focus ring. Never the accent, so focus is never mistaken for a CTA.'],
 ];
 
@@ -82,15 +84,15 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
         </li>
         <li>
           <h3>One accent.</h3>
-          <p>Rausch means “act here”. It appears once per view, twice at most. Everything else is ink and paper.</p>
+          <p>Kazan means “act here”. It appears once per view, twice at most. Everything else is ink and paper. Rausch is kept for the dot.</p>
         </li>
         <li>
           <h3>Nothing moves on its own.</h3>
           <p>No animation on load, on scroll or on a timer. Motion only answers a click, a hover or a key.</p>
         </li>
         <li>
-          <h3>No pills.</h3>
-          <p>Rounded capsules are banned, except as metadata in a system (an id, a format, a state). Topics, skills and navigation are text, marks or underlines.</p>
+          <h3>No pills, no zeros.</h3>
+          <p>Rounded capsules are banned, except as metadata in a system (an id, a format, a state). Topics, skills and navigation are text, marks or underlines. Numbers are never padded with a leading 0: 1, not 01.</p>
         </li>
         <li>
           <h3>Clever, once.</h3>
@@ -110,11 +112,11 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
       </div>
       <p class="measure">
         Fraunces, weight 500, letter-spacing −0.02em, with the dot in Rausch. The dot is the only
-        coloured glyph. The favicon is the “S” on a Rausch square with a 3px radius. Never set the
+        coloured glyph, and the only Rausch on the site. The favicon is the “S” on a Kazan square with a 3px radius. Never set the
         wordmark in the sans, never in all caps, never with a drop shadow.
       </p>
       <div class="specimen row-specimen">
-        <img src="/favicon.svg" alt="Favicon: a white serif S on a Rausch square" width="48" height="48" />
+        <img src="/favicon.svg" alt="Favicon: a white serif S on a Kazan square" width="48" height="48" />
         <span class="muted">favicon.svg · 32×32 · rx 3</span>
       </div>
     </section>
@@ -154,8 +156,8 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
       <h3>Dark mode</h3>
       <p class="measure">
-        Follows the system. Paper becomes #1a1b1c, ink #f1efe9. Rausch stays; its text variant lifts to
-        #ff8a8e. Kazan hands the Systems mark and the focus ring to Babu.
+        Follows the system. Paper becomes #1a1b1c, ink #f1efe9. Kazan hands the hero role to Babu, and
+        text on it turns to ink. The focus ring moves from Hackberry to Beach. The dot stays Rausch.
       </p>
     </section>
 
@@ -241,7 +243,7 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
       </div>
 
       <h3>Badge</h3>
-      <p class="measure">A label over an image: play a story, read the book. Accent on white, 3px radius. Only ever on top of a photo or cover.</p>
+      <p class="measure">A label over an image: play a story, read the book. White on Kazan, 3px radius. Only ever on top of a photo or cover.</p>
       <div class="specimen badge-specimen">
         <span class="badge">▶ The bear shark</span>
         <span class="badge">Read the book →</span>
@@ -321,7 +323,7 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
         <ul class="do">
           <li>Use the semantic tokens.</li>
           <li>Separate with hairlines.</li>
-          <li>Put the accent on the one thing to click.</li>
+          <li>Put Kazan on the one thing to click.</li>
           <li>Let Fraunces carry the personality.</li>
           <li>Make motion answer the visitor.</li>
           <li>Write short.</li>
@@ -330,7 +332,8 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
           <li>Pills for topics, skills, nav or anything but metadata.</li>
           <li>Autoplay, count-ups, scroll reveals, pulsing dots.</li>
           <li>Gradients, glass, glow, more than one shadow.</li>
-          <li>Rausch as small text (use <code>--accent-text</code>).</li>
+          <li>Rausch for anything but the dot.</li>
+          <li>Leading zeros: 01, 02. Write 1, 2.</li>
           <li>Cards inside cards.</li>
           <li>A second flourish on the same page.</li>
         </ul>
@@ -348,7 +351,14 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 <style>
   .guide {
-    padding: var(--s7) 0 var(--s9);
+    width: min(64rem, 100% - 2 * var(--s6));
+    padding: var(--s8) 0 var(--s9);
+  }
+
+  @media (min-width: 900px) {
+    .guide {
+      width: min(64rem, 100% - 2 * var(--s9));
+    }
   }
 
   .guide-head {
@@ -414,7 +424,7 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   }
 
   .principles li::before {
-    content: counter(p, decimal-leading-zero);
+    content: counter(p);
     display: block;
     font-family: var(--font-mono);
     font-size: var(--text-xs);
@@ -449,7 +459,7 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   }
 
   .wordmark .dot {
-    color: var(--accent);
+    color: var(--dot);
   }
 
   .swatches {
@@ -759,10 +769,19 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
   .dont li::before {
     content: '✕';
-    color: var(--accent-text);
+    color: var(--hackberry);
   }
 
   @media (max-width: 640px) {
+    .wordmark,
+    .type-row:first-child .type-sample {
+      font-size: min(var(--text-display), 12.5vw) !important;
+    }
+
+    .type-row > * {
+      min-width: 0;
+    }
+
     .token,
     .type-row {
       grid-template-columns: 1fr;

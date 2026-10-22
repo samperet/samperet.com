@@ -23,15 +23,18 @@
   --faint: var(--foggy);
   --rule: #e6e4de;
   --rule-strong: #cfcdc6;
-  --accent: var(--rausch); /* fills, underlines, large type */
-  --accent-text: #c83c41; /* Rausch deepened so small text reads at 4.5:1 */
-  --accent-soft: #fff0f0;
-  --focus: var(--kazan);
+  --accent: var(--kazan); /* the hero colour: CTAs, stats, underlines, badges */
+  --accent-text: var(--kazan); /* Kazan reads at 5:1 on paper, so text can use it as is */
+  --accent-strong: #005f69; /* hover and pressed */
+  --accent-soft: #e6f2f3;
+  --on-accent: #ffffff; /* text on an accent fill */
+  --dot: var(--rausch); /* Rausch is the dot in Samperet.com and nothing else */
+  --focus: var(--hackberry); /* never the accent, so focus is never mistaken for a CTA */
 
   /* The four skills on the tagline, each owning a palette colour. */
   --skill-strategy: var(--hackberry);
-  --skill-relationships: var(--rausch);
-  --skill-systems: var(--kazan);
+  --skill-relationships: var(--ebisu);
+  --skill-systems: var(--babu);
   --skill-design: var(--beach);
 
   /* ---- Type --------------------------------------------------------------------------- */
@@ -88,9 +91,12 @@
     --faint: #8a8e88;
     --rule: #33363a;
     --rule-strong: #4a4e53;
-    --accent-text: #ff8a8e;
-    --accent-soft: #3a2426;
-    --focus: var(--babu);
-    --skill-systems: var(--babu);
+    --accent: var(--babu); /* Kazan sinks on dark paper; Babu is its light twin */
+    --accent-text: var(--babu);
+    --accent-strong: #5fe3d8;
+    --accent-soft: #10302f;
+    --on-accent: #1a1b1c;
+    --focus: var(--beach);
+    --skill-strategy: #c0408f; /* Hackberry lifted to read on dark */
   }
 }
