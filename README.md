@@ -20,8 +20,8 @@ full-screen viewer (`src/components/PhotoViewer.astro`).
 A photo can carry a story: `story: { title, audio, captions }` on the photo plays the audio
 over the picture with the WebVTT captions as subtitles, starting as soon as the photo is
 opened. Files live in `public/stories/`, each as `.m4a` plus an `.mp3` twin for browsers
-without AAC (`ffmpeg -i x.m4a -codec:a libmp3lame -q:a 5 x.mp3`). The bear shark is the
-first one.
+without AAC. The bear shark is the first one; `tools/story/` has the scripts that cleaned
+the recording, cut the pauses, added the entrance and exit and timed the subtitles.
 "Send me a message" opens a chat with Merlin instead.
 
 ## Backend, traffic and messages
