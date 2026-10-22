@@ -23,8 +23,8 @@ type Role = {
   strip?: boolean; // photos as a small row of thumbnails rather than a grid
 };
 type Photo = { src: string; thumb?: string; alt: string; story?: { title: string; audio: string; captions: string } };
-// Logos are drawn in ink through a mask, so every brand sits in the site's palette and follows
-// dark mode. The files in public/logos/ are black on transparent.
+// Logos keep their own colours. In dark mode they sit on a small paper plate so the dark ones
+// (Founders Wanted, Nurv, altMBA) stay legible. Files are trimmed PNGs in public/logos/.
 type Logo = { src: string; width: number; height: number };
 const LOGOS = {
   alps: { src: '/logos/alps.png', width: 414, height: 160 },
@@ -35,7 +35,6 @@ const LOGOS = {
   nurv: { src: '/logos/nurv.png', width: 565, height: 160 },
   foundersWanted: { src: '/logos/founders-wanted.png', width: 796, height: 160 },
 } satisfies Record<string, Logo>;
-const logoStyle = (l: Logo) => `--logo: url(${l.src}); aspect-ratio: ${l.width} / ${l.height}`;
 
 const SKILLS: { key: Skill; label: string }[] = [
   { key: 'strategy', label: 'Strategy' },
@@ -155,19 +154,6 @@ const roles: Role[] = [
       { text: 'Established strategic partnerships and commercial relationships to support market entry.', skills: ['relationships', 'strategy'] },
       { text: 'Designed early sales workflows, customer support processes, and operational practices.', skills: ['systems', 'design'] },
       { text: 'Worked closely with technical leadership to communicate product capabilities, identify customer requirements, and refine market positioning.', skills: ['relationships', 'strategy'] },
-    ],
-  },
-  {
-    id: 'consulting',
-    name: 'Independent consultant',
-    title: 'Marketing, IT & Business Development',
-    dates: 'July 2010 – February 2013',
-    summary: 'Technology, web development, marketing, and business consulting for yoga studios, fitness organizations, and small businesses.',
-    highlights: [
-      { text: 'Designed and implemented websites, digital tools, and customer-facing technology systems.', skills: ['design', 'systems'] },
-      { text: 'Evaluated business needs and translated requirements into practical technology solutions.', skills: ['strategy', 'systems'] },
-      { text: 'Developed marketing strategies, digital communications, and customer acquisition processes.', skills: ['strategy', 'design'] },
-      { text: 'Provided technical troubleshooting, IT consulting, and operational improvement services; helped owners adopt new technologies and improve internal workflows.', skills: ['systems', 'relationships'] },
     ],
   },
   {
@@ -355,7 +341,7 @@ const description =
                   <header class="role-head">
                     <div class="name-row">
                       <h3>{r.name}</h3>
-                      {r.logo && <span class="logo" style={logoStyle(r.logo)} aria-hidden="true"></span>}
+                      {r.logo && <img class="logo" src={r.logo.src} width={r.logo.width} height={r.logo.height} alt="" />}
                     </div>
                     {r.full && <p class="full">{r.full}</p>}
                     <p class="meta">
@@ -430,7 +416,7 @@ const description =
             <li class="entry">
               <div class="name-row">
                 <h3>{e.school}</h3>
-                {e.logo && <span class="logo" style={logoStyle(e.logo)} aria-hidden="true"></span>}
+                {e.logo && <img class="logo" src={e.logo.src} width={e.logo.width} height={e.logo.height} alt="" />}
               </div>
               <p class="meta">
                 <span class="title">{e.degree}</span>
@@ -483,7 +469,7 @@ const description =
           <li class="entry">
             <div class="name-row">
               <h3>Innovation Award</h3>
-              <span class="logo" style={logoStyle(LOGOS.bdo)} aria-hidden="true"></span>
+              <img class="logo" src={LOGOS.bdo.src} width={LOGOS.bdo.width} height={LOGOS.bdo.height} alt="" />
             </div>
             <p class="meta"><span class="title">BDO USA</span><span class="when">2020</span></p>
             <p class="measure">Recognition for innovation in technology and business solutions.</p>
@@ -884,13 +870,13 @@ const description =
     border-radius: var(--radius);
   }
 
-  /* ---- Logos: ink through a mask ------------------------------------------------------- */
+  /* ---- Logos: their own colours, on a paper plate in dark mode ----------------------- */
 
   /* The name on the left, the logo on the right like a letterhead. */
   .name-row {
     display: flex;
-    align-items: center;
     flex-wrap: wrap;
+    align-items: center;
     justify-content: space-between;
     gap: var(--s2) var(--s5);
   }
@@ -898,13 +884,19 @@ const description =
   .logo {
     flex: none;
     display: block;
+    width: auto;
     height: 2.25rem;
     max-width: 12rem;
-    background: var(--fg);
-    -webkit-mask: var(--logo) left center / contain no-repeat;
-    mask: var(--logo) left center / contain no-repeat;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+    object-fit: contain;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .logo {
+      box-sizing: content-box;
+      padding: var(--s1) var(--s2);
+      background: #f1efe9;
+      border-radius: var(--radius);
+    }
   }
 
   .entry .logo {
