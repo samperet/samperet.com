@@ -18,8 +18,22 @@ type Role = {
   stat?: { value: string; label: string };
   highlights: Highlight[];
   groups?: { title: string; highlights: Highlight[] }[];
-  photos?: { src: string; alt: string; story?: { title: string; audio: string; captions: string } }[];
+  logo?: Logo;
+  photos?: Photo[];
+  strip?: boolean; // photos as a small row of thumbnails rather than a grid
 };
+type Photo = { src: string; thumb?: string; alt: string; story?: { title: string; audio: string; captions: string } };
+// Logos are drawn in ink through a mask, so every brand sits in the site's palette and follows
+// dark mode. The files in public/logos/ are black on transparent.
+type Logo = { src: string; width: number; height: number };
+const LOGOS = {
+  alps: { src: '/logos/alps.png', width: 414, height: 160 },
+  airbnb: { src: '/logos/airbnb.png', width: 512, height: 160 },
+  snhu: { src: '/logos/snhu.png', width: 209, height: 200 },
+  altmba: { src: '/logos/altmba.png', width: 763, height: 160 },
+  bdo: { src: '/logos/bdo.png', width: 416, height: 160 },
+} satisfies Record<string, Logo>;
+const logoStyle = (l: Logo) => `--logo: url(${l.src}); aspect-ratio: ${l.width} / ${l.height}`;
 
 const SKILLS: { key: Skill; label: string }[] = [
   { key: 'strategy', label: 'Strategy' },
@@ -58,6 +72,7 @@ const roles: Role[] = [
     dates: 'November 2017 – present',
     place: 'Burlington, Vermont',
     href: 'https://acadialps.com',
+    logo: LOGOS.alps,
     summary:
       'Joined as the company’s second employee to help build an organization connecting experienced executive advisors with emerging technology companies and enterprise customers. Responsible for developing much of the infrastructure supporting recruiting, engagement, commercialization, and business operations.',
     stat: { value: '$1.25M', label: 'annual revenue per employee, averaged over eight years' },
@@ -70,6 +85,13 @@ const roles: Role[] = [
       { text: 'Supported technology commercialization: helped emerging technology companies refine enterprise positioning, develop partnerships, and navigate complex buying organizations.', skills: ['strategy', 'relationships'] },
       { text: 'Worked across high-stakes environments: senior military leadership, healthcare executives, cybersecurity specialists, and Fortune 500 decision-makers on complex technology and operational challenges.', skills: ['relationships'] },
       { text: 'Led cross-functional initiatives spanning technical discovery, marketing, sales, partner development, internal systems, and operational strategy.', skills: ['strategy', 'systems'] },
+    ],
+    strip: true,
+    photos: [
+      { src: '/photos/alps/pitch.webp', thumb: '/photos/alps/pitch-640.webp', alt: 'Sam, two thumbs up, presenting beside a technology founder at an ALPS executive event, with a blockchain architecture poster behind them' },
+      { src: '/photos/alps/crew.webp', thumb: '/photos/alps/crew-640.webp', alt: 'ALPS advisors in matching navy jackets giving thumbs up on a boat off a Maine lighthouse' },
+      { src: '/photos/alps/helm.webp', thumb: '/photos/alps/helm-640.webp', alt: 'Sam at the helm of a boat on a bright day in Maine, looking back over his shoulder' },
+      { src: '/photos/alps/gala.webp', alt: 'Sam in a suit with an ALPS advisor at an evening event' },
     ],
   },
   {
@@ -95,6 +117,7 @@ const roles: Role[] = [
     title: 'Senior Manager, Operations',
     dates: 'February 2014 – July 2015',
     place: 'Portland, Oregon',
+    logo: LOGOS.airbnb,
     summary:
       'Founding member of Airbnb’s Portland office, joining an early group responsible for adapting the company’s San Francisco culture and operational practices to a rapidly growing regional operation.',
     stat: { value: '14 → 800', label: 'employees in the Portland office over three years' },
@@ -200,9 +223,10 @@ const initiatives: { title: string; items: string[] }[] = [
   },
 ];
 
-const education = [
+const education: { school: string; degree: string; dates: string; place?: string; logo?: Logo; notes: string[] }[] = [
   {
     school: 'Southern New Hampshire University',
+    logo: LOGOS.snhu,
     degree: 'Bachelor of Science, Business Administration',
     dates: 'May 2008',
     place: 'Manchester, New Hampshire',
@@ -210,6 +234,7 @@ const education = [
   },
   {
     school: 'altMBA',
+    logo: LOGOS.altmba,
     degree: 'Seth Godin’s altMBA Program',
     dates: 'July 2016',
     notes: ['Early participant in an intensive leadership and business development program emphasizing decision-making, creative problem-solving, communication, and organizational change.'],
@@ -324,7 +349,10 @@ const description =
               return (
                 <li class="role" id={r.id} data-spy data-skills={[...new Set(all.flatMap((h) => h.skills))].join(' ')}>
                   <header class="role-head">
-                    <h3>{r.name}</h3>
+                    <div class="name-row">
+                      <h3>{r.name}</h3>
+                      {r.logo && <span class="logo" style={logoStyle(r.logo)} aria-hidden="true"></span>}
+                    </div>
                     {r.full && <p class="full">{r.full}</p>}
                     <p class="meta">
                       <span class="title">{r.title}</span>
@@ -346,8 +374,8 @@ const description =
                     </div>
                   ))}
                   {r.photos && (
-                    <div class="photos">
-                      {r.photos.map(({ src, alt, story }) => (
+                    <div class:list={['photos', { strip: r.strip }]}>
+                      {r.photos.map(({ src, thumb, alt, story }) => (
                         <a
                           href={src}
                           class:list={{ 'has-story': story }}
@@ -355,7 +383,7 @@ const description =
                           data-story-audio={story?.audio}
                           data-story-captions={story?.captions}
                         >
-                          <img src={src} alt={alt} loading="lazy" decoding="async" />
+                          <img src={thumb ?? src} alt={alt} loading="lazy" decoding="async" />
                           {story && (
                             <span class="badge">
                               <span aria-hidden="true">▶</span> {story.title}
@@ -396,7 +424,10 @@ const description =
         <ul class="entries">
           {education.map((e) => (
             <li class="entry">
-              <h3>{e.school}</h3>
+              <div class="name-row">
+                <h3>{e.school}</h3>
+                {e.logo && <span class="logo" style={logoStyle(e.logo)} aria-hidden="true"></span>}
+              </div>
               <p class="meta">
                 <span class="title">{e.degree}</span>
                 <span class="when">{e.dates}{e.place && ` · ${e.place}`}</span>
@@ -446,7 +477,10 @@ const description =
         <h2 class="block-title">Awards &amp; recognition</h2>
         <ul class="entries">
           <li class="entry">
-            <h3>Innovation Award</h3>
+            <div class="name-row">
+              <h3>Innovation Award</h3>
+              <span class="logo" style={logoStyle(LOGOS.bdo)} aria-hidden="true"></span>
+            </div>
             <p class="meta"><span class="title">BDO USA</span><span class="when">2020</span></p>
             <p class="measure">Recognition for innovation in technology and business solutions.</p>
           </li>
@@ -829,6 +863,55 @@ const description =
     left: var(--s3);
     bottom: var(--s3);
     max-width: calc(100% - var(--s6));
+  }
+
+  /* A small row of thumbnails: same height, natural widths, full screen on click. */
+  .photos.strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    max-width: none;
+  }
+
+  .photos.strip img {
+    width: auto;
+    height: 6.5rem;
+    aspect-ratio: auto;
+    border-radius: var(--radius);
+  }
+
+  /* ---- Logos: ink through a mask ------------------------------------------------------- */
+
+  /* The name on the left, the logo on the right like a letterhead. */
+  .name-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s5);
+    max-width: var(--measure);
+  }
+
+  .logo {
+    flex: none;
+    display: block;
+    height: 2.25rem;
+    max-width: 9rem;
+    background: var(--fg);
+    -webkit-mask: var(--logo) left center / contain no-repeat;
+    mask: var(--logo) left center / contain no-repeat;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .entry .logo {
+    height: 1.75rem;
+  }
+
+  @media (max-width: 640px) {
+    .logo {
+      height: 1.5rem;
+      max-width: 6rem;
+    }
   }
 
   .visit {

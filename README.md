@@ -29,8 +29,8 @@ all of it; keep it current when a token or component changes.
 
 Every section in `src/pages/index.astro` is a collapsed row (`<details>`) that opens on
 click, or from a link to its id (e.g. `/#travel`). Each lists its `topics`; choosing
-Professional, Personal, Family or Adventure from Merlin's question opens the matching
-sections and closes the rest (`src/scripts/topics.ts`). Rows can nest: Adventure holds
+Personal, Family or Adventure from Merlin's question opens the matching sections and closes
+the rest (`src/scripts/topics.ts`). Professional goes to `/career/`, where the work now lives. Rows can nest: Adventure holds
 Humanitarian Relief and Travel (`src/components/Section.astro`). Photos open in a
 full-screen viewer (`src/components/PhotoViewer.astro`).
 
@@ -43,13 +43,17 @@ the recording, cut the pauses, added the entrance and exit and timed the subtitl
 
 ## Career
 
-`/career/` (`src/pages/career.astro`) is an interactive CV: the full-length portrait, ALPS
-(Acadia Leadership Partners), Founders Wanted and Airbnb on a timeline. Each highlight is
-tagged with the tagline's four skills; choosing one lights up the matching highlights and
-dims the rest. Numbers count up as they scroll in, the side list follows the role in view,
-the bear-shark story plays from the Airbnb photos, "Send me a message" opens Merlin's chat,
-and Print gives a clean one-page version. Roles, highlights and skills are data at the top
-of the file; dates and titles are left out until Sam supplies them.
+`/career/` (`src/pages/career.astro`) is the résumé as a page: summary, competencies, six
+roles with titles and dates, initiatives, education, community, boards and awards, all data
+at the top of the file. Each highlight is marked with the tagline's four skills; choosing one
+under "Show me" keeps the matching highlights and dims the rest. The side list follows the
+section in view, ALPS has a row of photos and Airbnb the bear-shark story (both open full
+screen), and Print gives a clean multi-page CV.
+
+Logos live in `public/logos/` as black-on-transparent PNGs and are painted in ink through a
+CSS mask, so every brand sits in the site's palette and follows dark mode. ALPS's came from
+acadialps.com; Airbnb, SNHU, altMBA and BDO from Brandfetch. Founders Wanted, Cloud Nurv and
+Whaleback Systems have none yet.
 
 ## Foreside Fiasco
 

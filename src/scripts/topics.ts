@@ -1,10 +1,11 @@
 // Interest topics: each homepage section lists the topics it belongs to in
 // data-topics (a parent row lists its children's too, so it opens with them). Opening a
 // topic expands those sections and collapses the rest; "message"
-// opens no section — Merlin starts a chat instead (src/components/Merlin.astro).
+// opens no section — Merlin starts a chat instead (src/components/Merlin.astro). A topic with an
+// `href` has its own page: "professional" goes to /career/.
 
 export const TOPICS = {
-  professional: { label: 'Professional', reply: 'Here’s the professional side.' },
+  professional: { label: 'Professional', reply: 'Here’s the professional side.', href: '/career/' },
   personal: { label: 'Personal', reply: 'A little more personal.' },
   family: { label: 'Family', reply: 'Family first!' },
   adventure: { label: 'Adventure', reply: 'Adventure awaits!' },
@@ -19,6 +20,12 @@ export const isTopic = (value: unknown): value is Topic =>
 export function openTopic(topic: Topic): HTMLDetailsElement | null {
   if (topic === 'message') {
     document.dispatchEvent(new CustomEvent('topic:open', { detail: { topic, target: null } }));
+    return null;
+  }
+
+  const href = (TOPICS[topic] as { href?: string }).href;
+  if (href && location.pathname !== href) {
+    location.assign(href);
     return null;
   }
 
