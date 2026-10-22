@@ -52,8 +52,8 @@ screen), and Print gives a clean multi-page CV.
 
 Logos live in `public/logos/` as black-on-transparent PNGs and are painted in ink through a
 CSS mask, so every brand sits in the site's palette and follows dark mode. ALPS's came from
-acadialps.com and Cloud Nurv's from nurv.au; Airbnb, SNHU, altMBA and BDO from Brandfetch.
-Founders Wanted and Whaleback Systems have none yet.
+acadialps.com, Cloud Nurv's from nurv.au and Founders Wanted's from Sam; Airbnb, SNHU,
+altMBA and BDO from Brandfetch. Whaleback Systems has none yet.
 
 ## Foreside Fiasco
 

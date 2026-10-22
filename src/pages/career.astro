@@ -33,6 +33,7 @@ const LOGOS = {
   altmba: { src: '/logos/altmba.png', width: 763, height: 160 },
   bdo: { src: '/logos/bdo.png', width: 416, height: 160 },
   nurv: { src: '/logos/nurv.png', width: 565, height: 160 },
+  foundersWanted: { src: '/logos/founders-wanted.png', width: 796, height: 160 },
 } satisfies Record<string, Logo>;
 const logoStyle = (l: Logo) => `--logo: url(${l.src}); aspect-ratio: ${l.width} / ${l.height}`;
 
@@ -98,6 +99,7 @@ const roles: Role[] = [
   {
     id: 'founders-wanted',
     name: 'Founders Wanted',
+    logo: LOGOS.foundersWanted,
     title: 'Co-Founder & Operations Officer',
     dates: 'November 2015 – October 2017',
     place: 'Greater Boston',
@@ -888,16 +890,16 @@ const description =
   .name-row {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     justify-content: space-between;
-    gap: var(--s5);
-    max-width: var(--measure);
+    gap: var(--s2) var(--s5);
   }
 
   .logo {
     flex: none;
     display: block;
     height: 2.25rem;
-    max-width: 9rem;
+    max-width: 12rem;
     background: var(--fg);
     -webkit-mask: var(--logo) left center / contain no-repeat;
     mask: var(--logo) left center / contain no-repeat;
