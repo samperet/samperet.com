@@ -2,11 +2,23 @@
 // Full-screen photo viewer for every .photos grid on the page. Each thumbnail stays a plain
 // link to the full image (so it works without JavaScript); with it, a click opens the viewer
 // on that photo, and the arrows, swipes and arrow keys move through the rest of its section.
+// A photo with a story (data-story-* on its link) plays its audio over the picture, with the
+// WebVTT captions shown as subtitles.
 ---
 
 <dialog class="viewer" aria-label="Photo viewer" data-viewer data-merlin-ui>
   <figure>
-    <img data-viewer-img alt="" />
+    <div class="viewer-stage">
+      <img data-viewer-img alt="" />
+      <p class="viewer-subtitle" data-viewer-subtitle aria-live="polite" hidden></p>
+      <div class="viewer-story" data-viewer-story hidden>
+        <button type="button" class="viewer-btn viewer-play" data-viewer-play aria-label="Play story" aria-pressed="false">
+          <span class="viewer-play-icon" aria-hidden="true"></span>
+        </button>
+        <div class="viewer-progress" aria-hidden="true"><div data-viewer-bar></div></div>
+        <span class="viewer-time" data-viewer-time>0:00</span>
+      </div>
+    </div>
     <figcaption>
       <span data-viewer-caption></span>
       <span class="viewer-count" data-viewer-count></span>
@@ -24,28 +36,151 @@
   const count = dialog.querySelector<HTMLElement>('[data-viewer-count]')!;
   const prev = dialog.querySelector<HTMLButtonElement>('[data-viewer-prev]')!;
   const next = dialog.querySelector<HTMLButtonElement>('[data-viewer-next]')!;
+  const subtitle = dialog.querySelector<HTMLElement>('[data-viewer-subtitle]')!;
+  const storyBar = dialog.querySelector<HTMLElement>('[data-viewer-story]')!;
+  const playButton = dialog.querySelector<HTMLButtonElement>('[data-viewer-play]')!;
+  const bar = dialog.querySelector<HTMLElement>('[data-viewer-bar]')!;
+  const time = dialog.querySelector<HTMLElement>('[data-viewer-time]')!;
 
-  type Photo = { src: string; alt: string };
+  type Story = { title: string; audio: string; captions: string };
+  type Photo = { src: string; alt: string; story?: Story };
+  type Cue = { start: number; end: number; text: string };
+
   let photos: Photo[] = [];
   let index = 0;
+
+  // ---- Story playback -------------------------------------------------------------------
+
+  const audio = new Audio();
+  audio.preload = 'none';
+  let cues: Cue[] = [];
+  let story: Story | undefined;
+  const cueCache = new Map<string, Promise<Cue[]>>();
+
+  // Enough of WebVTT for our own files: "mm:ss.mmm --> mm:ss.mmm" blocks with text lines.
+  const toSeconds = (stamp: string) =>
+    stamp.trim().split(':').reduce((total, part) => total * 60 + Number(part), 0);
+
+  const parseVtt = (text: string): Cue[] =>
+    text
+      .replace(/\r/g, '')
+      .split(/\n\n+/)
+      .map((block) => block.split('\n'))
+      .flatMap((lines) => {
+        const at = lines.findIndex((l) => l.includes('-->'));
+        if (at < 0) return [];
+        const [start, end] = lines[at].split('-->');
+        return [{ start: toSeconds(start), end: toSeconds(end), text: lines.slice(at + 1).join('\n').trim() }];
+      });
+
+  const loadCues = (url: string) => {
+    let pending = cueCache.get(url);
+    if (!pending) {
+      pending = fetch(url)
+        .then((r) => (r.ok ? r.text() : ''))
+        .then(parseVtt)
+        .catch(() => []);
+      cueCache.set(url, pending);
+    }
+    return pending;
+  };
+
+  // Stories ship as .m4a with an .mp3 beside it; browsers without AAC get the MP3.
+  const pickSource = (url: string) =>
+    url.endsWith('.m4a') && !audio.canPlayType('audio/mp4; codecs="mp4a.40.2"') ? url.replace(/\.m4a$/, '.mp3') : url;
+
+  const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+  const setPlaying = (on: boolean) => {
+    playButton.setAttribute('aria-pressed', String(on));
+    playButton.setAttribute('aria-label', on ? 'Pause story' : 'Play story');
+    dialog.classList.toggle('playing', on);
+  };
+
+  const stopStory = () => {
+    audio.pause();
+    audio.removeAttribute('src');
+    audio.load();
+    cues = [];
+    story = undefined;
+    subtitle.hidden = true;
+    subtitle.textContent = '';
+    storyBar.hidden = true;
+    bar.style.width = '0%';
+    time.textContent = '0:00';
+    setPlaying(false);
+  };
+
+  const startStory = async (s: Story, autoplay: boolean) => {
+    story = s;
+    storyBar.hidden = false;
+    subtitle.hidden = false;
+    subtitle.textContent = '';
+    audio.src = pickSource(s.audio);
+    cues = await loadCues(s.captions);
+    if (story !== s) return; // moved on while the captions loaded
+    if (autoplay) audio.play().catch(() => setPlaying(false));
+  };
+
+  const togglePlay = () => {
+    if (!story) return;
+    if (audio.paused) {
+      if (audio.ended) audio.currentTime = 0;
+      audio.play().catch(() => setPlaying(false));
+    } else audio.pause();
+  };
+
+  audio.addEventListener('play', () => setPlaying(true));
+  audio.addEventListener('pause', () => setPlaying(false));
+  audio.addEventListener('ended', () => {
+    setPlaying(false);
+    subtitle.textContent = '';
+  });
+  audio.addEventListener('timeupdate', () => {
+    const t = audio.currentTime;
+    const cue = cues.find((c) => t >= c.start && t < c.end);
+    const text = cue?.text ?? '';
+    if (subtitle.textContent !== text) subtitle.textContent = text;
+    if (audio.duration) bar.style.width = `${(t / audio.duration) * 100}%`;
+    time.textContent = clock(t);
+  });
+
+  playButton.addEventListener('click', togglePlay);
+  storyBar.querySelector('.viewer-progress')!.addEventListener('click', (e) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    if (audio.duration) audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+  });
+
+  // ---- Photos --------------------------------------------------------------------------
 
   const preload = (i: number) => {
     const photo = photos[(i + photos.length) % photos.length];
     if (photo) new Image().src = photo.src;
   };
 
-  const show = (i: number) => {
+  const show = (i: number, autoplay = false) => {
+    stopStory();
     index = (i + photos.length) % photos.length;
     const photo = photos[index];
     img.classList.remove('viewer-in');
     img.src = photo.src;
     img.alt = photo.alt;
-    caption.textContent = photo.alt;
+    caption.textContent = photo.story ? photo.story.title : photo.alt;
     count.textContent = photos.length > 1 ? `${index + 1} / ${photos.length}` : '';
     void img.offsetWidth;
     img.classList.add('viewer-in');
     preload(index + 1);
     preload(index - 1);
+    if (photo.story) void startStory(photo.story, autoplay);
+  };
+
+  const photoOf = (a: HTMLAnchorElement): Photo => {
+    const { storyTitle, storyAudio, storyCaptions } = a.dataset;
+    return {
+      src: a.getAttribute('href')!,
+      alt: a.querySelector('img')?.alt ?? '',
+      story: storyAudio && storyCaptions ? { title: storyTitle ?? '', audio: storyAudio, captions: storyCaptions } : undefined,
+    };
   };
 
   document.addEventListener('click', (e) => {
@@ -53,26 +188,35 @@
     if (!link || e.metaKey || e.ctrlKey || e.shiftKey) return;
     e.preventDefault();
     const links = [...link.closest('.photos')!.querySelectorAll<HTMLAnchorElement>('a')];
-    photos = links.map((a) => ({ src: a.getAttribute('href')!, alt: a.querySelector('img')?.alt ?? '' }));
+    photos = links.map(photoOf);
     dialog.classList.toggle('single', photos.length < 2);
-    show(links.indexOf(link));
+    // Opened by a click, so a story may start playing straight away.
+    show(links.indexOf(link), true);
     dialog.showModal();
     document.documentElement.classList.add('viewer-open');
   });
 
-  dialog.addEventListener('close', () => document.documentElement.classList.remove('viewer-open'));
+  dialog.addEventListener('close', () => {
+    stopStory();
+    document.documentElement.classList.remove('viewer-open');
+  });
   prev.addEventListener('click', () => show(index - 1));
   next.addEventListener('click', () => show(index + 1));
   dialog.querySelector('[data-viewer-close]')!.addEventListener('click', () => dialog.close());
 
-  // A click on the dark backdrop (not the photo or a button) closes it.
+  // A click on the dark backdrop (not the photo or a control) closes it.
   dialog.addEventListener('click', (e) => {
-    if (e.target === dialog || (e.target as HTMLElement).tagName === 'FIGURE') dialog.close();
+    const t = e.target as HTMLElement;
+    if (t === dialog || t.tagName === 'FIGURE' || t.classList.contains('viewer-stage')) dialog.close();
   });
 
   dialog.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') show(index - 1);
     if (e.key === 'ArrowRight') show(index + 1);
+    if (e.key === ' ' && story && !(e.target as HTMLElement).closest('button')) {
+      e.preventDefault();
+      togglePlay();
+    }
   });
 
   // Swipe left or right on touch screens.
@@ -115,15 +259,23 @@
   .viewer figure {
     display: grid;
     justify-items: center;
+    align-content: center;
     gap: 0.75rem;
     width: 100%;
     height: 100%;
     margin: 0;
     padding: 3.5rem 4.5rem 1.5rem;
-    align-content: center;
+  }
+
+  .viewer-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    max-width: 100%;
   }
 
   .viewer img {
+    display: block;
     max-width: 100%;
     max-height: calc(100dvh - 9rem);
     object-fit: contain;
@@ -135,6 +287,118 @@
 
   .viewer img.viewer-in {
     animation: viewer-fade 0.25s ease-out;
+  }
+
+  /* Subtitles sit over the lower part of the photo, like captions on a film. */
+  .viewer-subtitle {
+    position: absolute;
+    left: 50%;
+    bottom: 4.25rem;
+    transform: translateX(-50%);
+    max-width: min(90%, 40rem);
+    margin: 0;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    background: rgb(0 0 0 / 0.72);
+    color: #fff;
+    font-size: clamp(1rem, 2.2vw, 1.375rem);
+    font-weight: 500;
+    line-height: 1.35;
+    text-align: center;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
+    pointer-events: none;
+    white-space: pre-line;
+  }
+
+  .viewer-subtitle:empty {
+    display: none;
+  }
+
+  .viewer-story {
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 0.75rem 0.4rem 0.4rem;
+    border-radius: 999px;
+    background: rgb(0 0 0 / 0.6);
+    backdrop-filter: blur(6px);
+  }
+
+  .viewer-story[hidden],
+  .viewer-subtitle[hidden] {
+    display: none;
+  }
+
+  .viewer-story .viewer-play {
+    position: static;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: none;
+    padding: 0;
+    background: #fff;
+    color: #111;
+  }
+
+  .viewer-story .viewer-play:hover,
+  .viewer-story .viewer-play:focus-visible {
+    background: #fff;
+  }
+
+  .viewer-play-icon {
+    display: block;
+    width: 0;
+    height: 0;
+    margin-left: 3px;
+    border-style: solid;
+    border-width: 0.45rem 0 0.45rem 0.75rem;
+    border-color: transparent transparent transparent #111;
+  }
+
+  .viewer.playing .viewer-play-icon {
+    width: 0.7rem;
+    height: 0.8rem;
+    margin-left: 0;
+    border-width: 0 0.22rem;
+    border-color: #111;
+    border-style: solid;
+  }
+
+  .viewer-progress {
+    flex: 1;
+    height: 0.75rem;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .viewer-progress::before {
+    content: '';
+    position: absolute;
+    left: 3.9rem;
+    right: 3.6rem;
+    height: 3px;
+    border-radius: 2px;
+    background: rgb(255 255 255 / 0.25);
+  }
+
+  .viewer-progress div {
+    position: relative;
+    height: 3px;
+    width: 0;
+    border-radius: 2px;
+    background: #fff;
+  }
+
+  .viewer-time {
+    flex: none;
+    min-width: 2.4rem;
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
   }
 
   .viewer figcaption {
@@ -210,7 +474,7 @@
 
   @media (max-width: 640px) {
     .viewer figure {
-      padding: 3.5rem 0.75rem 1.25rem;
+      padding: 3.5rem 0.75rem 5rem;
     }
 
     .viewer-prev,
@@ -224,8 +488,9 @@
       max-height: calc(100dvh - 12rem);
     }
 
-    .viewer figure {
-      padding-bottom: 5rem;
+    .viewer-subtitle {
+      bottom: 3.9rem;
+      font-size: 1rem;
     }
   }
 

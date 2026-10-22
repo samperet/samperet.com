@@ -36,7 +36,12 @@ const sections: SectionData[] = [
       'A PDX founder, in the first batch of hires to open the Portland office. I played a critical role in designing the customer service processes and building the office itself, including Brian Chesky’s favorite table, inspired by Twin Peaks, and a honeybee room with custom laser-cut bee-nest chandeliers.',
     ],
     photos: [
-      { src: '/photos/airbnb-bearshark.jpg', alt: 'A bear-shark sculpture, half polar bear and half shark, suspended from the ceiling of an Airbnb office' },
+      {
+        src: '/photos/airbnb-bearshark.jpg',
+        alt: 'A bear-shark sculpture, half polar bear and half shark, suspended from the ceiling of an Airbnb office',
+        // Sam tells the story over the photo; the captions are the subtitles.
+        story: { title: 'The story of the bear shark', audio: '/stories/bear-shark.m4a', captions: '/stories/bear-shark.vtt' },
+      },
       { src: '/photos/airbnb-wood-ball.jpg', alt: 'Selfie in safety glasses in a workshop, in front of a giant sphere made of patchwork wood' },
     ],
   },
@@ -404,6 +409,31 @@ const sections: SectionData[] = [
     aspect-ratio: 4 / 3;
     object-fit: cover;
     border-radius: 6px;
+  }
+
+  .photos a {
+    position: relative;
+    display: block;
+  }
+
+  .story-badge {
+    position: absolute;
+    left: 0.6rem;
+    bottom: 0.6rem;
+    max-width: calc(100% - 1.2rem);
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    background: rgb(0 0 0 / 0.65);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.3;
+    backdrop-filter: blur(4px);
+  }
+
+  .photos a:hover .story-badge,
+  .photos a:focus-visible .story-badge {
+    background: rgb(0 0 0 / 0.85);
   }
 
   .embed {
