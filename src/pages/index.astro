@@ -134,13 +134,30 @@ const sections: SectionData[] = [
     <meta property="og:description" content={description} />
     <meta property="og:url" content={new URL('/', Astro.site)} />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content={new URL('/og.jpg', Astro.site)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Sam Peret" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="color-scheme" content="light dark" />
   </head>
   <body>
     <main>
       <header class="hero">
-        <h1>Samperet.com</h1>
-        <h2>strategy, relationships, systems, design, &amp; code.</h2>
+        <div class="hero-text">
+          <h1>Samperet.com</h1>
+          <h2>strategy, relationships, systems, design, &amp; code.</h2>
+        </div>
+        <img
+          class="portrait"
+          src="/photos/sam-peret.webp"
+          srcset="/photos/sam-peret-400.webp 400w, /photos/sam-peret.webp 800w"
+          sizes="(max-width: 640px) 9rem, 18rem"
+          width="800"
+          height="1000"
+          alt="Sam Peret, smiling, in a dark pinstripe jacket and open blue shirt"
+          fetchpriority="high"
+        />
       </header>
 
       {
@@ -218,9 +235,33 @@ const sections: SectionData[] = [
   .hero {
     min-height: 70vh;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem 3rem;
     padding: 4rem 0;
+  }
+
+  .portrait {
+    flex: none;
+    width: 18rem;
+    height: auto;
+    border-radius: 12px;
+    object-fit: cover;
+  }
+
+  @media (max-width: 640px) {
+    .hero {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .portrait {
+      width: 9rem;
+      border-radius: 50%;
+      aspect-ratio: 1;
+      object-position: 50% 20%;
+    }
   }
 
   h1 {
