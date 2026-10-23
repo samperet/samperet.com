@@ -43,14 +43,14 @@ const sections: SectionData[] = [
     ],
   },
   {
-    name: 'Samasanga',
+    name: 'SamaSangha',
     topics: ['personal'],
     line: 'An initiated Sufi path.',
-    tile: { kind: 'Path', color: 'var(--hof)' },
+    tile: { kind: 'Path', src: '/tiles/samasangha.webp', alt: 'The Sufi winged heart, a crescent and star on a red heart, over a blue tiled mosaic', position: 'center 30%' },
     body: [
       'I walk an initiated Sufi path. It began when I discovered the Sufis in Rajasthan, India. It deepened with Bodhi and Leilah in Maui, where I met my partner, and I was initiated with Abraham and Halima of Western Massachusetts.',
     ],
-    links: [{ label: 'samasanga.org', href: 'https://samasanga.org' }],
+    links: [{ label: 'samasangha.org', href: 'https://samasangha.org' }],
   },
   {
     name: 'Consciousness, Yoga & Self Development',
@@ -216,6 +216,7 @@ const sections: SectionData[] = [
       adventure: 'travel-and-adventure',
       travel: 'travel-and-adventure',
       'humanitarian-relief': 'emergency-first-response-efforts',
+      samasanga: 'samasangha',
     };
     const fromHash = () => {
       const id = location.hash.slice(1);
