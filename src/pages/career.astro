@@ -24,7 +24,7 @@ type Role = {
   // Projects worth naming on their own, each with its partner's logo.
   projects?: { logo: Logo; partner: string; title: string; text: string; skills: Skill[] }[];
 };
-type Photo = { src: string; thumb?: string; alt: string; story?: { title: string; audio: string; captions: string } };
+type Photo = { src: string; thumb?: string; width?: number; height?: number; alt: string; story?: { title: string; audio: string; captions: string } };
 // Logos keep their own colours. In dark mode they sit on a small paper plate so the dark ones
 // (Founders Wanted, Nurv, altMBA) stay legible. Files are trimmed PNGs in public/logos/.
 type Logo = { src: string; width: number; height: number };
@@ -94,10 +94,10 @@ const roles: Role[] = [
     ],
     strip: true,
     photos: [
-      { src: '/photos/alps/pitch.webp', thumb: '/photos/alps/pitch-640.webp', alt: 'Sam, two thumbs up, presenting beside a technology founder at an ALPS executive event, with a blockchain architecture poster behind them' },
-      { src: '/photos/alps/crew.webp', thumb: '/photos/alps/crew-640.webp', alt: 'ALPS advisors in matching navy jackets giving thumbs up on a boat off a Maine lighthouse' },
-      { src: '/photos/alps/helm.webp', thumb: '/photos/alps/helm-640.webp', alt: 'Sam at the helm of a boat on a bright day in Maine, looking back over his shoulder' },
-      { src: '/photos/alps/gala.webp', thumb: '/photos/alps/gala-640.webp', alt: 'Sam with ALPS advisor Steve Bergson, both smiling, at an evening ALPS event' },
+      { src: '/photos/alps/pitch.webp', thumb: '/photos/alps/pitch-640.webp', width: 640, height: 427, alt: 'Sam, two thumbs up, presenting beside a technology founder at an ALPS executive event, with a blockchain architecture poster behind them' },
+      { src: '/photos/alps/crew.webp', thumb: '/photos/alps/crew-640.webp', width: 640, height: 427, alt: 'ALPS advisors in matching navy jackets giving thumbs up on a boat off a Maine lighthouse' },
+      { src: '/photos/alps/helm.webp', thumb: '/photos/alps/helm-640.webp', width: 480, height: 640, alt: 'Sam at the helm of a boat on a bright day in Maine, looking back over his shoulder' },
+      { src: '/photos/alps/gala.webp', thumb: '/photos/alps/gala-640.webp', width: 543, height: 640, alt: 'Sam with ALPS advisor Steve Bergson, both smiling, at an evening ALPS event' },
     ],
   },
   {
@@ -417,7 +417,7 @@ const description =
                   ))}
                   {r.photos && (
                     <div class:list={['photos', { strip: r.strip }]}>
-                      {r.photos.map(({ src, thumb, alt, story }) => (
+                      {r.photos.map(({ src, thumb, width, height, alt, story }) => (
                         <a
                           href={src}
                           class:list={{ 'has-story': story }}
@@ -425,7 +425,7 @@ const description =
                           data-story-audio={story?.audio}
                           data-story-captions={story?.captions}
                         >
-                          <img src={thumb ?? src} alt={alt} loading="lazy" decoding="async" />
+                          <img src={thumb ?? src} alt={alt} width={width} height={height} style={width && height ? `aspect-ratio: ${width} / ${height}` : undefined} loading="lazy" decoding="async" />
                           {story && (
                             <span class="badge">
                               <span aria-hidden="true">▶</span> {story.title}
