@@ -63,8 +63,8 @@ rendered from the PDF at 150 dpi (`pdftoppm -r 150 -png book.pdf page`, then res
 1400 px wide) in `public/books/foreside-fiasco/`; the PDF itself is at
 `public/books/foreside-fiasco.pdf`.
 
-"Read it to me" plays Sam's narration (`narration.m4a`/`.mp3`, cleaned with the
-`tools/story/` scripts) with subtitles (`narration.vtt`) and turns the pages on cue from
+"Read it to me" plays Sam's narration (`narration.m4a` is his original recording, untouched;
+`narration.mp3` is a straight transcode for browsers without AAC) with subtitles (`narration.vtt`) and turns the pages on cue from
 `narration.json`, which `tools/story/align_book.py` builds from the transcription: when the
 title, the dedication and each verse begin, and when to show the painting on a phone.
 Turning a page by hand pauses the reading; Keep reading brings the book back to it.

@@ -6,7 +6,7 @@ import Base from '../layouts/Base.astro';
 
 const book = {
   title: 'Foreside Fiasco',
-  byline: 'Written by Sam Peret · Illustrated by Cynthia Eiger · Acadia Publishing, 2025',
+  byline: 'Written by Sam Peret · Acadia Publishing, 2025',
   pages: 26,
   dir: '/books/foreside-fiasco',
   pdf: '/books/foreside-fiasco.pdf',
@@ -14,7 +14,7 @@ const book = {
   width: 1400,
   height: 1082,
 };
-// Sam reading the book: cleaned audio, subtitles, and when each verse starts (narration.json,
+// Sam reading the book: the original recording, subtitles, and when each verse starts (narration.json,
 // timed by tools/story/align_book.py). "Read it to me" plays it and turns the pages on cue.
 const narration = {
   audio: `${book.dir}/narration.m4a`,
@@ -23,7 +23,7 @@ const narration = {
 };
 const pageList = Array.from({ length: book.pages }, (_, i) => i + 1);
 const pad = (n: number) => String(n).padStart(2, '0');
-const description = 'Foreside Fiasco, a picture book written by Sam Peret and illustrated by Cynthia Eiger. Read it page by page, or let Sam read it to you.';
+const description = 'Foreside Fiasco, a picture book by Sam Peret, read aloud by the author with the pages turning on cue.';
 ---
 
 <Base title="Foreside Fiasco · Samperet.com" description={description} path="/foreside-fiasco/" ogType="book" ogImage={`${book.dir}/01.webp`}>
@@ -83,10 +83,6 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
         <button type="button" data-fullscreen data-track="book:fullscreen">Full screen</button>
         <a href={book.pdf} download data-track="book:pdf">Download PDF</a>
       </div>
-      <p class="hint" data-hint hidden>
-        Turn the pages yourself (click or drag a corner, or use the arrow keys), or press Read it to me
-        and I’ll read it while the pages turn. Turning a page yourself pauses the reading.
-      </p>
       <noscript><p class="hint">Pages are shown in order below. <a href={book.pdf}>Download the PDF</a> to read it as a book.</p></noscript>
     </main>
 
@@ -101,7 +97,6 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
       const bookEl = document.querySelector<HTMLElement>('[data-book]')!;
       const controls = document.querySelector<HTMLElement>('[data-controls]')!;
       const counter = document.querySelector<HTMLElement>('[data-counter]')!;
-      const hint = document.querySelector<HTMLElement>('[data-hint]')!;
       const total = Number(bookEl.dataset.pages);
       const W = Number(bookEl.dataset.width);
       const H = Number(bookEl.dataset.height);
@@ -125,7 +120,6 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
       flip.loadFromHTML(bookEl.querySelectorAll('.page'));
       document.documentElement.classList.add('flip-ready');
       controls.hidden = false;
-      hint.hidden = false;
 
       const label = () => {
         const i = flip.getCurrentPageIndex();
@@ -547,7 +541,4 @@ const description = 'Foreside Fiasco, a picture book written by Sam Peret and il
     font-size: 0.8125rem;
   }
 
-  .hint[hidden] {
-    display: none;
-  }
 </style>
