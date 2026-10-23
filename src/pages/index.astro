@@ -122,6 +122,29 @@ const sections: SectionData[] = [
 
     startTracking();
 
+    // Opening a tile shows it alone: close its open siblings and bring it to the top of the
+    // window, since the grid around it has gone.
+    const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+    for (const summary of document.querySelectorAll<HTMLElement>('.tile > summary')) {
+      summary.addEventListener('click', () => {
+        const tile = summary.parentElement as HTMLDetailsElement;
+        if (tile.open) return; // closing: the grid comes back by itself
+        for (const sib of tile.parentElement!.children)
+          if (sib !== tile && sib instanceof HTMLDetailsElement) sib.open = false;
+        requestAnimationFrame(() => tile.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' }));
+      });
+    }
+
+    // Escape closes the innermost open tile.
+    addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || document.querySelector('dialog[open], .merlin-ask:not([hidden])')) return;
+      const open = [...document.querySelectorAll<HTMLDetailsElement>('.tile[open]')].pop();
+      if (open) {
+        open.open = false;
+        open.querySelector('summary')?.focus();
+      }
+    });
+
     // "Ask about setting it up" and the like open Merlin's message chat.
     for (const b of document.querySelectorAll('[data-message]')) b.addEventListener('click', () => openTopic('message'));
 
@@ -184,11 +207,17 @@ const sections: SectionData[] = [
   .tile {
     position: relative;
     min-width: 0;
+    scroll-margin-top: var(--s5);
   }
 
   /* An open tile takes the whole row; its picture becomes a banner and the story follows. */
   .tile[open] {
     grid-column: 1 / -1;
+  }
+
+  /* While a tile is open, only it shows: its siblings step out until it closes. */
+  .tiles:has(> .tile[open]) > .tile:not([open]) {
+    display: none;
   }
 
   .tile > summary {
