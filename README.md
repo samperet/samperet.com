@@ -27,12 +27,16 @@ all of it; keep it current when a token or component changes.
 
 ## Sections and topics
 
-Every section in `src/pages/index.astro` is a collapsed row (`<details>`) that opens on
-click, or from a link to its id (e.g. `/#travel`). Each lists its `topics`; choosing
-Personal, Family or Adventure from Merlin's question opens the matching sections and closes
-the rest (`src/scripts/topics.ts`). Professional goes to `/career/`, where the work now lives. Rows can nest: Adventure holds
-Humanitarian Relief and Travel (`src/components/Section.astro`). Photos open in a
-full-screen viewer (`src/components/PhotoViewer.astro`).
+Every section in `src/pages/index.astro` is a tile (`<details>`, `src/components/Section.astro`):
+a picture from `tile.src` (or a palette colour, `tile.color`) with its kind, title and one line.
+Clicking it, or a link to its id (e.g. `/#travel`), opens it across the grid with its text,
+links, photos and embeds below. Each lists its `topics`; choosing Personal, Family or Adventure
+from Merlin's question opens the matching tiles and closes the rest (`src/scripts/topics.ts`).
+Professional goes to `/career/`, where the work now lives. Tiles nest: Adventure holds
+Humanitarian Relief and Travel. A section's `message` adds a button that opens Merlin's message
+chat (Common Pastures Portal uses it for "Ask about setting it up"). Tile pictures that aren't
+already elsewhere live in `public/tiles/`. Photos open in a full-screen viewer
+(`src/components/PhotoViewer.astro`).
 
 A photo can carry a story: `story: { title, audio, captions }` on the photo plays the audio
 over the picture with the WebVTT captions as subtitles, starting as soon as the photo is

@@ -249,17 +249,18 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
         <span class="badge">Read the book →</span>
       </div>
 
-      <h3>Row</h3>
-      <p class="measure">The homepage unit. A hairline, a title and its topics on the left, a line on the right, a chevron that turns accent when open. Collapsed by default; the content lives inside.</p>
-      <div class="specimen">
-        <details class="row-demo">
-          <summary>
-            <span class="row-title"><span class="row-h">Airbnb</span><span class="muted">Hosting · Design</span></span>
-            <span class="row-line">One of the first 2,000 hosts.</span>
-            <span class="row-chev" aria-hidden="true">›</span>
-          </summary>
-          <p class="row-body measure">Body copy sits under the hairline. Photos and embeds span the full row.</p>
-        </details>
+      <h3>Tile</h3>
+      <p class="measure">The homepage unit. A picture, or a block of one palette colour when there is none, with a small-caps kind, the title in Fraunces and one line on a soft shade at its foot. A plus in the corner turns to a cross on Kazan when it opens; the open tile spans the grid, its picture becomes a banner and the story follows below. Tiles nest: an open tile can hold smaller ones.</p>
+      <div class="tile-specimens">
+        <div class="tile-demo">
+          <img src="/tiles/common-pastures.webp" alt="" />
+          <span class="tile-demo-mark" aria-hidden="true"></span>
+          <span class="tile-demo-cap"><span class="tile-demo-kind">Project · Open source</span><span class="tile-demo-h">Common Pastures Portal</span><span class="tile-demo-line">A free portal for communities that organize in circles.</span></span>
+        </div>
+        <div class="tile-demo" style="background: var(--hackberry)">
+          <span class="tile-demo-mark" aria-hidden="true"></span>
+          <span class="tile-demo-cap is-flat"><span class="tile-demo-kind">Practice</span><span class="tile-demo-h">A tile with no picture</span><span class="tile-demo-line">One palette colour, white type.</span></span>
+        </div>
       </div>
 
       <h3>Stat</h3>
@@ -711,6 +712,90 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   .row-body {
     padding: 0 0 var(--s5);
     color: var(--muted);
+  }
+
+  .tile-specimens {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: var(--s4);
+    margin: var(--s4) 0;
+  }
+
+  .tile-demo {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--hof);
+    color: #fff;
+  }
+
+  .tile-demo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 70%;
+  }
+
+  .tile-demo-cap {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: grid;
+    gap: var(--s1);
+    padding: var(--s7) var(--s4) var(--s4);
+    background: linear-gradient(to top, rgb(20 21 22 / 0.78), rgb(20 21 22 / 0.45) 55%, transparent);
+  }
+
+  .tile-demo-cap.is-flat {
+    background: none;
+  }
+
+  .tile-demo-kind {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+
+  .tile-demo-h {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 500;
+    line-height: var(--leading-snug);
+  }
+
+  .tile-demo-line {
+    font-size: var(--text-sm);
+    opacity: 0.9;
+  }
+
+  .tile-demo-mark {
+    position: absolute;
+    top: var(--s3);
+    right: var(--s3);
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius);
+    background: rgb(20 21 22 / 0.45);
+  }
+
+  .tile-demo-mark::before,
+  .tile-demo-mark::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0.85rem;
+    height: 2px;
+    background: #fff;
+    transform: translate(-50%, -50%);
+  }
+
+  .tile-demo-mark::after {
+    transform: translate(-50%, -50%) rotate(90deg);
   }
 
   .stat {

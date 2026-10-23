@@ -1,6 +1,7 @@
 ---
-// One collapsible homepage row. A row with `children` is a parent: its body holds the child
-// rows, and it opens for any topic one of its children belongs to.
+// One homepage tile. Closed, it is a picture (or a block of palette colour) with its title and
+// one line over it; opened, it spans the whole grid and its story unfolds below the picture. A
+// tile with `children` holds smaller tiles, and opens for any topic one of its children has.
 
 // A photo may carry a story: audio told over it, with WebVTT captions as subtitles
 // (played by PhotoViewer.astro).
@@ -14,8 +15,14 @@ export type SectionData = {
   name: string;
   topics: string[];
   line: string;
+  // The tile's face: a picture, or a palette colour when there is none. `kind` is the small
+  // label above the title ("Book", "Project").
+  tile: { kind: string; src?: string; alt?: string; color?: string; position?: string };
   body?: string[];
   href?: string;
+  // Extra links under the text, and an optional button that opens Merlin's message chat.
+  links?: { label: string; href: string }[];
+  message?: string;
   embed?: string;
   photos?: Photo[];
   // A linked cover image (a book, a project page): opens its own page, not the viewer.
@@ -26,7 +33,7 @@ export type SectionData = {
 type Props = { section: SectionData; child?: boolean };
 
 const { section, child = false } = Astro.props;
-const { name, line, href, embed, body = [], photos = [], cover, children = [] } = section;
+const { name, line, tile, href, links = [], message, embed, body = [], photos = [], cover, children = [] } = section;
 
 const slug = (value: string) =>
   value.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -35,19 +42,58 @@ const topicsOf = (s: SectionData): string[] => [...s.topics, ...(s.children ?? [
 const topics = [...new Set(topicsOf(section))];
 
 const Heading = child ? 'h4' : 'h3';
+const host = href && new URL(href).hostname.replace(/^www\./, '');
+const id = slug(name);
 ---
 
-<details class:list={['item', { child, parent: children.length > 0 }]} id={slug(name)} data-topics={topics.join(' ')}>
+<details
+  class:list={['item', 'tile', { child, parent: children.length > 0, 'is-color': !tile.src }]}
+  id={id}
+  data-topics={topics.join(' ')}
+  style={tile.color ? `--tile-color: ${tile.color}` : undefined}
+>
   <summary>
-    <Heading>{href ? <a href={href}>{name}</a> : name}</Heading>
-    <p class="line">{line}</p>
-    <span class="chevron" aria-hidden="true" />
+    {tile.src && (
+      <img
+        class="face"
+        src={tile.src}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        style={tile.position ? `object-position: ${tile.position}` : undefined}
+      />
+    )}
+    <span class="caption">
+      <span class="kind">{tile.kind}</span>
+      <Heading>{name}</Heading>
+      <span class="line">{line}</span>
+    </span>
+    <span class="toggle-mark" aria-hidden="true"></span>
   </summary>
   <div class="body">
     {body.length > 0 && (
       <div class="text">
         {body.map((para) => <p>{para}</p>)}
       </div>
+    )}
+    {(host || links.length > 0 || message) && (
+      <p class="actions">
+        {host && (
+          <a class="arrow-link" href={href} data-track={`tile:visit:${id}`}>
+            {host} <span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        )}
+        {links.map((l) => (
+          <a class="arrow-link" href={l.href} data-track={`tile:link:${id}`}>
+            {l.label} <span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        ))}
+        {message && (
+          <button type="button" class="btn btn-primary" data-message data-track={`tile:message:${id}`}>
+            {message}
+          </button>
+        )}
+      </p>
     )}
     {embed && (
       <iframe
@@ -86,7 +132,7 @@ const Heading = child ? 'h4' : 'h3';
       </div>
     )}
     {children.length > 0 && (
-      <div class="children">
+      <div class="tiles children">
         {children.map((c) => <Astro.self section={c} child />)}
       </div>
     )}
