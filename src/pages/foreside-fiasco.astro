@@ -6,7 +6,7 @@ import Base from '../layouts/Base.astro';
 
 const book = {
   title: 'Foreside Fiasco',
-  byline: 'Written by Sam Peret · Acadia Publishing, 2025',
+  byline: 'An unfortunate true story',
   pages: 26,
   dir: '/books/foreside-fiasco',
   pdf: '/books/foreside-fiasco.pdf',
@@ -23,7 +23,7 @@ const narration = {
 };
 const pageList = Array.from({ length: book.pages }, (_, i) => i + 1);
 const pad = (n: number) => String(n).padStart(2, '0');
-const description = 'Foreside Fiasco, a picture book by Sam Peret, read aloud by the author with the pages turning on cue.';
+const description = 'Foreside Fiasco, an unfortunate true story: a picture book by Sam Peret, read aloud by the author with the pages turning on cue.';
 ---
 
 <Base title="Foreside Fiasco · Samperet.com" description={description} path="/foreside-fiasco/" ogType="book" ogImage={`${book.dir}/01.webp`}>

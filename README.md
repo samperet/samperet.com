@@ -29,12 +29,12 @@ all of it; keep it current when a token or component changes.
 
 Every section in `src/pages/index.astro` is a tile (`<details>`, `src/components/Section.astro`):
 a picture from `tile.src` (or a palette colour, `tile.color`) with its kind, title and one line.
-Clicking it, or a link to its id (e.g. `/#travel`), opens it on its own: the other tiles step
+Clicking it, or a link to its id (e.g. `/#travel-and-adventure`; old ids such as `/#travel` still work), opens it on its own: the other tiles step
 out and its text, links, photos and embeds follow below. The cross, or Escape, brings the grid
 back. Each lists its `topics`; choosing Personal, Family or Adventure
 from Merlin's question opens the matching tiles and closes the rest (`src/scripts/topics.ts`).
-Professional goes to `/career/`, where the work now lives. Tiles nest: Adventure holds
-Humanitarian Relief and Travel. A section's `message` adds a button that opens Merlin's message
+Professional goes to `/career/`, where the work now lives. Tiles can nest (a section's
+`children`), though none do now. A section's `message` adds a button that opens Merlin's message
 chat (Common Pastures Portal uses it for "Ask about setting it up"). Tile pictures that aren't
 already elsewhere live in `public/tiles/`. Photos open in a full-screen viewer
 (`src/components/PhotoViewer.astro`).

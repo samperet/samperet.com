@@ -193,7 +193,8 @@ const roles: Role[] = [
   },
 ];
 
-const initiatives: { title: string; items: string[] }[] = [
+type Example = { href: string; src: string; full: string; alt: string; name: string; note: string };
+const initiatives: { title: string; items: string[]; example?: Example }[] = [
   {
     title: 'Enterprise AI adoption & solution discovery',
     items: [
@@ -211,6 +212,14 @@ const initiatives: { title: string; items: string[] }[] = [
       'Explore integrations among web applications, AI systems, business processes, and internal knowledge resources.',
       'Apply a practical, user-centered approach to system design, prioritizing clarity, usability, and maintainability.',
     ],
+    example: {
+      href: 'https://www.fuseanalytics.com',
+      src: '/work/fuseanalytics-800.webp',
+      full: '/work/fuseanalytics.webp',
+      alt: 'The fuseanalytics.com homepage: “Retire your legacy enterprise apps. Keep the data.”, with a product screenshot and a Book a demo button',
+      name: 'fuseanalytics.com',
+      note: 'An example of this work: the site for an HCM and payroll data-archiving company, built with AI-assisted development. Retention, turnover and M&A tools, a demo request that lands in the sales pipeline, and an AI assistant that hands a conversation to the team when a visitor asks for a person.',
+    },
   },
 ];
 
@@ -410,6 +419,19 @@ const description =
               <ul class="plain">
                 {i.items.map((t) => <li>{t}</li>)}
               </ul>
+              {i.example && (
+                <figure class="example">
+                  <a href={i.example.href} data-track="career:example">
+                    <img src={i.example.src} alt={i.example.alt} width="800" height="500" loading="lazy" decoding="async" />
+                  </a>
+                  <figcaption>
+                    <a class="arrow-link" href={i.example.href} data-track="career:example">
+                      {i.example.name} <span class="arrow" aria-hidden="true">↗</span>
+                    </a>
+                    <p>{i.example.note}</p>
+                  </figcaption>
+                </figure>
+              )}
             </div>
           ))}
         </div>
@@ -942,6 +964,48 @@ const description =
   }
 
   /* ---- The rest ------------------------------------------------------------------------ */
+
+  /* A piece of work, shown: a screenshot that links out, with a line on what it is. */
+  .example {
+    display: grid;
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    gap: var(--s5);
+    align-items: start;
+    margin: var(--s5) 0 0;
+    max-width: 52rem;
+  }
+
+  .example img {
+    width: 100%;
+    height: auto;
+    border: var(--hairline);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+  }
+
+  .example a:hover img,
+  .example a:focus-visible img {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .example figcaption p {
+    margin-top: var(--s3);
+    color: var(--muted);
+    max-width: var(--measure);
+  }
+
+  @media (max-width: 640px) {
+    .example {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media print {
+    .example img {
+      display: none;
+    }
+  }
 
   .initiatives,
   .entries {

@@ -37,61 +37,64 @@ const sections: SectionData[] = [
     ],
   },
   {
+    name: 'Samasanga',
+    topics: ['personal'],
+    line: 'An initiated Sufi path.',
+    tile: { kind: 'Path', color: 'var(--hof)' },
+    body: [
+      'I walk an initiated Sufi path. It began when I discovered the Sufis in Rajasthan, India. It deepened with Bodhi and Leilah in Maui, where I met my partner, and I was initiated with Abraham and Halima of Western Massachusetts.',
+    ],
+    links: [{ label: 'samasanga.org', href: 'https://samasanga.org' }],
+  },
+  {
     name: 'Consciousness, Yoga & Self Development',
     topics: ['personal'],
     line: 'Group leader, yogi, lifelong student.',
     tile: { kind: 'Practice', color: 'var(--hackberry)' },
     body: [
       'Leading men’s groups through the ManKind Project since 2012.',
+      'Yoga runs in the family: my wife, Mackensie Grant, teaches yoga and qigong and offers intuitive bodywork at Intelligent Embodiment.',
+    ],
+    links: [{ label: 'intelligentembodiment.com', href: 'https://www.intelligentembodiment.com' }],
+  },
+  {
+    name: 'Emergency First Response Efforts',
+    topics: ['personal', 'adventure'],
+    line: 'Showing up after disasters.',
+    tile: { kind: 'First response', src: '/photos/tacloban-hospital.jpg' },
+    body: [
+      'Went to New Orleans after Hurricane Katrina, and to Tacloban, Philippines, after Typhoon Haiyan.',
+      'In Tacloban we were the first Americans to arrive, and paved the way for the relief efforts that followed by converting a ransacked hospital into a distribution warehouse.',
+    ],
+    photos: [
+      { src: '/photos/tacloban-hospital.jpg', alt: 'The relief team on the steps of R.T. Romualdez Hospital in Tacloban' },
+      { src: '/photos/tacloban-c130.jpg', alt: 'The team in scrubs with backpacks beside a C-130 on a rain-soaked runway' },
+      { src: '/photos/new-orleans-katrina.jpg', alt: 'Volunteers with a resident beside a storm-damaged house marked FEMA in New Orleans' },
     ],
   },
   {
-    name: 'Adventure',
+    name: 'Travel & Adventure',
     topics: ['adventure'],
-    line: 'Relief work and travel, near and far.',
-    tile: { kind: 'Stories & photos', src: '/travel/nepal-stupa.jpg', position: 'center 40%' },
-    children: [
-      {
-        name: 'Humanitarian Relief',
-        topics: ['personal', 'adventure'],
-        line: 'Showing up after disasters.',
-        tile: { kind: 'Relief work', src: '/photos/tacloban-hospital.jpg' },
-        body: [
-          'Went to New Orleans after Hurricane Katrina, and to Tacloban, Philippines, after Typhoon Haiyan.',
-          'In Tacloban we were the first Americans to arrive, and paved the way for the relief efforts that followed by converting a ransacked hospital into a distribution warehouse.',
-        ],
-        photos: [
-          { src: '/photos/tacloban-hospital.jpg', alt: 'The relief team on the steps of R.T. Romualdez Hospital in Tacloban' },
-          { src: '/photos/tacloban-c130.jpg', alt: 'The team in scrubs with backpacks beside a C-130 on a rain-soaked runway' },
-          { src: '/photos/new-orleans-katrina.jpg', alt: 'Volunteers with a resident beside a storm-damaged house marked FEMA in New Orleans' },
-        ],
-      },
-      {
-        name: 'Travel',
-        topics: ['adventure'],
-        line: 'Places that shaped how I see things.',
-        tile: { kind: 'Travel', src: '/travel/camel.webp', position: 'center 60%' },
-        slideshow: true,
-        body: [
-          'Japan, Nepal, Hong Kong, Shenzhen, Malaysia, the Philippines, Germany, Switzerland, France, Spain, Italy, the Czech Republic, Amsterdam, Moldova, Ukraine, and Mexico, plus multiple drives across the USA.',
-          'I’ve also lived in Maui, Australia, and India.',
-        ],
-        photos: [
-          { src: '/travel/australia-pinnacles.jpg', alt: 'Tree pose on a limestone pillar in the Pinnacles desert, Western Australia' },
-          { src: '/travel/india-cafe.jpg', alt: 'Working on a laptop in a beach café in India, under a hand-painted menu board' },
-          { src: '/travel/nepal-stupa.jpg', alt: 'Sitting cross-legged on a brick wall beside a stupa in Nepal' },
-          { src: '/travel/camel.webp', alt: 'Riding a decorated camel with two young men in a desert valley, the camel stretching up to eat from a tree' },
-          { src: '/travel/train-window.webp', alt: 'In a captain’s hat in a train compartment, talking with a fellow traveler through the open window' },
-          { src: '/travel/high-desert.webp', alt: 'A windswept selfie in a paisley shirt and bandana on a wide high-desert plain, hills behind' },
-          { src: '/travel/coast-selfie.webp', alt: 'A selfie with a companion on a grassy headland above the sea, sea stacks behind' },
-        ],
-      },
+    line: 'Places and adventures that shaped how I see things.',
+    tile: { kind: 'Travel & adventure', src: '/travel/camel.webp', position: 'center 60%' },
+    body: [
+      'Japan, Nepal, Hong Kong, Shenzhen, Malaysia, the Philippines, Germany, Switzerland, France, Spain, Italy, the Czech Republic, Amsterdam, Moldova, Ukraine, and Mexico, plus multiple drives across the USA.',
+      'I’ve also lived in Maui, Australia, and India.',
+    ],
+    photos: [
+      { src: '/travel/australia-pinnacles.jpg', alt: 'Tree pose on a limestone pillar in the Pinnacles desert, Western Australia' },
+      { src: '/travel/india-cafe.jpg', alt: 'Working on a laptop in a beach café in India, under a hand-painted menu board' },
+      { src: '/travel/nepal-stupa.jpg', alt: 'Sitting cross-legged on a brick wall beside a stupa in Nepal' },
+      { src: '/travel/camel.webp', alt: 'Riding a decorated camel with two young men in a desert valley, the camel stretching up to eat from a tree' },
+      { src: '/travel/train-window.webp', alt: 'In a captain’s hat in a train compartment, talking with a fellow traveler through the open window' },
+      { src: '/travel/high-desert.webp', alt: 'A windswept selfie in a paisley shirt and bandana on a wide high-desert plain, hills behind' },
+      { src: '/travel/coast-selfie.webp', alt: 'A selfie with a companion on a grassy headland above the sea, sea stacks behind' },
     ],
   },
   {
     name: 'Foreside Fiasco',
     topics: ['personal', 'family'],
-    line: 'A picture book I wrote and read aloud.',
+    line: 'An unfortunate true story.',
     tile: { kind: 'Book', src: '/books/foreside-fiasco/01.webp' },
     body: [
       'Dedicated to Steve, Lurana and the Foreside Manor. Acadia Publishing, 2025.',
@@ -117,6 +120,16 @@ const sections: SectionData[] = [
       'Hosting experiences for my kids that make learning and communicating fun.',
       'Making things for them was my entrance to vibe coding, before the term was coined.',
     ],
+  },
+  {
+    name: 'Intelligent Embodiment',
+    topics: ['family', 'personal'],
+    line: 'Awake in the body.',
+    tile: { kind: 'My wife’s work', src: '/tiles/intelligent-embodiment.webp', position: 'center 30%' },
+    body: [
+      'My wife, Mackensie Grant, practises intuitive massage and bodywork in Charlotte, Vermont. Specializing with women, she draws on craniosacral therapy, polarity therapy and Temple Lomi, and three decades of yoga, qigong and teaching. Her sessions meet physical tension and pain, and often lead to insight about its deeper roots.',
+    ],
+    href: 'https://www.intelligentembodiment.com',
   },
 ];
 ---
@@ -167,8 +180,15 @@ const sections: SectionData[] = [
     for (const b of document.querySelectorAll('[data-message]')) b.addEventListener('click', () => openTopic('message'));
 
     // Open the section a #hash points at, e.g. a shared link to #travel.
+    // Links shared before tiles were renamed still land on the right one.
+    const RENAMED: Record<string, string> = {
+      adventure: 'travel-and-adventure',
+      travel: 'travel-and-adventure',
+      'humanitarian-relief': 'emergency-first-response-efforts',
+    };
     const fromHash = () => {
-      const target = location.hash && document.getElementById(location.hash.slice(1));
+      const id = location.hash.slice(1);
+      const target = id && document.getElementById(RENAMED[id] ?? id);
       // Open the row and every row it sits inside.
       for (let el = target instanceof HTMLDetailsElement ? target : null; el; el = el.parentElement?.closest('details') ?? null) el.open = true;
     };
