@@ -23,12 +23,25 @@ const sections: SectionData[] = [
     message: 'Ask about setting it up',
   },
   {
+    name: 'HeartWise',
+    topics: ['personal'],
+    line: 'Exquisite circles of healing and transformation, since 2016.',
+    tile: { kind: 'Circles', src: '/photos/heartwise-circle.webp', alt: 'A HeartWise circle: some thirty people piled together, smiling, on the floor of a studio after a workshop' },
+    body: [
+      'HeartWise is where I bring Heart iQ to people. Heart iQ starts from a simple observation: some parts of us only appear in the presence of other people. Most personal growth happens alone, reading and reflecting, yet the places shaped in relationship stay hidden in solitude and return when someone comes close. A circle that is held well enough, for long enough, becomes a place to be met rather than to perform or be fixed, and the group can reach places together that none of us could reach alone.',
+      'I have been leading exquisite circles of healing and transformation since 2016.',
+    ],
+    links: [
+      { label: 'getheartwise.com', href: 'https://www.getheartwise.com' },
+      { label: 'heartiq.org', href: 'https://heartiq.org' },
+    ],
+  },
+  {
     name: 'Consciousness, Yoga & Self Development',
     topics: ['personal'],
-    line: 'Facilitator, group leader, lifelong student.',
+    line: 'Group leader, yogi, lifelong student.',
     tile: { kind: 'Practice', color: 'var(--hackberry)' },
     body: [
-      'A facilitator of HeartIQ, a body of work from the Netherlands.',
       'Leading men’s groups through the ManKind Project since 2012.',
     ],
   },
@@ -57,7 +70,8 @@ const sections: SectionData[] = [
         name: 'Travel',
         topics: ['adventure'],
         line: 'Places that shaped how I see things.',
-        tile: { kind: 'Travel', src: '/travel/australia-pinnacles.jpg' },
+        tile: { kind: 'Travel', src: '/travel/camel.webp', position: 'center 60%' },
+        slideshow: true,
         body: [
           'Japan, Nepal, Hong Kong, Shenzhen, Malaysia, the Philippines, Germany, Switzerland, France, Spain, Italy, the Czech Republic, Amsterdam, Moldova, Ukraine, and Mexico, plus multiple drives across the USA.',
           'I’ve also lived in Maui, Australia, and India.',
@@ -66,6 +80,10 @@ const sections: SectionData[] = [
           { src: '/travel/australia-pinnacles.jpg', alt: 'Tree pose on a limestone pillar in the Pinnacles desert, Western Australia' },
           { src: '/travel/india-cafe.jpg', alt: 'Working on a laptop in a beach café in India, under a hand-painted menu board' },
           { src: '/travel/nepal-stupa.jpg', alt: 'Sitting cross-legged on a brick wall beside a stupa in Nepal' },
+          { src: '/travel/camel.webp', alt: 'Riding a decorated camel with two young men in a desert valley, the camel stretching up to eat from a tree' },
+          { src: '/travel/train-window.webp', alt: 'In a captain’s hat in a train compartment, talking with a fellow traveler through the open window' },
+          { src: '/travel/high-desert.webp', alt: 'A windswept selfie in a paisley shirt and bandana on a wide high-desert plain, hills behind' },
+          { src: '/travel/coast-selfie.webp', alt: 'A selfie with a companion on a grassy headland above the sea, sea stacks behind' },
         ],
       },
     ],

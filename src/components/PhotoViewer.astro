@@ -3,7 +3,9 @@
 // link to the full image (so it works without JavaScript); with it, a click opens the viewer
 // on that photo, and the arrows, swipes and arrow keys move through the rest of its section.
 // A photo with a story (data-story-* on its link) plays its audio over the picture, with the
-// WebVTT captions shown as subtitles.
+// WebVTT captions shown as subtitles. A [data-slideshow] button beside a grid opens the viewer on
+// its first photo and steps through the rest every few seconds; any arrow, key, swipe or close
+// stops it.
 ---
 
 <dialog class="viewer" aria-label="Photo viewer" data-viewer data-merlin-ui>
@@ -148,6 +150,32 @@
     };
   };
 
+  // ---- Slideshow: started by the visitor, stopped by anything they do ------------------
+
+  const SLIDE_MS = 4500;
+  let slideTimer: number | undefined;
+  const stopSlideshow = () => {
+    if (slideTimer === undefined) return;
+    clearInterval(slideTimer);
+    slideTimer = undefined;
+    dialog.classList.remove('slideshow');
+  };
+
+  document.addEventListener('click', (e) => {
+    const button = (e.target as HTMLElement).closest<HTMLElement>('[data-slideshow]');
+    if (!button) return;
+    const grid = button.closest('.body')?.querySelector('.photos');
+    const links = grid ? [...grid.querySelectorAll<HTMLAnchorElement>('a')] : [];
+    if (links.length < 2) return;
+    photos = links.map(photoOf);
+    dialog.classList.remove('single');
+    show(0);
+    dialog.showModal();
+    document.documentElement.classList.add('viewer-open');
+    dialog.classList.add('slideshow');
+    slideTimer = window.setInterval(() => show(index + 1), SLIDE_MS);
+  });
+
   document.addEventListener('click', (e) => {
     const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('.photos a');
     if (!link || e.metaKey || e.ctrlKey || e.shiftKey) return;
@@ -162,11 +190,18 @@
   });
 
   dialog.addEventListener('close', () => {
+    stopSlideshow();
     stopStory();
     document.documentElement.classList.remove('viewer-open');
   });
-  prev.addEventListener('click', () => show(index - 1));
-  next.addEventListener('click', () => show(index + 1));
+  prev.addEventListener('click', () => {
+    stopSlideshow();
+    show(index - 1);
+  });
+  next.addEventListener('click', () => {
+    stopSlideshow();
+    show(index + 1);
+  });
   dialog.querySelector('[data-viewer-close]')!.addEventListener('click', () => dialog.close());
 
   // A click on the dark backdrop (not the photo or a control) closes it.
@@ -176,6 +211,7 @@
   });
 
   dialog.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') stopSlideshow();
     if (e.key === 'ArrowLeft') show(index - 1);
     if (e.key === 'ArrowRight') show(index + 1);
     if (e.key === ' ' && story && !(e.target as HTMLElement).closest('button')) {
@@ -193,7 +229,10 @@
     if (startX === null) return;
     const dx = e.clientX - startX;
     startX = null;
-    if (Math.abs(dx) > 50 && photos.length > 1) show(index + (dx < 0 ? 1 : -1));
+    if (Math.abs(dx) > 50 && photos.length > 1) {
+      stopSlideshow();
+      show(index + (dx < 0 ? 1 : -1));
+    }
   });
 </script>
 
@@ -380,6 +419,10 @@
   .viewer-count {
     color: #a8a29e;
     font-variant-numeric: tabular-nums;
+  }
+
+  .viewer.slideshow .viewer-count::before {
+    content: 'Slideshow · ';
   }
 
   .viewer-btn {
