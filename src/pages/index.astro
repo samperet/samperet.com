@@ -157,19 +157,42 @@ const sections: SectionData[] = [
     embedAllow: 'clipboard-write',
   },
   {
-    name: 'jayaandfiona.com',
+    name: 'Family',
     topics: ['family'],
-    line: 'Jaya and Fiona’s Fun Zone.',
-    tile: { kind: 'Project · For my kids', src: '/tiles/jayaandfiona.webp', position: 'top' },
-    href: 'https://jayaandfiona.com',
-    embed: 'https://jayaandfiona.com/',
-    body: [
-      'Hosting experiences for my kids that make learning and communicating fun.',
-      'Making things for them was my entrance to vibe coding, before the term was coined.',
-    ],
+    line: 'Jaya, Fiona, Mackensie and the things we make together.',
+    tile: { kind: 'Family', src: '/photos/family-beach.webp', alt: 'The family on the beach, the girls riding on our shoulders and waving', position: 'center 30%' },
     photos: [
       { src: '/photos/family-beach.webp', alt: 'The family on the beach, the girls riding on our shoulders and waving' },
       { src: '/photos/jaya-and-fiona.webp', alt: 'Jaya and Fiona in red dresses, side by side' },
+    ],
+    memories: [
+      {
+        title: 'Take a nap',
+        audio: '/memories/take-a-nap.m4a',
+        duration: '0:38',
+        transcript: [
+          '“Because I don’t have any stories when my nap comes up.”',
+          '“Are you going to take a nap every day?” “Every single day.”',
+          '“What if you don’t want to take a nap? What should you tell yourself?”',
+          '“I should tell myself I have a very short nap.”',
+          '“Okay. Even if you don’t want to?” “Even if I don’t want to. Do it anyways.”',
+          '“Give us one story.” “Deal.”',
+        ],
+      },
+    ],
+    children: [
+      {
+        name: 'jayaandfiona.com',
+        topics: ['family'],
+        line: 'Jaya and Fiona’s Fun Zone.',
+        tile: { kind: 'Project · For my kids', src: '/tiles/jayaandfiona.webp', position: 'top' },
+        href: 'https://jayaandfiona.com',
+        embed: 'https://jayaandfiona.com/',
+        body: [
+          'Hosting experiences for my kids that make learning and communicating fun.',
+          'Making things for them was my entrance to vibe coding, before the term was coined.',
+        ],
+      },
     ],
   },
 ];
@@ -550,6 +573,120 @@ const sections: SectionData[] = [
     left: var(--s3);
     bottom: var(--s3);
     max-width: calc(100% - var(--s6));
+  }
+
+  /* ---- Memories archive: a recording per row, its transcript folded beneath ---------- */
+
+  .memories .eyebrow {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    letter-spacing: 0.12em;
+  }
+
+  .memories ul {
+    list-style: none;
+    margin: var(--s3) 0 0;
+    padding: 0;
+    max-width: var(--measure);
+  }
+
+  .memory {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: var(--s4);
+    align-items: start;
+    padding: var(--s3) 0;
+    border-top: var(--hairline);
+  }
+
+  .memory:last-child {
+    border-bottom: var(--hairline);
+  }
+
+  .memory-play {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: var(--on-accent);
+    transition: background var(--fast) var(--ease);
+  }
+
+  .memory-play:hover,
+  .memory-play:focus-visible {
+    background: var(--accent-strong);
+  }
+
+  .memory-icon {
+    width: 0;
+    height: 0;
+    margin-left: 0.15rem;
+    border-style: solid;
+    border-width: 0.45rem 0 0.45rem 0.7rem;
+    border-color: transparent transparent transparent currentColor;
+  }
+
+  .memory.playing .memory-icon {
+    width: 0.65rem;
+    height: 0.8rem;
+    margin-left: 0;
+    border-width: 0 0.22rem;
+    border-color: currentColor;
+  }
+
+  .memory-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--s3);
+  }
+
+  .memory-title {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: 500;
+  }
+
+  .memory-time {
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+
+  .memory-track {
+    position: relative;
+    height: 3px;
+    margin: var(--s2) 0;
+    border-radius: 2px;
+    background: var(--rule);
+  }
+
+  .memory-track span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  .memory-transcript summary {
+    cursor: pointer;
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .memory-transcript summary:hover {
+    color: var(--fg);
+  }
+
+  .memory-transcript p {
+    margin-top: var(--s2);
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--muted);
   }
 
   /* ---- Recommended reading: covers as little books ------------------------------------ */

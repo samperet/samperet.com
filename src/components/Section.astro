@@ -25,6 +25,8 @@ export type SectionData = {
   message?: string;
   // Recommended reading: each cover a little book that opens a touch on hover, linking out.
   books?: { title: string; author: string; cover: string; href: string; width: number; height: number }[];
+  // A memories archive: recordings, each with a play button and its transcript to read.
+  memories?: { title: string; audio: string; duration: string; transcript: string[] }[];
   embed?: string;
   // How the embed is described to screen readers, and its shape (width / height), when they
   // differ from a live site's.
@@ -40,7 +42,7 @@ export type SectionData = {
 type Props = { section: SectionData; child?: boolean };
 
 const { section, child = false } = Astro.props;
-const { name, line, tile, href, links = [], message, books = [], embed, embedTitle, embedRatio, embedAllow, body = [], photos = [], cover, children = [] } = section;
+const { name, line, tile, href, links = [], message, books = [], memories = [], embed, embedTitle, embedRatio, embedAllow, body = [], photos = [], cover, children = [] } = section;
 
 // Body text may carry inline links written as [words](https://…).
 const LINK = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
@@ -116,6 +118,31 @@ const id = slug(name);
         )}
       </p>
     )}
+    {memories.length > 0 && (
+      <div class="memories">
+        <h4 class="eyebrow">Memories archive</h4>
+        <ul>
+          {memories.map((m) => (
+            <li class="memory" data-memory={m.audio}>
+              <button type="button" class="memory-play" aria-label={`Play ${m.title}`} data-track={`memory:${m.title}`}>
+                <span class="memory-icon" aria-hidden="true"></span>
+              </button>
+              <div class="memory-main">
+                <div class="memory-head">
+                  <span class="memory-title">{m.title}</span>
+                  <span class="memory-time" data-memory-time>{m.duration}</span>
+                </div>
+                <div class="memory-track" aria-hidden="true"><span data-memory-bar></span></div>
+                <details class="memory-transcript">
+                  <summary>Transcript</summary>
+                  {m.transcript.map((line) => <p>{line}</p>)}
+                </details>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
     {books.length > 0 && (
       <div class="reading">
         <h4 class="eyebrow">Recommended reading</h4>
@@ -182,3 +209,41 @@ const id = slug(name);
     )}
   </div>
 </details>
+
+<script>
+  import { clock, pickSource } from '../scripts/narration';
+
+  // One memory plays at a time; its row shows the time left and how far along it is.
+  let current: { audio: HTMLAudioElement; row: HTMLElement } | undefined;
+  for (const row of document.querySelectorAll<HTMLElement>('[data-memory]')) {
+    const button = row.querySelector<HTMLButtonElement>('.memory-play')!;
+    const bar = row.querySelector<HTMLElement>('[data-memory-bar]')!;
+    const time = row.querySelector<HTMLElement>('[data-memory-time]')!;
+    const total = time.textContent;
+    let audio: HTMLAudioElement | undefined;
+    const show = (playing: boolean) => {
+      row.classList.toggle('playing', playing);
+      button.setAttribute('aria-label', `${playing ? 'Pause' : 'Play'} ${row.querySelector('.memory-title')!.textContent}`);
+    };
+    button.addEventListener('click', () => {
+      if (!audio) {
+        audio = new Audio();
+        audio.src = pickSource(audio, row.dataset.memory!);
+        audio.addEventListener('timeupdate', () => {
+          if (audio!.duration) bar.style.width = `${(audio!.currentTime / audio!.duration) * 100}%`;
+          time.textContent = clock(audio!.currentTime);
+        });
+        audio.addEventListener('play', () => show(true));
+        audio.addEventListener('pause', () => show(false));
+        audio.addEventListener('ended', () => {
+          bar.style.width = '0';
+          time.textContent = total;
+        });
+      }
+      if (current && current.audio !== audio) current.audio.pause();
+      current = { audio, row };
+      if (audio.paused) void audio.play().catch(() => show(false));
+      else audio.pause();
+    });
+  }
+</script>

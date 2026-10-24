@@ -71,6 +71,10 @@ The Percentage Allocator card embeds Sam's percentcalc app, copied from
 `/percentcalc/`, installable and offline through its own service worker). To update it, copy the
 repository's files over that folder again.
 
+The Family card holds the family photos, a "Memories archive" (a section's `memories`: each
+recording plays in its own row with its transcript folded beneath; files in `public/memories/`,
+`.m4a` plus an `.mp3` twin) and jayaandfiona.com as a nested card.
+
 ## Stories
 
 `/stories/` (`src/pages/stories.astro`) gathers the picture books and the told stories as tiles:
