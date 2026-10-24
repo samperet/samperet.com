@@ -6,9 +6,9 @@ const palette = [
   { name: 'Kazan', hex: '#007a87', role: 'The hero colour. CTAs, stats, link underlines, badges, the favicon. Reads at 5:1 on paper, so it may carry text.' },
   { name: 'Rausch', hex: '#ff5a5f', role: 'The dot in Samperet.com. Nothing else, anywhere.' },
   { name: 'Hackberry', hex: '#7b0051', role: 'The Strategy mark and the focus ring in light mode.' },
-  { name: 'Babu', hex: '#00d1c1', role: 'The Systems mark, and the hero colour in dark mode, where Kazan sinks. Never as text on paper.' },
+  { name: 'Babu', hex: '#00d1c1', role: 'The Systems mark. Never as text on paper.' },
   { name: 'Lima', hex: '#8ce071', role: 'Reserved. A success state, when the site gets one.' },
-  { name: 'Beach', hex: '#ffb400', role: 'The Design mark, the square beside Merlin’s name and the dark-mode focus ring. Never text.' },
+  { name: 'Beach', hex: '#ffb400', role: 'The Design mark and the square beside Merlin’s name. Never text.' },
   { name: 'Ebisu', hex: '#fea88f', role: 'The Relationships mark. Decorative; never text.' },
   { name: 'Tirol', hex: '#b3a76b', role: 'Reserved. Paper-adjacent; a possible sepia for archival photos.' },
   { name: 'Foggy', hex: '#9ca19a', role: 'Faint text and disabled states. Not for body copy.' },
@@ -25,7 +25,7 @@ const semantic = [
   ['--rule-strong', 'Link underlines at rest, quiet button borders.'],
   ['--accent', 'Kazan. The one colour that means "act here".'],
   ['--accent-strong', 'The accent on hover and press.'],
-  ['--on-accent', 'Text on an accent fill: white, or ink in dark mode.'],
+  ['--on-accent', 'Text on an accent fill: white.'],
   ['--dot', 'Rausch, for the dot in the domain. Its only use.'],
   ['--focus', 'The focus ring. Never the accent, so focus is never mistaken for a CTA.'],
 ];
@@ -154,10 +154,9 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
         <span class="mark mark-design">Design</span>
       </div>
 
-      <h3>Dark mode</h3>
+      <h3>Light only</h3>
       <p class="measure">
-        Follows the system. Paper becomes #1a1b1c, ink #f1efe9. Kazan hands the hero role to Babu, and
-        text on it turns to ink. The focus ring moves from Hackberry to Beach. The dot stays Rausch.
+        The site has one theme: warm paper and ink. It does not follow the system into dark mode.
       </p>
     </section>
 

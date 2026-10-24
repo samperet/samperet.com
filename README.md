@@ -16,7 +16,7 @@ the photo viewer) from two stylesheets:
 - `src/styles/tokens.css` — the palette (Rausch, Hackberry, Kazan, Babu, Lima, Beach, Ebisu,
   Tirol, Foggy, Hof), the semantic colours pages actually use (`--bg`, `--fg`, `--muted`,
   `--rule`, `--accent`, `--focus`…), the four skill colours, type scale, spacing (`--s1`–`--s9`),
-  radius (3px; never a pill), motion and dark mode.
+  radius (3px; never a pill) and motion. The site is light only; there is no dark mode.
 - `src/styles/base.css` — reset, type (Fraunces for display, the system sans for body), links,
   `.arrow-link`, buttons, `.toggle`, `.tag` (metadata only), `.mark` (skill marks), `.badge`.
 
@@ -55,8 +55,7 @@ under "Show me" keeps the matching highlights and dims the rest. The side list f
 section in view, ALPS has a row of photos and Airbnb the bear-shark story (both open full
 screen), and Print gives a clean multi-page CV.
 
-Logos live in `public/logos/` as trimmed PNGs in their own colours; in dark mode each sits on a
-small paper plate so the black ones stay legible. ALPS's came from acadialps.com, Cloud Nurv's
+Logos live in `public/logos/` as trimmed PNGs in their own colours. ALPS's came from acadialps.com, Cloud Nurv's
 from nurv.au and Founders Wanted's from Sam; Airbnb, SNHU, altMBA and BDO from Brandfetch.
 Whaleback Systems has none yet.
 

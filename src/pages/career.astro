@@ -25,8 +25,7 @@ type Role = {
   projects?: { logo: Logo; partner: string; title: string; text: string; skills: Skill[] }[];
 };
 type Photo = { src: string; thumb?: string; width?: number; height?: number; alt: string; story?: { title: string; audio: string; captions: string } };
-// Logos keep their own colours. In dark mode they sit on a small paper plate so the dark ones
-// (Founders Wanted, Nurv, altMBA) stay legible. Files are trimmed PNGs in public/logos/.
+// Logos keep their own colours. Files are trimmed PNGs in public/logos/.
 type Logo = { src: string; width: number; height: number };
 const LOGOS = {
   alps: { src: '/logos/alps.png', width: 414, height: 160 },
@@ -955,7 +954,7 @@ const description =
     border-radius: var(--radius);
   }
 
-  /* ---- Logos: their own colours, on a paper plate in dark mode ----------------------- */
+  /* ---- Logos: their own colours ------------------------------------------------------- */
 
   /* The name on the left, the logo on the right like a letterhead. */
   .name-row {
@@ -975,14 +974,6 @@ const description =
     object-fit: contain;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .logo {
-      box-sizing: content-box;
-      padding: var(--s1) var(--s2);
-      background: #f1efe9;
-      border-radius: var(--radius);
-    }
-  }
 
   .entry .logo {
     height: 1.75rem;
@@ -1036,15 +1027,6 @@ const description =
     object-position: left center;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .project-logo {
-      box-sizing: content-box;
-      width: calc(100% - 2 * var(--s2));
-      padding: var(--s2);
-      background: #f1efe9;
-      border-radius: var(--radius);
-    }
-  }
 
   .project-title {
     font-family: var(--font-display);

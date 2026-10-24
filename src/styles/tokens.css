@@ -82,21 +82,3 @@
   --shadow: 0 10px 30px rgb(35 37 39 / 0.12), 0 1px 2px rgb(35 37 39 / 0.08);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1a1b1c;
-    --bg-raised: #232527;
-    --fg: #f1efe9;
-    --muted: #b8bcb6;
-    --faint: #8a8e88;
-    --rule: #33363a;
-    --rule-strong: #4a4e53;
-    --accent: var(--babu); /* Kazan sinks on dark paper; Babu is its light twin */
-    --accent-text: var(--babu);
-    --accent-strong: #5fe3d8;
-    --accent-soft: #10302f;
-    --on-accent: #1a1b1c;
-    --focus: var(--beach);
-    --skill-strategy: #c0408f; /* Hackberry lifted to read on dark */
-  }
-}
