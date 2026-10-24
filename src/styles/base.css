@@ -223,15 +223,12 @@ a:focus-visible {
   border-color: var(--fg);
 }
 
-/* The way back to the homepage on every sub page: a quiet button, top left. */
+/* The way back to the homepage on every sub page: the Career link's style, arrow first, and
+   the arrow steps back (left) on hover. */
 .home-btn {
   align-self: start;
   justify-self: start;
-}
-
-.home-btn .arrow {
-  display: inline-block;
-  transition: transform var(--fast) var(--ease);
+  font-size: var(--text-md);
 }
 
 .home-btn:hover .arrow,
