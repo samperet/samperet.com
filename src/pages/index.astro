@@ -59,6 +59,16 @@ const sections: SectionData[] = [
       'MKP has also played a pivotal role in my development since my initiation in 2012: I have joined and built men’s circles, participated in and facilitated trainings, and cultivated a fascination with circle dynamics that would later lead to my work with Heart iQ.',
       'I built [samasangha.org](https://samasangha.org) for my Sufi teachers, and [intelligentembodiment.com](https://www.intelligentembodiment.com) for Mackensie.',
     ],
+    books: [
+      {
+        title: 'How Yoga Works',
+        author: 'Geshe Michael Roach & Christie McNally',
+        cover: '/reading/how-yoga-works.webp',
+        href: 'https://openlibrary.org/works/OL490414W',
+        width: 328,
+        height: 500,
+      },
+    ],
     photos: [
       { src: '/photos/yoga-squat.webp', alt: 'A deep squat on a mat on a stone patio, a dog lying alongside' },
       { src: '/photos/acro-balance.webp', alt: 'Acro yoga under the palms: balancing on a partner’s feet, hands joined' },
@@ -507,6 +517,97 @@ const sections: SectionData[] = [
     left: var(--s3);
     bottom: var(--s3);
     max-width: calc(100% - var(--s6));
+  }
+
+  /* ---- Recommended reading: covers as little books ------------------------------------ */
+
+  .reading .eyebrow {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    letter-spacing: 0.12em;
+  }
+
+  .shelf {
+    list-style: none;
+    margin: var(--s3) 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s6);
+  }
+
+  .book-link {
+    display: grid;
+    gap: var(--s1);
+    width: 8.5rem;
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  /* The pages sit behind the cover; on hover the cover swings open on its spine, a little. */
+  .book3d {
+    position: relative;
+    display: block;
+    margin-bottom: var(--s2);
+    perspective: 700px;
+  }
+
+  .book-pages {
+    position: absolute;
+    inset: 2% 0 2% 3%;
+    border-radius: 0 3px 3px 0;
+    background: repeating-linear-gradient(to right, #fbfaf7 0 2px, #e9e6de 2px 3px);
+    box-shadow: var(--shadow);
+  }
+
+  .book-cover {
+    position: relative;
+    display: block;
+    height: 100%;
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    transition: transform var(--slow) var(--ease), box-shadow var(--slow) var(--ease);
+    border-radius: 2px 4px 4px 2px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgb(35 37 39 / 0.18), 0 1px 2px rgb(35 37 39 / 0.12);
+  }
+
+  .book-cover img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* A soft crease along the spine. */
+  .book-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgb(0 0 0 / 0.28), rgb(255 255 255 / 0.14) 3%, rgb(0 0 0 / 0.06) 6%, transparent 12%);
+    pointer-events: none;
+  }
+
+  .book-link:hover .book-cover,
+  .book-link:focus-visible .book-cover {
+    transform: rotateY(-32deg);
+    box-shadow: 12px 8px 22px rgb(35 37 39 / 0.24);
+  }
+
+  .book-link:focus-visible {
+    outline-offset: 6px;
+  }
+
+  .book-title {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .book-author {
+    font-size: var(--text-sm);
+    color: var(--muted);
   }
 
   .embed {

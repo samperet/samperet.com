@@ -23,6 +23,8 @@ export type SectionData = {
   // Extra links under the text, and an optional button that opens Merlin's message chat.
   links?: { label: string; href: string }[];
   message?: string;
+  // Recommended reading: each cover a little book that opens a touch on hover, linking out.
+  books?: { title: string; author: string; cover: string; href: string; width: number; height: number }[];
   embed?: string;
   // How the embed is described to screen readers, and its shape (width / height), when they
   // differ from a live site's.
@@ -37,7 +39,7 @@ export type SectionData = {
 type Props = { section: SectionData; child?: boolean };
 
 const { section, child = false } = Astro.props;
-const { name, line, tile, href, links = [], message, embed, embedTitle, embedRatio, body = [], photos = [], cover, children = [] } = section;
+const { name, line, tile, href, links = [], message, books = [], embed, embedTitle, embedRatio, body = [], photos = [], cover, children = [] } = section;
 
 // Body text may carry inline links written as [words](https://…).
 const LINK = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
@@ -112,6 +114,27 @@ const id = slug(name);
           </button>
         )}
       </p>
+    )}
+    {books.length > 0 && (
+      <div class="reading">
+        <h4 class="eyebrow">Recommended reading</h4>
+        <ul class="shelf">
+          {books.map((book) => (
+            <li>
+              <a class="book-link" href={book.href} target="_blank" rel="noopener" data-track={`book:${book.title}`}>
+                <span class="book3d" style={`aspect-ratio: ${book.width} / ${book.height}`}>
+                  <span class="book-pages" aria-hidden="true"></span>
+                  <span class="book-cover">
+                    <img src={book.cover} alt={`${book.title}, cover`} width={book.width} height={book.height} loading="lazy" decoding="async" />
+                  </span>
+                </span>
+                <span class="book-title">{book.title}</span>
+                <span class="book-author">{book.author}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
     )}
     {embed && (
       <iframe
