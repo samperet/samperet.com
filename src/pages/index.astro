@@ -51,19 +51,27 @@ const sections: SectionData[] = [
       'Yoga has been a pillar in my life since I was 18 years old. Beyond the physical benefits of asana, yoga has provided a foundation of community, health, and spiritual growth.',
       'With a focus on Patanjali’s eight-limbed path to enlightenment, I’m currently enrolled in eighth series Ashtanga, aka parenting.',
       'I pay homage to the many teachers who have crossed my path, given generously of their wisdom, and paved the path for what is to come.',
-      'During a six-month pilgrimage through India, I stumbled upon a Sufi community in Rajasthan. That planted the seed for what would later lead me to my life partner, Mackensie, and my initiation into the Ruhaniat lineage of Sufism, where I received my spiritual name. You can hear more about this in the podcast below, hosted by a dear brother of mine through the ManKind Project (MKP).',
+      'During a six-month pilgrimage through India, I stumbled upon a Sufi community in Rajasthan. That planted the seed for what would later lead me to my life partner, Mackensie, and my initiation into the Ruhaniat lineage of Sufism, where I received my spiritual name. You can hear more about this in [the podcast](https://mcleanp.substack.com/p/day-447-the-family-of-things?utm_source=substack&utm_medium=web&utm_content=embedded-post), hosted by a dear brother of mine through the ManKind Project (MKP).',
       'MKP has also played a pivotal role in my development since my initiation in 2012: I have joined and built men’s circles, participated in and facilitated trainings, and cultivated a fascination with circle dynamics that would later lead to my work with Heart iQ.',
-      'I built samasangha.org for my Sufi teachers, and intelligentembodiment.com for Mackensie.',
-    ],
-    links: [
-      { label: 'The Family of Things, the podcast', href: 'https://mcleanp.substack.com/p/day-447-the-family-of-things?utm_source=substack&utm_medium=web&utm_content=embedded-post' },
-      { label: 'samasangha.org', href: 'https://samasangha.org' },
-      { label: 'intelligentembodiment.com', href: 'https://www.intelligentembodiment.com' },
+      'I built [samasangha.org](https://samasangha.org) for my Sufi teachers, and [intelligentembodiment.com](https://www.intelligentembodiment.com) for Mackensie.',
     ],
     photos: [
       { src: '/photos/yoga-squat.webp', alt: 'A deep squat on a mat on a stone patio, a dog lying alongside' },
       { src: '/photos/acro-balance.webp', alt: 'Acro yoga under the palms: balancing on a partner’s feet, hands joined' },
       { src: '/photos/acro-sunset.webp', alt: 'Acro yoga silhouetted against the sunset on a beach' },
+    ],
+    children: [
+      {
+        name: 'Intelligent Embodiment',
+        topics: ['family', 'personal'],
+        line: 'Awake in the body.',
+        tile: { kind: 'My partner’s work', src: '/tiles/intelligent-embodiment.webp', position: 'center 30%' },
+        body: [
+          'My life partner, Mackensie Grant, practises intuitive massage and bodywork in Charlotte, Vermont. Specializing with women, she draws on craniosacral therapy, polarity therapy and Temple Lomi, and three decades of yoga, qigong and teaching. Her sessions meet physical tension and pain, and often lead to insight about its deeper roots.',
+          'I designed and built intelligentembodiment.com for her.',
+        ],
+        href: 'https://www.intelligentembodiment.com',
+      },
     ],
   },
   {
@@ -136,17 +144,6 @@ const sections: SectionData[] = [
       { src: '/photos/family-beach.webp', alt: 'The family on the beach, the girls riding on our shoulders and waving' },
       { src: '/photos/jaya-and-fiona.webp', alt: 'Jaya and Fiona in red dresses, side by side' },
     ],
-  },
-  {
-    name: 'Intelligent Embodiment',
-    topics: ['family', 'personal'],
-    line: 'Awake in the body.',
-    tile: { kind: 'My partner’s work', src: '/tiles/intelligent-embodiment.webp', position: 'center 30%' },
-    body: [
-      'My life partner, Mackensie Grant, practises intuitive massage and bodywork in Charlotte, Vermont. Specializing with women, she draws on craniosacral therapy, polarity therapy and Temple Lomi, and three decades of yoga, qigong and teaching. Her sessions meet physical tension and pain, and often lead to insight about its deeper roots.',
-      'I designed and built intelligentembodiment.com for her.',
-    ],
-    href: 'https://www.intelligentembodiment.com',
   },
 ];
 ---
@@ -370,8 +367,9 @@ const sections: SectionData[] = [
 
   .tile h3,
   .tile h4 {
-    font-size: var(--text-xl);
-    line-height: var(--leading-snug);
+    /* A step under --text-xl, so the longest names still sit inside the picture. */
+    font-size: clamp(1.5rem, 1.1rem + 1.1vw, 1.9rem);
+    line-height: 1.2;
     text-wrap: balance;
   }
 

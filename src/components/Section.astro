@@ -35,6 +35,20 @@ type Props = { section: SectionData; child?: boolean };
 const { section, child = false } = Astro.props;
 const { name, line, tile, href, links = [], message, embed, body = [], photos = [], cover, children = [] } = section;
 
+// Body text may carry inline links written as [words](https://…).
+const LINK = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
+const inline = (para: string) => {
+  const parts: { text: string; href?: string }[] = [];
+  let last = 0;
+  for (const m of para.matchAll(LINK)) {
+    if (m.index! > last) parts.push({ text: para.slice(last, m.index) });
+    parts.push({ text: m[1], href: m[2] });
+    last = m.index! + m[0].length;
+  }
+  if (last < para.length) parts.push({ text: para.slice(last) });
+  return parts;
+};
+
 const slug = (value: string) =>
   value.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
@@ -73,7 +87,7 @@ const id = slug(name);
   <div class="body">
     {body.length > 0 && (
       <div class="text">
-        {body.map((para) => <p>{para}</p>)}
+        {body.map((para) => <p>{inline(para).map((part) => (part.href ? <a href={part.href}>{part.text}</a> : part.text))}</p>)}
       </div>
     )}
     {(host || links.length > 0 || message) && (
