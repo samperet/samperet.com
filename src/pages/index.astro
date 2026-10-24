@@ -71,28 +71,15 @@ const sections: SectionData[] = [
     ],
   },
   {
-    name: 'Emergency First Response Efforts',
-    topics: ['personal', 'adventure'],
-    line: 'Showing up after disasters.',
-    tile: { kind: 'First response', src: '/photos/tacloban-hospital.jpg' },
-    body: [
-      'Went to New Orleans after Hurricane Katrina, and to Tacloban, Philippines, after Typhoon Haiyan.',
-      'In Tacloban we were the first Americans to arrive, and paved the way for the relief efforts that followed by converting a ransacked hospital into a distribution warehouse.',
-    ],
-    photos: [
-      { src: '/photos/tacloban-hospital.jpg', alt: 'The relief team on the steps of R.T. Romualdez Hospital in Tacloban' },
-      { src: '/photos/tacloban-c130.jpg', alt: 'The team in scrubs with backpacks beside a C-130 on a rain-soaked runway' },
-      { src: '/photos/new-orleans-katrina.jpg', alt: 'Volunteers with a resident beside a storm-damaged house marked FEMA in New Orleans' },
-    ],
-  },
-  {
     name: 'Travel & Adventure',
-    topics: ['adventure'],
-    line: 'Places and adventures that shaped how I see things.',
+    topics: ['adventure', 'personal'],
+    line: 'Places, adventures and disaster relief that shaped how I see things.',
     tile: { kind: 'Travel & adventure', src: '/travel/camel.webp', position: 'center 60%' },
     body: [
       'Japan, Nepal, Hong Kong, Shenzhen, Malaysia, the Philippines, Germany, Switzerland, France, Spain, Italy, the Czech Republic, Amsterdam, Moldova, Ukraine, and Mexico, plus multiple drives across the USA.',
       'I’ve also lived in Maui, Australia, and India.',
+      'Went to New Orleans after Hurricane Katrina, and to Tacloban, Philippines, after Typhoon Haiyan.',
+      'In Tacloban we were the first Americans to arrive, and paved the way for the relief efforts that followed by converting a ransacked hospital into a distribution warehouse.',
     ],
     photos: [
       { src: '/travel/australia-pinnacles.jpg', alt: 'Tree pose on a limestone pillar in the Pinnacles desert, Western Australia' },
@@ -115,6 +102,9 @@ const sections: SectionData[] = [
       { src: '/travel/paramotor-sky.webp', alt: 'A paramotor under a yellow wing, high in a clear blue sky' },
       { src: '/travel/paramotor-snow.webp', alt: 'Strapped into a paramotor on the snow, propeller cage behind, about to take off' },
       { src: '/travel/sunset-beach-friends.webp', alt: 'Laughing with two friends on a wide beach at sunset, the tide out' },
+      { src: '/photos/tacloban-hospital.jpg', alt: 'The relief team on the steps of R.T. Romualdez Hospital in Tacloban' },
+      { src: '/photos/tacloban-c130.jpg', alt: 'The team in scrubs with backpacks beside a C-130 on a rain-soaked runway' },
+      { src: '/photos/new-orleans-katrina.jpg', alt: 'Volunteers with a resident beside a storm-damaged house marked FEMA in New Orleans' },
     ],
   },
   {
@@ -171,6 +161,7 @@ const sections: SectionData[] = [
       <h1 class="wordmark">Samperet<span class="dot">.</span>com</h1>
       <p class="lede tagline">strategy, relationships, systems <span class="amp">&amp;</span> design.</p>
       <a class="arrow-link" href="/career/" data-track="nav:career">Career <span class="arrow" aria-hidden="true">→</span></a>
+      <a class="btn btn-quiet home-btn tile-home" href="/" data-home data-track="nav:home-tile"><span class="arrow" aria-hidden="true">←</span> Home</a>
     </header>
 
     <div class="tiles">
@@ -184,8 +175,8 @@ const sections: SectionData[] = [
 
     startTracking();
 
-    // Opening a tile shows it alone: close its open siblings and bring it to the top of the
-    // window, since the grid around it has gone.
+    // Opening a tile shows it alone, like a page of its own: close its open siblings and go to
+    // the top, where the header has shrunk to the wordmark, Career and a Home button.
     const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
     for (const summary of document.querySelectorAll<HTMLElement>('.tile > summary')) {
       summary.addEventListener('click', () => {
@@ -193,9 +184,21 @@ const sections: SectionData[] = [
         if (tile.open) return; // closing: the grid comes back by itself
         for (const sib of tile.parentElement!.children)
           if (sib !== tile && sib instanceof HTMLDetailsElement) sib.open = false;
-        requestAnimationFrame(() => tile.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' }));
+        requestAnimationFrame(() => scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }));
       });
     }
+
+    // Home dismisses the open card and brings back the grid.
+    const grid = document.querySelector<HTMLElement>('.tiles')!;
+    document.querySelector('[data-home]')!.addEventListener('click', (e) => {
+      e.preventDefault();
+      for (const t of document.querySelectorAll<HTMLDetailsElement>('.tile[open]')) t.open = false;
+      if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+      requestAnimationFrame(() => {
+        scrollTo({ top: grid.getBoundingClientRect().top + scrollY - 24, behavior: reduced() ? 'auto' : 'smooth' });
+        grid.querySelector<HTMLElement>('summary')?.focus({ preventScroll: true });
+      });
+    });
 
     // Escape closes the innermost open tile.
     addEventListener('keydown', (e) => {
@@ -214,8 +217,9 @@ const sections: SectionData[] = [
     // Links shared before tiles were renamed still land on the right one.
     const RENAMED: Record<string, string> = {
       adventure: 'travel-and-adventure',
+      'emergency-first-response-efforts': 'travel-and-adventure',
       travel: 'travel-and-adventure',
-      'humanitarian-relief': 'emergency-first-response-efforts',
+      'humanitarian-relief': 'travel-and-adventure',
       samasanga: 'yoga-spirituality-and-personal-development',
       samasangha: 'yoga-spirituality-and-personal-development',
       'consciousness-yoga-and-self-development': 'yoga-spirituality-and-personal-development',
@@ -265,6 +269,22 @@ const sections: SectionData[] = [
   .hero .arrow-link {
     margin-top: var(--s6);
     font-size: var(--text-md);
+  }
+
+  /* While a card is open the page reads as that card's own page: the header shrinks and a Home
+     button under Career dismisses the card. */
+  .tile-home {
+    display: none;
+    margin-top: var(--s4);
+  }
+
+  main:has(.tile[open]) .tile-home {
+    display: inline-flex;
+  }
+
+  main:has(.tile[open]) .hero {
+    min-height: 0;
+    padding: var(--s7) 0 var(--s6);
   }
 
   /* ---- Tiles ------------------------------------------------------------------------- */
