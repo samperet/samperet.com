@@ -35,7 +35,7 @@ shrinks and a "← Home" button under Career dismisses it; the cross or Escape d
 from Merlin's question opens the matching tiles and closes the rest (`src/scripts/topics.ts`).
 Professional goes to `/career/`, where the work now lives. Tiles can nest (a section's
 `children`), though none do now. A section's `message` adds a button that opens Merlin's message
-chat (Common Pastures Portal uses it for "Ask about setting it up"). Tile pictures that aren't
+chat (CommunityOS uses it for "Ask about setting it up"). Tile pictures that aren't
 already elsewhere live in `public/tiles/`. Photos open in a full-screen viewer
 (`src/components/PhotoViewer.astro`).
 

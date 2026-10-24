@@ -11,18 +11,6 @@ const description = 'Strategy, relationships, systems & design.';
 // The professional chapters (ALPS, Founders Wanted, Airbnb) live on /career/.
 const sections: SectionData[] = [
   {
-    name: 'Common Pastures Portal',
-    topics: ['personal'],
-    line: 'A free portal for communities that organize in circles.',
-    tile: { kind: 'Project · Open source', src: '/tiles/common-pastures.webp', position: 'center 70%' },
-    body: [
-      'A community portal for groups that organize with circles, as in sociocracy: a directory of members and the circles they serve on, with open seats; proposals a circle consents to at a meeting, with who was there; shared documents, a forum, a calendar, a loan library and the skills neighbors offer.',
-      'I built it for the Common Pastures community, and any other community is free to use it. If you’d like help setting it up for yours, reach out.',
-    ],
-    links: [{ label: 'The code on GitHub', href: 'https://github.com/samperet/CommonPasturesPortal' }],
-    message: 'Ask about setting it up',
-  },
-  {
     name: 'HeartWise',
     topics: ['personal'],
     line: 'Exquisite circles of healing and transformation, since 2016.',
@@ -114,6 +102,18 @@ const sections: SectionData[] = [
     ],
   },
   {
+    name: 'CommunityOS',
+    topics: ['personal'],
+    line: 'A free portal for communities that organize in circles.',
+    tile: { kind: 'Project · Open source', src: '/tiles/common-pastures.webp', position: 'center 70%' },
+    body: [
+      'A community portal for groups that organize with circles, as in sociocracy: a directory of members and the circles they serve on, with open seats; proposals a circle consents to at a meeting, with who was there; shared documents, a forum, a calendar, a loan library and the skills neighbors offer.',
+      'I built it for the Common Pastures community, and any other community is free to use it. If you’d like help setting it up for yours, reach out.',
+    ],
+    links: [{ label: 'The code on GitHub', href: 'https://github.com/samperet/CommonPasturesPortal' }],
+    message: 'Ask about setting it up',
+  },
+  {
     name: 'jayaandfiona.com',
     topics: ['family'],
     line: 'Jaya and Fiona’s Fun Zone.',
@@ -203,6 +203,7 @@ const sections: SectionData[] = [
       samasanga: 'yoga-spirituality-and-personal-development',
       samasangha: 'yoga-spirituality-and-personal-development',
       'consciousness-yoga-and-self-development': 'yoga-spirituality-and-personal-development',
+      'common-pastures-portal': 'communityos',
     };
     // Tiles that became pages of their own.
     const MOVED: Record<string, string> = { 'foreside-fiasco': '/stories/' };
