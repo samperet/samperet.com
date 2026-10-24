@@ -24,6 +24,10 @@ export type SectionData = {
   links?: { label: string; href: string }[];
   message?: string;
   embed?: string;
+  // How the embed is described to screen readers, and its shape (width / height), when they
+  // differ from a live site's.
+  embedTitle?: string;
+  embedRatio?: string;
   photos?: Photo[];
   // A linked cover image (a book, a project page): opens its own page, not the viewer.
   cover?: { src: string; alt: string; href: string; label: string; width: number; height: number };
@@ -33,7 +37,7 @@ export type SectionData = {
 type Props = { section: SectionData; child?: boolean };
 
 const { section, child = false } = Astro.props;
-const { name, line, tile, href, links = [], message, embed, body = [], photos = [], cover, children = [] } = section;
+const { name, line, tile, href, links = [], message, embed, embedTitle, embedRatio, body = [], photos = [], cover, children = [] } = section;
 
 // Body text may carry inline links written as [words](https://…).
 const LINK = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
@@ -113,7 +117,8 @@ const id = slug(name);
       <iframe
         class="embed"
         src={embed}
-        title={`${name}, live site`}
+        title={embedTitle ?? `${name}, live site`}
+        style={embedRatio ? `aspect-ratio: ${embedRatio}` : undefined}
         loading="lazy"
         referrerpolicy="strict-origin-when-cross-origin"
         sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"

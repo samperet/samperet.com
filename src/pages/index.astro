@@ -79,6 +79,9 @@ const sections: SectionData[] = [
     topics: ['adventure', 'personal'],
     line: 'Places, adventures and disaster relief that shaped how I see things.',
     tile: { kind: 'Travel & adventure', src: '/travel/camel.webp', position: 'center 60%' },
+    embed: '/globe/index.html',
+    embedTitle: 'A globe tracing my travels: drag to turn it',
+    embedRatio: '16 / 10',
     body: [
       'Japan, Nepal, Hong Kong, Shenzhen, Malaysia, the Philippines, Germany, Switzerland, France, Spain, Italy, the Czech Republic, Amsterdam, Moldova, Ukraine, and Mexico, plus multiple drives across the USA.',
       'I’ve also lived in Maui, Australia, and India.',
@@ -510,6 +513,13 @@ const sections: SectionData[] = [
     border: var(--hairline);
     border-radius: var(--radius-lg);
     background: #fff;
+  }
+
+  /* The travel globe needs height more than width on a phone. */
+  @media (max-width: 640px) {
+    .embed[src='/globe/index.html'] {
+      min-height: 24rem;
+    }
   }
 
   @media (max-width: 640px) {

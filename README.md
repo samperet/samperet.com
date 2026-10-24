@@ -46,6 +46,12 @@ without AAC. The bear shark is the first one; `tools/story/` has the scripts tha
 the recording, cut the pauses, added the entrance and exit and timed the subtitles.
 "Send me a message" opens a chat with Merlin instead.
 
+The Travel & Adventure card embeds a globe of Sam's travels: `public/globe/` holds the page
+(`index.html`, with the 83 stops inline), self-hosted d3 7.9.0 and topojson-client 3.1.0, and
+Natural Earth's 110m world map. It came from Sam's Route Atlas export, rebuilt because the export
+was broken (a corrupted d3 and map files it could not reach); the route curves are illustrative,
+not GPS tracks. It loads only when the card opens, and only turns when dragged or asked to spin.
+
 ## Career
 
 `/career/` (`src/pages/career.astro`) is the résumé as a page: summary, competencies, five

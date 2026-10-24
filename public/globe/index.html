@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>My travels across the globe</title>
+<!--
+  The travel globe shown in the Travel & Adventure card. Built from Sam's Route Atlas export:
+  the same stops and route curve, redrawn in the site's palette. Route curves are illustrative,
+  not GPS tracks. It never moves on its own: drag to turn it, or press Spin.
+-->
+<style>
+  html, body { margin: 0; height: 100%; background: #fbfaf7; color: #232527; font: 14px/1.4 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  .stage { position: relative; height: 100%; overflow: hidden; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: pan-y; }
+  canvas:active { cursor: grabbing; }
+  canvas:focus-visible { outline: 2px solid #7b0051; outline-offset: -2px; }
+  .controls { position: absolute; top: 12px; left: 12px; display: flex; gap: 6px; }
+  button { min-width: 2.25rem; height: 2.25rem; padding: 0 .75rem; border: 1px solid #cfcdc6; border-radius: 3px; background: #fff; color: #232527; font: inherit; font-weight: 600; cursor: pointer; }
+  button:hover, button:focus-visible { border-color: #232527; }
+  button:focus-visible { outline: 2px solid #7b0051; outline-offset: 2px; }
+  button[aria-pressed="true"] { background: #232527; border-color: #232527; color: #fff; }
+  .facts { position: absolute; top: 12px; right: 14px; text-align: right; font-size: 12px; color: #565a5d; }
+  .facts strong { display: block; font-family: Georgia, 'Iowan Old Style', serif; font-weight: 500; font-size: 20px; color: #232527; }
+  .hint { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-size: 12px; color: #565a5d; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { #spin { display: none; } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <canvas id="globe" tabindex="0" role="img"></canvas>
+  <div class="controls">
+    <button id="spin" type="button" aria-pressed="false">Spin</button>
+    <button id="plus" type="button" aria-label="Zoom in">+</button>
+    <button id="minus" type="button" aria-label="Zoom out">&minus;</button>
+  </div>
+  <div class="facts"><strong id="stops">0</strong>stops · <span id="km">0</span> km</div>
+  <div class="hint">Drag to turn the world · + / − to zoom</div>
+</div>
+<script src="d3-7.9.0.min.js"></script>
+<script src="topojson-client-3.1.0.min.js"></script>
+<script>
+(() => {
+  const STOPS = [[-70.801,44.314],[-72.608,42.706],[-75.452,39.917],[-77.903,37.927],[-81.274,37.844],[-86.015,35.728],[-90.766,34.935],[-95.999,33.998],[-103.016,33.444],[-108.676,33.444],[-113.439,34.287],[-117.441,34.576],[-120.707,37.016],[-123.296,40.059],[-123.465,43.215],[-120.181,46.807],[-117.658,44.85],[-107.474,42.52],[-101.438,38.401],[-97.584,39.734],[-90.86,33.285],[-83.39,30.88],[-81.593,26.537],[-80.511,32.366],[-77.818,34.66],[-76.577,37.703],[-69.825,43.431],[-157.559,64.662],[-70.549,42.513],[-158.279,21.994],[-70.165,42.853],[-103.384,23.819],[-69.972,42.781],[2.528,48.45],[-4.305,39.864],[10.762,43.091],[9.793,50.396],[10.478,60.409],[12.672,49.044],[19.332,49.856],[6.081,48.689],[-71.083,43.042],[132.608,33.296],[136.498,34.987],[139.01,36.036],[140.442,37.229],[140.991,38.913],[141.279,41.07],[150.964,-25.112],[152.115,-28.963],[151.338,-32.016],[150.347,-34.913],[148.527,-36.958],[115.621,-24.509],[101.964,0.975],[121.03,14.503],[110.046,20.261],[73.824,20.479],[74.04,18.405],[75.05,15.37],[76.275,13.004],[77.685,9.661],[79.241,14.236],[80.484,18.735],[79.843,24.296],[78.146,27.908],[77.445,32.761],[30.997,49.143],[28.928,45.638],[-69.833,42.855],[-157.993,22.079],[124.987,10.537],[-157.687,21.568],[-122.524,41.281],[-126.141,55.592],[-121.663,40.499],[-73.228,41.719],[-71.054,42.821],[145.076,-19.38],[146.799,-6.53],[139.25,-3.569],[145.405,-19.895],[-70.666,43.088]];
+  const canvas = document.getElementById('globe');
+  const ctx = canvas.getContext('2d');
+  const grat = d3.geoGraticule10();
+  let land, borders, w = 0, h = 0, zoom = 1, spinning = false, drag = null, last = 0;
+  let rotation = [-STOPS[0][0], -22, 0];
+
+  // The route as Sam drew it: each leg follows the great circle with a gentle wave, so the
+  // line reads as a journey rather than a ruler.
+  const route = (() => {
+    const out = [];
+    for (let i = 1; i < STOPS.length; i++) {
+      const a = STOPS[i - 1], b = STOPS[i], lerp = d3.geoInterpolate(a, b), dist = d3.geoDistance(a, b);
+      const steps = Math.max(12, Math.ceil(dist * 90));
+      for (let j = 0; j < steps; j++) {
+        const t = j / steps, p = lerp(t), prev = lerp(Math.max(0, t - 0.001)), next = lerp(Math.min(1, t + 0.001));
+        let dx = next[0] - prev[0];
+        if (dx > 180) dx -= 360;
+        if (dx < -180) dx += 360;
+        const dy = next[1] - prev[1], len = Math.hypot(dx, dy) || 1;
+        const amp = Math.min(0.65, dist * 2) * Math.sin(Math.PI * t) ** 2 * Math.sin(t * Math.PI * 6);
+        p[0] += (-dy / len) * amp;
+        p[1] = Math.max(-89.9, Math.min(89.9, p[1] + (dx / len) * amp));
+        out.push(p);
+      }
+    }
+    out.push(STOPS.at(-1));
+    return { type: 'LineString', coordinates: out };
+  })();
+
+  let km = 0;
+  for (let i = 1; i < STOPS.length; i++) km += d3.geoDistance(STOPS[i - 1], STOPS[i]) * 6371;
+  document.getElementById('stops').textContent = STOPS.length;
+  document.getElementById('km').textContent = Math.round(km).toLocaleString('en-US');
+  canvas.setAttribute('aria-label', 'A globe tracing my travels: ' + STOPS.length + ' stops, about ' + (Math.round(km / 1000) * 1000).toLocaleString('en-US') + ' km. Drag or use the arrow keys to turn it.');
+
+  function draw() {
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    const projection = d3.geoOrthographic().translate([w / 2, h / 2 + 8]).scale(Math.min(w, h) * 0.42 * zoom).rotate(rotation).clipAngle(90);
+    const path = d3.geoPath(projection, ctx);
+    ctx.beginPath(); path({ type: 'Sphere' });
+    ctx.fillStyle = '#e8eeee'; ctx.fill();
+    ctx.strokeStyle = '#cfcdc6'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.save(); ctx.clip();
+    ctx.beginPath(); path(grat); ctx.strokeStyle = '#d6dede'; ctx.lineWidth = 0.6; ctx.stroke();
+    if (land) {
+      ctx.beginPath(); path(land); ctx.fillStyle = '#ddd6bb'; ctx.fill();
+      ctx.strokeStyle = '#b3a76b'; ctx.lineWidth = 0.6; ctx.stroke();
+    }
+    if (borders) { ctx.beginPath(); path(borders); ctx.strokeStyle = '#c3b98f'; ctx.lineWidth = 0.5; ctx.stroke(); }
+    ctx.beginPath(); path(route);
+    ctx.strokeStyle = '#007a87'; ctx.lineWidth = 2.2; ctx.shadowColor = 'rgba(0, 122, 135, 0.35)'; ctx.shadowBlur = 6; ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.restore();
+  }
+
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    w = r.width; h = r.height;
+    canvas.width = w * devicePixelRatio; canvas.height = h * devicePixelRatio;
+    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    draw();
+  }
+  new ResizeObserver(resize).observe(canvas);
+
+  // Turning: drag with the mouse, or sideways with a finger (up and down still scrolls the page).
+  canvas.onpointerdown = (e) => { drag = { x: e.clientX, y: e.clientY, r: [...rotation] }; canvas.setPointerCapture(e.pointerId); };
+  canvas.onpointermove = (e) => {
+    if (!drag) return;
+    rotation = [drag.r[0] + (e.clientX - drag.x) * 0.35, Math.max(-89, Math.min(89, drag.r[1] - (e.clientY - drag.y) * 0.35)), 0];
+    draw();
+  };
+  canvas.onpointerup = canvas.onpointercancel = () => { drag = null; };
+  canvas.onkeydown = (e) => {
+    const k = { ArrowLeft: [-10, 0], ArrowRight: [10, 0], ArrowUp: [0, 10], ArrowDown: [0, -10] }[e.key];
+    if (!k) return;
+    e.preventDefault();
+    rotation = [rotation[0] + k[0], Math.max(-89, Math.min(89, rotation[1] + k[1])), 0];
+    draw();
+  };
+  const zoomBy = (f) => { zoom = Math.max(0.7, Math.min(2.5, zoom * f)); draw(); };
+  document.getElementById('plus').onclick = () => zoomBy(1.15);
+  document.getElementById('minus').onclick = () => zoomBy(1 / 1.15);
+  // A pinch on a trackpad arrives as a ctrl-wheel; a plain wheel keeps scrolling the page.
+  canvas.addEventListener('wheel', (e) => { if (!e.ctrlKey) return; e.preventDefault(); zoomBy(Math.exp(-e.deltaY * 0.01)); }, { passive: false });
+
+  // Spin only when asked.
+  const spin = document.getElementById('spin');
+  spin.onclick = () => {
+    spinning = !spinning;
+    spin.setAttribute('aria-pressed', String(spinning));
+    spin.textContent = spinning ? 'Stop' : 'Spin';
+    last = performance.now();
+    if (spinning) requestAnimationFrame(frame);
+  };
+  function frame(t) {
+    if (!spinning) return;
+    if (!drag && !document.hidden) { rotation[0] += (t - last) * 0.008; draw(); }
+    last = t;
+    requestAnimationFrame(frame);
+  }
+
+  fetch('world-110m.json').then((r) => r.json()).then((world) => {
+    land = topojson.feature(world, world.objects.land);
+    borders = topojson.mesh(world, world.objects.countries, (a, b) => a !== b);
+    draw();
+  });
+})();
+</script>
+</body>
+</html>
