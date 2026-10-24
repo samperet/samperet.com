@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creative home automation · Sam Peret</title>
+<meta name="description" content="Creative home automation: media libraries, living-room scenes, ESP32 gadgets and your own movie collection, set up to just work. Book a free consulting call.">
+<link rel="canonical" href="https://automate.samperet.com/">
+<meta property="og:title" content="Creative home automation">
+<meta property="og:description" content="Media libraries, living-room scenes, ESP32s and local movie collections. Book a free consulting call.">
+<meta property="og:url" content="https://automate.samperet.com/">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#fbfaf7">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin>
+<!--
+  automate.samperet.com: a one-page landing site for Sam's home-automation consulting. Its own
+  Vercel project, deployed from sites/automate/ in the samperet.com repository. Static: no build,
+  no scripts, no tracking. Type and colour follow the samperet.com brand guide (/branding/).
+-->
+<style>
+  @font-face { font-family: 'Fraunces'; src: url('/fonts/fraunces.woff2') format('woff2'); font-weight: 400 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'Fraunces'; src: url('/fonts/fraunces-italic.woff2') format('woff2'); font-weight: 400 600; font-style: italic; font-display: swap; }
+
+  :root {
+    --bg: #fbfaf7;
+    --bg-raised: #ffffff;
+    --fg: #232527;
+    --muted: #565a5d;
+    --rule: #e6e4de;
+    --rule-strong: #cfcdc6;
+    --accent: #007a87;
+    --accent-strong: #005f69;
+    --accent-soft: #e6f2f3;
+    --dot: #ff5a5f;
+    --focus: #7b0051;
+    --display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+    --body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    --radius: 3px;
+    --radius-lg: 6px;
+    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--fg); font: 1rem/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 500; letter-spacing: -0.015em; line-height: 1.15; text-wrap: balance; }
+  p { margin: 0; }
+  a { color: inherit; text-decoration-color: var(--rule-strong); text-underline-offset: 0.18em; }
+  a:hover, a:focus-visible { text-decoration-color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: var(--radius); }
+
+  .wrap { width: min(68rem, 100% - 2.5rem); margin-inline: auto; }
+
+  /* ---- Header ---- */
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; }
+  .brand { font-family: var(--display); font-size: 1.125rem; font-weight: 500; text-decoration: none; }
+  .brand .dot { color: var(--dot); }
+  .top a.small { font-size: 0.875rem; color: var(--muted); }
+
+  /* ---- Hero ---- */
+  .hero { padding: clamp(3rem, 10vw, 7rem) 0 clamp(3rem, 8vw, 5rem); display: grid; gap: 1.5rem; }
+  .eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .hero h1 { font-size: clamp(2.6rem, 1.6rem + 5vw, 5.25rem); letter-spacing: -0.03em; line-height: 1.02; max-width: 14ch; }
+  .lede { font-family: var(--display); font-style: italic; font-size: clamp(1.2rem, 1rem + 1vw, 1.6rem); line-height: 1.4; color: var(--muted); max-width: 36ch; }
+  .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-top: 0.5rem; }
+
+  .btn { display: inline-flex; align-items: center; gap: 0.6em; padding: 0.85rem 1.4rem; border-radius: var(--radius); background: var(--accent); color: #fff; font-weight: 600; text-decoration: none; transition: background 150ms var(--ease); }
+  .btn:hover, .btn:focus-visible { background: var(--accent-strong); }
+  .btn .arrow { transition: transform 150ms var(--ease); }
+  .btn:hover .arrow, .btn:focus-visible .arrow { transform: translateX(0.2em); }
+  .note { font-size: 0.9375rem; color: var(--muted); }
+
+  /* ---- What I set up ---- */
+  .section { padding: 3.5rem 0; border-top: 1px solid var(--rule); }
+  .section > h2 { font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.25rem); margin-bottom: 2rem; }
+  .offers { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 2rem 2.5rem; }
+  .offer { display: grid; gap: 0.6rem; align-content: start; padding-top: 1rem; border-top: 2px solid var(--fg); }
+  .offer svg { width: 2rem; height: 2rem; color: var(--accent); }
+  .offer h3 { font-size: 1.375rem; }
+  .offer p { color: var(--muted); }
+
+  /* ---- How it works ---- */
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 2rem 2.5rem; counter-reset: step; }
+  .steps li { counter-increment: step; display: grid; gap: 0.5rem; align-content: start; }
+  .steps li::before { content: counter(step); font-family: var(--display); font-size: 2.5rem; line-height: 1; color: var(--accent); }
+  .steps h3 { font-size: 1.25rem; }
+  .steps p { color: var(--muted); }
+
+  /* ---- Closing call to action ---- */
+  .closing { margin: 1rem 0 4rem; padding: clamp(2rem, 5vw, 3.5rem); border-radius: var(--radius-lg); background: var(--accent-soft); display: grid; gap: 1.25rem; justify-items: start; }
+  .closing h2 { font-size: clamp(1.9rem, 1.3rem + 2.4vw, 2.9rem); max-width: 20ch; }
+  .closing p { color: var(--muted); max-width: 52ch; }
+
+  footer { padding: 2rem 0 3rem; border-top: 1px solid var(--rule); font-size: 0.875rem; color: var(--muted); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1.5rem; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition-duration: 0.01ms !important; } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="https://samperet.com">Samperet<span class="dot">.</span>com</a>
+      <a class="small" href="#call">Free consulting call</a>
+    </header>
+
+    <main>
+      <section class="hero">
+        <span class="eyebrow">Home automation</span>
+        <h1>Creative home automation.</h1>
+        <p class="lede">Media libraries, living-room scenes, ESP32 gadgets and your own movie collection, set up to just work.</p>
+        <div class="cta-row">
+          <a class="btn" href="mailto:sam@peret.net?subject=Free%20home%20automation%20consulting%20call">Book a free consulting call <span class="arrow" aria-hidden="true">→</span></a>
+          <span class="note">No cost, no obligation. Tell me what you have in mind.</span>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="what">
+        <h2 id="what">What I set up</h2>
+        <ul class="offers">
+          <li class="offer">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="6" height="20" rx="1"/><rect x="12" y="6" width="6" height="20" rx="1"/><path d="M21 8l5-1.5 3.5 19-5 1.5z"/></svg>
+            <h3>Media libraries</h3>
+            <p>Music, photos and home videos gathered into one library, organized and playable in every room.</p>
+          </li>
+          <li class="offer">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22h24v4H4zM7 22v-6a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v6"/><path d="M16 4v3M9 6l1.5 2.5M23 6l-1.5 2.5"/></svg>
+            <h3>Living-room scenes</h3>
+            <p>One tap for movie night: lights dim, the screen comes on, the sound is right. Scenes for mornings, dinner and bedtime too.</p>
+          </li>
+          <li class="offer">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="14" height="14" rx="1.5"/><rect x="13" y="13" width="6" height="6"/><path d="M13 9V5M19 9V5M13 27v-4M19 27v-4M9 13H5M9 19H5M27 13h-4M27 19h-4"/></svg>
+            <h3>ESP32s</h3>
+            <p>Small custom gadgets on tiny Wi-Fi boards: sensors, buttons, displays and lights that do exactly what your home needs.</p>
+          </li>
+          <li class="offer">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="24" height="18" rx="1.5"/><path d="M4 12h24M4 20h24M9 7v5M15 7v5M21 7v5M9 20v5M15 20v5M21 20v5"/></svg>
+            <h3>Local movie collections</h3>
+            <p>Your films on your own server, with artwork and a proper menu, playable on any TV in the house. Yours to keep.</p>
+          </li>
+        </ul>
+      </section>
+
+      <section class="section" aria-labelledby="how">
+        <h2 id="how">How it works</h2>
+        <ol class="steps">
+          <li><h3>A free call</h3><p>We talk about your home, what you have and what you would love it to do.</p></li>
+          <li><h3>A plan</h3><p>A clear outline of what to set up, what it needs and what it costs.</p></li>
+          <li><h3>Set up together</h3><p>I build it, show you how it works, and make sure it is easy to live with.</p></li>
+        </ol>
+      </section>
+
+      <section class="closing" id="call" aria-labelledby="call-title">
+        <h2 id="call-title">Looking for creative home automation?</h2>
+        <p>Reach out for a free consulting call. Send a note about your space and what you want it to do, and we will find a time to talk.</p>
+        <a class="btn" href="mailto:sam@peret.net?subject=Free%20home%20automation%20consulting%20call">Book a free consulting call <span class="arrow" aria-hidden="true">→</span></a>
+      </section>
+    </main>
+
+    <footer>
+      <span>Sam Peret · <a href="mailto:sam@peret.net">sam@peret.net</a></span>
+      <a href="https://samperet.com">samperet.com</a>
+    </footer>
+  </div>
+</body>
+</html>
