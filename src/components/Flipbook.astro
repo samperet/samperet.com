@@ -13,7 +13,7 @@ export type Book = {
   pages: number;
   dir: string; // page images live at {dir}/01.webp, {dir}/02.webp, …
   pdf?: string; // offered as a download when present
-  about?: string; // a short note on how the book came to be, under the byline
+  about?: string[]; // short notes under the byline: how the book came to be, thanks
   buy?: { href: string; label: string };
   width: number; // one page, in pixels
   height: number;
@@ -34,7 +34,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       <div>
         <h1>{book.title}</h1>
         <p class="byline">{book.byline}</p>
-        {book.about && <p class="about">{book.about}</p>}
+        {book.about?.map((note) => <p class="about">{note}</p>)}
       </div>
     </header>
 
