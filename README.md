@@ -71,11 +71,13 @@ Whaleback Systems has none yet.
 Foreside Fiasco and The Golden Berry open their flipbooks, and the bear shark opens the photo
 viewer and plays Sam telling it. The homepage links to it next to Career.
 
-Both books use `src/components/Flipbook.astro`: give it the page count, image folder, page size
-and PDF, and optionally `narration` for "Read it to me". The Golden Berry (`/golden-berry/`,
+Both books use `src/components/Flipbook.astro`: give it the page count, image folder and page
+size, and optionally a PDF to download, an `about` note, a `buy` link and `narration` for
+"Read it to me". The Golden Berry (`/golden-berry/`,
 Little Red Riding Hood and The Golden Berry by Jaya Elnora Peret, illustrated by the Ukrainian
 watercolor artist Kateryna Rohotova) is 16 square pages rendered at
-1200 px from the PDF in `public/books/golden-berry/`, with the original PDF to download.
+1200 px from the PDF in `public/books/golden-berry/`, with a note on how Jaya told it and a
+link to buy the paperback on Lulu (no PDF download).
 
 ## Foreside Fiasco
 

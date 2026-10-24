@@ -12,7 +12,9 @@ export type Book = {
   path: string;
   pages: number;
   dir: string; // page images live at {dir}/01.webp, {dir}/02.webp, …
-  pdf: string;
+  pdf?: string; // offered as a download when present
+  about?: string; // a short note on how the book came to be, under the byline
+  buy?: { href: string; label: string };
   width: number; // one page, in pixels
   height: number;
   narration?: { audio: string; captions: string; timing: string };
@@ -32,6 +34,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       <div>
         <h1>{book.title}</h1>
         <p class="byline">{book.byline}</p>
+        {book.about && <p class="about">{book.about}</p>}
       </div>
     </header>
 
@@ -85,9 +88,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <button type="button" data-next data-track="book:next" aria-label="Next page">›</button>
         <span class="spacer"></span>
         <button type="button" data-fullscreen data-track="book:fullscreen">Full screen</button>
-        <a href={book.pdf} download data-track="book:pdf">Download PDF</a>
+        {book.buy && (
+          <a class="buy" href={book.buy.href} rel="noopener" data-track="book:buy">
+            {book.buy.label} <span aria-hidden="true">↗</span>
+          </a>
+        )}
+        {book.pdf && <a href={book.pdf} download data-track="book:pdf">Download PDF</a>}
       </div>
-      <noscript><p class="hint">Pages are shown in order below. <a href={book.pdf}>Download the PDF</a> to read it as a book.</p></noscript>
+      <noscript><p class="hint">Pages are shown in order below.{book.pdf && <> <a href={book.pdf}>Download the PDF</a> to read it as a book.</>}</p></noscript>
     </main>
 
     <script>
@@ -312,6 +320,29 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   h1 {
     font-size: var(--text-2xl);
+  }
+
+  .about {
+    margin: var(--s3) 0 0;
+    max-width: var(--measure);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--text-md);
+    color: var(--muted);
+  }
+
+  .controls .buy {
+    font-weight: 600;
+    color: var(--on-accent);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .controls .buy:hover,
+  .controls .buy:focus-visible {
+    color: var(--on-accent);
+    background: var(--accent-strong);
+    border-color: var(--accent-strong);
   }
 
   .byline {
