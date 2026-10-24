@@ -50,11 +50,15 @@ const sections: SectionData[] = [
     body: [
       'Yoga has been a pillar in my life since I was 18 years old. Beyond the physical benefits of asana, yoga has provided a foundation of community, health, and spiritual growth.',
       'With a focus on Patanjali’s eight-limbed path to enlightenment, I’m currently enrolled in eighth series Ashtanga, aka parenting.',
-      'I pay special homage to the many teachers who have crossed my path, given generously of their wisdom, and paved the path for what is to come.',
-      'I walk an initiated Sufi path. It began when I discovered the Sufis in Rajasthan, India. It deepened with Bodhi and Leilah in Maui, where I met my partner, and I was initiated with Abraham and Halima of Western Massachusetts.',
-      'Leading men’s groups through the ManKind Project since 2012.',
-      'Yoga runs in the family: my partner, Mackensie Grant, teaches yoga and qigong and offers intuitive bodywork at Intelligent Embodiment.',
+      'I pay homage to the many teachers who have crossed my path, given generously of their wisdom, and paved the path for what is to come.',
+      'During a six-month pilgrimage through India, I stumbled upon a Sufi community in Rajasthan. That planted the seed for what would later lead me to my life partner, Mackensie, and my initiation into the Ruhaniat lineage of Sufism, where I received my spiritual name. You can hear more about this in the podcast below, hosted by a dear brother of mine through the ManKind Project (MKP).',
+      'MKP has also played a pivotal role in my development since my initiation in 2012: I have joined and built men’s circles, participated in and facilitated trainings, and cultivated a fascination with circle dynamics that would later lead to my work with Heart iQ.',
     ],
+    substack: {
+      href: 'https://mcleanp.substack.com/p/day-447-the-family-of-things',
+      title: 'Day 447 -- The Family of Things by Peter McLean',
+      subtitle: 'when deciding a title just take some words from a Mary O poem',
+    },
     links: [
       { label: 'samasangha.org', href: 'https://samasangha.org' },
       { label: 'intelligentembodiment.com', href: 'https://www.intelligentembodiment.com' },
@@ -420,6 +424,15 @@ const sections: SectionData[] = [
 
   .text p {
     color: var(--muted);
+  }
+
+  .substack {
+    max-width: var(--measure);
+  }
+
+  .substack iframe {
+    max-width: 100%;
+    border-radius: var(--radius-lg);
   }
 
   .actions {

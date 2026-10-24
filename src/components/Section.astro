@@ -24,6 +24,8 @@ export type SectionData = {
   links?: { label: string; href: string }[];
   message?: string;
   embed?: string;
+  // A Substack post shown with Substack's own embed, after the text that introduces it.
+  substack?: { href: string; title: string; subtitle?: string };
   photos?: Photo[];
   // A linked cover image (a book, a project page): opens its own page, not the viewer.
   cover?: { src: string; alt: string; href: string; label: string; width: number; height: number };
@@ -33,7 +35,7 @@ export type SectionData = {
 type Props = { section: SectionData; child?: boolean };
 
 const { section, child = false } = Astro.props;
-const { name, line, tile, href, links = [], message, embed, body = [], photos = [], cover, children = [] } = section;
+const { name, line, tile, href, links = [], message, embed, substack, body = [], photos = [], cover, children = [] } = section;
 
 const slug = (value: string) =>
   value.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -74,6 +76,17 @@ const id = slug(name);
     {body.length > 0 && (
       <div class="text">
         {body.map((para) => <p>{para}</p>)}
+      </div>
+    )}
+    {substack && (
+      <div class="substack">
+        {/* Substack's embed script turns this into its post card; without it, it stays a link. */}
+        <div class="substack-post-embed">
+          <p lang="en">{substack.title}</p>
+          {substack.subtitle && <p>{substack.subtitle}</p>}
+          <a data-post-link href={substack.href}>Read on Substack</a>
+        </div>
+        <script is:inline async src="https://substack.com/embedjs/embed.js" charset="utf-8"></script>
       </div>
     )}
     {(host || links.length > 0 || message) && (
