@@ -43,28 +43,22 @@ const sections: SectionData[] = [
     ],
   },
   {
-    name: 'SamaSangha',
+    name: 'Yoga, Spirituality & Personal Development',
     topics: ['personal'],
-    line: 'An initiated Sufi path.',
-    tile: { kind: 'Path', src: '/tiles/samasangha.webp', alt: 'The Sufi winged heart, a crescent and star on a red heart, over a blue tiled mosaic', position: 'center 30%' },
-    body: [
-      'I walk an initiated Sufi path. It began when I discovered the Sufis in Rajasthan, India. It deepened with Bodhi and Leilah in Maui, where I met my partner, and I was initiated with Abraham and Halima of Western Massachusetts.',
-    ],
-    links: [{ label: 'samasangha.org', href: 'https://samasangha.org' }],
-  },
-  {
-    name: 'Consciousness, Yoga & Self Development',
-    topics: ['personal'],
-    line: 'Group leader, yogi, lifelong student.',
-    tile: { kind: 'Practice', color: 'var(--hackberry)' },
+    line: 'Yogi, Sufi, group leader, lifelong student.',
+    tile: { kind: 'Practice', src: '/photos/acro-sunset.webp', alt: 'Acro yoga silhouetted against the sunset on a beach', position: 'center 40%' },
     body: [
       'Yoga has been a pillar in my life since I was 18 years old. Beyond the physical benefits of asana, yoga has provided a foundation of community, health, and spiritual growth.',
       'With a focus on Patanjali’s eight-limbed path to enlightenment, I’m currently enrolled in eighth series Ashtanga, aka parenting.',
       'I pay special homage to the many teachers who have crossed my path, given generously of their wisdom, and paved the path for what is to come.',
+      'I walk an initiated Sufi path. It began when I discovered the Sufis in Rajasthan, India. It deepened with Bodhi and Leilah in Maui, where I met my partner, and I was initiated with Abraham and Halima of Western Massachusetts.',
       'Leading men’s groups through the ManKind Project since 2012.',
       'Yoga runs in the family: my partner, Mackensie Grant, teaches yoga and qigong and offers intuitive bodywork at Intelligent Embodiment.',
     ],
-    links: [{ label: 'intelligentembodiment.com', href: 'https://www.intelligentembodiment.com' }],
+    links: [
+      { label: 'samasangha.org', href: 'https://samasangha.org' },
+      { label: 'intelligentembodiment.com', href: 'https://www.intelligentembodiment.com' },
+    ],
     photos: [
       { src: '/photos/yoga-squat.webp', alt: 'A deep squat on a mat on a stone patio, a dog lying alongside' },
       { src: '/photos/acro-balance.webp', alt: 'Acro yoga under the palms: balancing on a partner’s feet, hands joined' },
@@ -216,7 +210,9 @@ const sections: SectionData[] = [
       adventure: 'travel-and-adventure',
       travel: 'travel-and-adventure',
       'humanitarian-relief': 'emergency-first-response-efforts',
-      samasanga: 'samasangha',
+      samasanga: 'yoga-spirituality-and-personal-development',
+      samasangha: 'yoga-spirituality-and-personal-development',
+      'consciousness-yoga-and-self-development': 'yoga-spirituality-and-personal-development',
     };
     const fromHash = () => {
       const id = location.hash.slice(1);
