@@ -53,7 +53,7 @@ roles with titles and dates, initiatives, education, community, boards and award
 at the top of the file. Each highlight is marked with the tagline's four skills; choosing one
 under "Show me" keeps the matching highlights and dims the rest. The side list follows the
 section in view, ALPS has a row of photos and Airbnb the bear-shark story (both open full
-screen), and Print gives a clean multi-page CV.
+screen). Printing from the browser gives a clean multi-page CV.
 
 Logos live in `public/logos/` as trimmed PNGs in their own colours. ALPS's came from acadialps.com, Cloud Nurv's
 from nurv.au and Founders Wanted's from Sam; Airbnb, SNHU, altMBA and BDO from Brandfetch.

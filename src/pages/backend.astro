@@ -68,6 +68,7 @@ const iso = (d: Date | string) => new Date(d).toISOString();
 
 <Base title="Backend · Samperet.com" description="Traffic and messages for samperet.com." path="/backend/" noindex merlin={false} viewer={false}>
     <main>
+      <a class="btn btn-quiet home-btn" href="/" data-track="nav:home"><span class="arrow" aria-hidden="true">←</span> Home</a>
       <header>
         <h1>Backend</h1>
         <nav aria-label="Time range">
@@ -178,6 +179,10 @@ const iso = (d: Date | string) => new Date(d).toISOString();
     width: min(64rem, 100% - 2rem);
     margin: 0 auto;
     padding: 3rem 0 5rem;
+  }
+
+  .home-btn {
+    margin-bottom: var(--s5);
   }
 
   header {

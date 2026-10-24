@@ -223,6 +223,22 @@ a:focus-visible {
   border-color: var(--fg);
 }
 
+/* The way back to the homepage on every sub page: a quiet button, top left. */
+.home-btn {
+  align-self: start;
+  justify-self: start;
+}
+
+.home-btn .arrow {
+  display: inline-block;
+  transition: transform var(--fast) var(--ease);
+}
+
+.home-btn:hover .arrow,
+.home-btn:focus-visible .arrow {
+  transform: translateX(-0.2em);
+}
+
 /* Square icon button, for ‹ › × */
 .btn-icon {
   display: inline-grid;
@@ -377,7 +393,8 @@ hr {
 
   .merlin-hat,
   .merlin-ask,
-  .viewer {
+  .viewer,
+  .home-btn {
     display: none !important;
   }
 }

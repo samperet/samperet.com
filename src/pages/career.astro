@@ -286,7 +286,7 @@ const description =
 <Base title="Career · Samuel Peret" description={description} path="/career/" ogType="profile">
   <div class="wrap page">
     <aside class="side">
-      <a class="back" href="/">← Samperet.com</a>
+      <a class="btn btn-quiet home-btn" href="/" data-track="nav:home"><span class="arrow" aria-hidden="true">←</span> Home</a>
       <img
         class="portrait"
         src="/photos/sam-peret-full-1000.webp"
@@ -320,7 +320,6 @@ const description =
         </p>
         <div class="actions">
           <button type="button" class="btn btn-primary" data-contact data-track="career:message">Send me a message</button>
-          <button type="button" class="btn btn-quiet" data-print data-track="career:print">Print or save as PDF</button>
         </div>
       </header>
 
@@ -588,7 +587,6 @@ const description =
     }
 
     document.querySelector('[data-contact]')!.addEventListener('click', () => openTopic('message'));
-    document.querySelector('[data-print]')!.addEventListener('click', () => window.print());
     addEventListener('beforeprint', () => {
       active = null;
       apply();
@@ -620,16 +618,6 @@ const description =
     padding-bottom: var(--s4);
   }
 
-  .back {
-    color: var(--muted);
-    text-decoration: none;
-    font-size: var(--text-sm);
-  }
-
-  .back:hover,
-  .back:focus-visible {
-    color: var(--fg);
-  }
 
   .portrait {
     width: 100%;
@@ -1186,7 +1174,7 @@ const description =
   }
 
   @media print {
-    .back,
+    .home-btn,
     .toc,
     .actions,
     .lens,
