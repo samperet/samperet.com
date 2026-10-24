@@ -1,0 +1,19 @@
+---
+// Little Red Riding Hood and The Golden Berry, by Jaya Elnora Peret, as a flipbook.
+import Flipbook, { type Book } from '../components/Flipbook.astro';
+
+const book: Book = {
+  title: 'The Golden Berry',
+  byline: 'Little Red Riding Hood and The Golden Berry, by Jaya Elnora Peret',
+  description: 'Little Red Riding Hood and The Golden Berry, a picture book by Jaya Elnora Peret, as a page-turning flipbook.',
+  path: '/golden-berry/',
+  pages: 16,
+  dir: '/books/golden-berry',
+  pdf: '/books/golden-berry.pdf',
+  // Square pages.
+  width: 1200,
+  height: 1200,
+};
+---
+
+<Flipbook book={book} />

@@ -114,24 +114,6 @@ const sections: SectionData[] = [
     ],
   },
   {
-    name: 'Foreside Fiasco',
-    topics: ['personal', 'family'],
-    line: 'An unfortunate true story.',
-    tile: { kind: 'Book', src: '/books/foreside-fiasco/01.webp' },
-    body: [
-      'Dedicated to Steve, Lurana and the Foreside Manor. Acadia Publishing, 2025.',
-      'Read it page by page, or download the PDF.',
-    ],
-    cover: {
-      src: '/books/foreside-fiasco/cover-560.webp',
-      alt: 'Foreside Fiasco cover: a shingled house with green shutters under a summer sky',
-      href: '/foreside-fiasco/',
-      label: 'Read the book',
-      width: 560,
-      height: 433,
-    },
-  },
-  {
     name: 'jayaandfiona.com',
     topics: ['family'],
     line: 'Jaya and Fiona’s Fun Zone.',
@@ -155,7 +137,10 @@ const sections: SectionData[] = [
     <header class="hero">
       <h1 class="wordmark">Samperet<span class="dot">.</span>com</h1>
       <p class="lede tagline">strategy, relationships, systems <span class="amp">&amp;</span> design.</p>
-      <a class="arrow-link hero-career" href="/career/" data-track="nav:career">Career <span class="arrow" aria-hidden="true">→</span></a>
+      <nav class="hero-links" aria-label="Pages">
+        <a class="arrow-link" href="/career/" data-track="nav:career">Career <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="arrow-link" href="/stories/" data-track="nav:stories">Stories <span class="arrow" aria-hidden="true">→</span></a>
+      </nav>
       <a class="arrow-link home-btn tile-home" href="/" data-home data-track="nav:home-tile"><span class="arrow" aria-hidden="true">←</span> Home</a>
     </header>
 
@@ -219,8 +204,11 @@ const sections: SectionData[] = [
       samasangha: 'yoga-spirituality-and-personal-development',
       'consciousness-yoga-and-self-development': 'yoga-spirituality-and-personal-development',
     };
+    // Tiles that became pages of their own.
+    const MOVED: Record<string, string> = { 'foreside-fiasco': '/stories/' };
     const fromHash = () => {
       const id = location.hash.slice(1);
+      if (MOVED[id]) return location.replace(MOVED[id]);
       const target = id && document.getElementById(RENAMED[id] ?? id);
       // Open the row and every row it sits inside.
       for (let el = target instanceof HTMLDetailsElement ? target : null; el; el = el.parentElement?.closest('details') ?? null) el.open = true;
@@ -262,8 +250,18 @@ const sections: SectionData[] = [
   }
 
   .hero .arrow-link {
-    margin-top: var(--s6);
     font-size: var(--text-md);
+  }
+
+  .hero-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3) var(--s6);
+    margin-top: var(--s6);
+  }
+
+  .hero .tile-home {
+    margin-top: var(--s6);
   }
 
   /* While a card is open the page reads as that card's own page: the header shrinks and a Home
@@ -278,7 +276,7 @@ const sections: SectionData[] = [
   }
 
   /* …and Career steps aside, so Home is the one way out. */
-  main:has(.tile[open]) .hero-career {
+  main:has(.tile[open]) .hero-links {
     display: none;
   }
 
