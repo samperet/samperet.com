@@ -35,6 +35,8 @@ export default defineConfig({
       MESSAGE_NOTIFY_TO: envField.string({ context: 'server', access: 'secret', optional: true, default: 'samperet@gmail.com' }),
       // Password for /backend (any username). Without it, /backend stays locked.
       BACKEND_PASSWORD: envField.string({ context: 'server', access: 'secret', optional: true }),
+      // Password for /admin (any username). Without it, /admin uses the hashed default in src/middleware.ts.
+      ADMIN_PASSWORD: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },
 });

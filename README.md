@@ -103,6 +103,21 @@ rendered from the PDF at 150 dpi (`pdftoppm -r 150 -png book.pdf page`, then res
 title, the dedication and each verse begin, and when to show the painting on a phone.
 Turning a page by hand pauses the reading; Keep reading brings the book back to it.
 
+## Admin studio
+
+`/admin` (`src/pages/admin.astro`) is the content studio, behind HTTP Basic auth (any username).
+The password is `ADMIN_PASSWORD` when that is set on Vercel; otherwise the one whose salted PBKDF2
+hash sits in `src/middleware.ts` (the repository is public, so the password itself is not in it).
+
+Its tool is the speed take: pick a track (the site's recordings, or upload one), choose a
+recording speed (50% by default, 25–100%), and press Record. After a 3-2-1 count the track plays
+at that speed, pitch kept by default, while the camera records. The studio then plays the take
+back 1 ÷ speed times faster into a canvas, records that with the original track at full speed,
+and offers the result to download (H.264 MP4 where the browser can, otherwise WebM with its
+duration written in by `fix-webm-duration`). A Sync slider shifts the video against the track by
+up to 300 ms if the movement lands early or late. It all runs in the browser; nothing is uploaded
+or stored.
+
 ## Backend, traffic and messages
 
 The site is static except for three on-demand routes on Vercel (`@astrojs/vercel`):

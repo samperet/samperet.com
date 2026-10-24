@@ -12,6 +12,7 @@
     "@astrojs/vercel": "^11.0.15",
     "astro": "^7.4.0",
     "clippyjs": "^0.1.0",
+    "fix-webm-duration": "^1.0.6",
     "page-flip": "^2.0.7",
     "postgres": "^3.4.9"
   },

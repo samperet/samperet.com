@@ -1,0 +1,686 @@
+---
+// The content studio, behind the /admin password (src/middleware.ts). Its one tool: a speed
+// take. Pick a track, choose a recording speed (half by default), and the studio plays the
+// track that slow while the camera records; then it speeds the footage up by the same amount
+// and lays the original track over it, so the movement runs fast and lands on the music.
+// Everything happens in the browser: nothing is uploaded, the result is a file to download.
+import Base from '../layouts/Base.astro';
+
+export const prerender = false;
+
+const LIBRARY = [
+  { label: 'Take a nap (memory)', name: 'Take a nap', url: '/memories/take-a-nap.m4a' },
+  { label: 'Have to clean up (memory)', name: 'Have to clean up', url: '/memories/have-to-clean-up.m4a' },
+  { label: 'The story of the bear shark', name: 'Bear shark', url: '/stories/bear-shark.m4a' },
+  { label: 'Foreside Fiasco, read aloud', name: 'Foreside Fiasco', url: '/books/foreside-fiasco/narration.m4a' },
+];
+---
+
+<Base title="Studio · Admin · Samperet.com" description="Content studio." path="/admin/" noindex merlin={false} viewer={false}>
+  <main class="wrap studio">
+    <a class="arrow-link home-btn" href="/" data-track="nav:home"><span class="arrow" aria-hidden="true">←</span> Home</a>
+    <header class="studio-head">
+      <span class="eyebrow">Admin</span>
+      <h1>Speed take</h1>
+      <p class="lede measure">
+        Perform to the track played slow; the studio speeds your take back up to the original track, so
+        every move runs fast and lands on the beat.
+      </p>
+    </header>
+
+    <div class="studio-grid">
+      <section class="stage" aria-label="Camera">
+        <video class="preview" data-preview muted playsinline></video>
+        <canvas class="render" data-canvas hidden></canvas>
+        <p class="stage-empty" data-empty>
+          <button type="button" class="btn btn-primary" data-camera-on>Turn on the camera</button>
+        </p>
+        <div class="countdown" data-countdown hidden></div>
+        <div class="rec-badge" data-rec hidden><span class="dot"></span><span data-rec-label>Recording</span></div>
+        <div class="stage-progress" aria-hidden="true"><span data-progress></span></div>
+      </section>
+
+      <section class="panel" aria-label="Settings">
+        <div class="field">
+          <label for="track">1. Track</label>
+          <select id="track" data-track-select>
+            {LIBRARY.map((t) => <option value={t.url} data-name={t.name}>{t.label}</option>)}
+            <option value="upload">Upload a file…</option>
+          </select>
+          <input type="file" accept="audio/*" data-upload hidden />
+          <p class="hint" data-track-info>Loading…</p>
+        </div>
+
+        <div class="field">
+          <label for="speed">2. Recording speed <output data-speed-out>50%</output></label>
+          <input id="speed" type="range" min="0.25" max="1" step="0.05" value="0.5" data-speed />
+          <p class="hint" data-speed-info></p>
+          <label class="check"><input type="checkbox" checked data-pitch /> Keep the pitch while it plays slow</label>
+        </div>
+
+        <div class="field">
+          <label for="camera">3. Camera</label>
+          <select id="camera" data-camera-select disabled><option>Turn on the camera first</option></select>
+          <div class="row">
+            <select data-quality aria-label="Quality">
+              <option value="720">720p</option>
+              <option value="1080">1080p</option>
+            </select>
+            <label class="check"><input type="checkbox" data-mirror /> Mirror</label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-accent record" data-record disabled>Record</button>
+          <button type="button" class="btn btn-quiet" data-stop hidden>Stop</button>
+        </div>
+        <p class="status" data-status role="status">Turn on the camera, pick a track, then record. Headphones help.</p>
+      </section>
+    </div>
+
+    <section class="result" data-result hidden aria-label="Result">
+      <h2>Your take</h2>
+      <video class="result-video" data-result-video controls playsinline></video>
+      <div class="result-tools">
+        <a class="btn btn-primary" data-download download>Download</a>
+        <button type="button" class="btn btn-quiet" data-retake>Record again</button>
+      </div>
+      <div class="field sync">
+        <label for="nudge">Sync <output data-nudge-out>0 ms</output></label>
+        <input id="nudge" type="range" min="-300" max="300" step="10" value="0" data-nudge />
+        <p class="hint">If the movement lands late, slide right; early, slide left. Then render again.</p>
+        <button type="button" class="btn btn-quiet" data-rerender>Render again</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    import fixWebmDuration from 'fix-webm-duration';
+    import { clock, pickSource } from '../scripts/narration';
+
+    const $ = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel)!;
+    const preview = $<HTMLVideoElement>('[data-preview]');
+    const canvas = $<HTMLCanvasElement>('[data-canvas]');
+    const empty = $('[data-empty]');
+    const countdown = $('[data-countdown]');
+    const recBadge = $('[data-rec]');
+    const recLabel = $('[data-rec-label]');
+    const progress = $('[data-progress]');
+    const trackSelect = $<HTMLSelectElement>('[data-track-select]');
+    const upload = $<HTMLInputElement>('[data-upload]');
+    const trackInfo = $('[data-track-info]');
+    const speed = $<HTMLInputElement>('[data-speed]');
+    const speedOut = $('[data-speed-out]');
+    const speedInfo = $('[data-speed-info]');
+    const pitch = $<HTMLInputElement>('[data-pitch]');
+    const cameraSelect = $<HTMLSelectElement>('[data-camera-select]');
+    const quality = $<HTMLSelectElement>('[data-quality]');
+    const mirror = $<HTMLInputElement>('[data-mirror]');
+    const recordBtn = $<HTMLButtonElement>('[data-record]');
+    const stopBtn = $<HTMLButtonElement>('[data-stop]');
+    const status = $('[data-status]');
+    const result = $('[data-result]');
+    const resultVideo = $<HTMLVideoElement>('[data-result-video]');
+    const download = $<HTMLAnchorElement>('[data-download]');
+    const nudge = $<HTMLInputElement>('[data-nudge]');
+    const nudgeOut = $('[data-nudge-out]');
+
+    let audioCtx: AudioContext | undefined;
+    const ctx = () => (audioCtx ??= new AudioContext());
+
+    let stream: MediaStream | undefined;
+    let track: { url: string; name: string; buffer: AudioBuffer } | undefined;
+    let take: { blob: Blob; lead: number; factor: number; audioEnd: number; mirrored: boolean } | undefined;
+    let busy = false;
+    let resultUrl = '';
+
+    const say = (text: string) => (status.textContent = text);
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const once = (el: EventTarget, type: string) => new Promise<Event>((r) => el.addEventListener(type, r, { once: true }));
+    const pickType = (types: string[]) => types.find((t) => MediaRecorder.isTypeSupported(t)) ?? '';
+    const ext = (type: string) => (type.includes('mp4') ? 'mp4' : 'webm');
+    const factor = () => Number(speed.value);
+
+    const refresh = () => {
+      const f = factor();
+      speedOut.textContent = `${Math.round(f * 100)}%`;
+      speedInfo.textContent = track
+        ? `You perform for ${clock(track.buffer.duration / f)}; the video plays back in ${clock(track.buffer.duration)}, ${(1 / f).toFixed(f === 1 ? 0 : 2).replace(/\.?0+$/, '')}× faster.`
+        : '';
+      nudgeOut.textContent = `${nudge.value} ms`;
+      recordBtn.disabled = busy || !stream || !track;
+    };
+
+    // ---- Track ---------------------------------------------------------------------------
+
+    async function loadTrack(url: string, name: string, data?: ArrayBuffer) {
+      trackInfo.textContent = 'Loading…';
+      track = undefined;
+      refresh();
+      try {
+        const probe = new Audio();
+        const source = data ? url : pickSource(probe, url);
+        const bytes = data ?? (await (await fetch(source)).arrayBuffer());
+        const buffer = await ctx().decodeAudioData(bytes.slice(0));
+        track = { url: source, name, buffer };
+        trackInfo.textContent = `${name} · ${clock(buffer.duration)}`;
+      } catch {
+        trackInfo.textContent = 'That track could not be read. Try an MP3, M4A or WAV.';
+      }
+      refresh();
+    }
+
+    const trackName = () => trackSelect.selectedOptions[0].dataset.name ?? trackSelect.selectedOptions[0].textContent!;
+
+    trackSelect.addEventListener('change', () => {
+      if (trackSelect.value === 'upload') return upload.click();
+      void loadTrack(trackSelect.value, trackName());
+    });
+    upload.addEventListener('change', async () => {
+      const file = upload.files?.[0];
+      if (!file) return;
+      const option = new Option(file.name, 'upload-file');
+      trackSelect.add(option, trackSelect.options.length - 1);
+      trackSelect.value = 'upload-file';
+      await loadTrack(URL.createObjectURL(file), file.name.replace(/\.[^.]+$/, ''), await file.arrayBuffer());
+    });
+
+    // ---- Camera --------------------------------------------------------------------------
+
+    async function startCamera(deviceId?: string) {
+      stream?.getTracks().forEach((t) => t.stop());
+      const height = Number(quality.value);
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            ...(deviceId ? { deviceId: { exact: deviceId } } : { facingMode: 'user' }),
+            width: { ideal: Math.round((height * 16) / 9) },
+            height: { ideal: height },
+            frameRate: { ideal: 30 },
+          },
+        });
+      } catch {
+        say('The camera is not available. Allow camera access in the browser and try again.');
+        return;
+      }
+      preview.srcObject = stream;
+      await preview.play().catch(() => {});
+      empty.hidden = true;
+      const current = stream.getVideoTracks()[0].getSettings().deviceId;
+      const cams = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'videoinput');
+      cameraSelect.replaceChildren(...cams.map((d, i) => new Option(d.label || `Camera ${i + 1}`, d.deviceId, false, d.deviceId === current)));
+      cameraSelect.disabled = cams.length < 2;
+      const s = stream.getVideoTracks()[0].getSettings();
+      say(`Camera ready (${s.width}×${s.height}). Press Record.`);
+      refresh();
+    }
+
+    $('[data-camera-on]').addEventListener('click', () => {
+      ctx();
+      void startCamera();
+    });
+    cameraSelect.addEventListener('change', () => void startCamera(cameraSelect.value));
+    quality.addEventListener('change', () => stream && void startCamera(cameraSelect.value || undefined));
+    mirror.addEventListener('change', () => preview.classList.toggle('mirrored', mirror.checked));
+
+    // ---- Record: the track at the chosen speed while the camera rolls --------------------
+
+    async function countIn(seconds: number) {
+      countdown.hidden = false;
+      for (let n = seconds; n > 0; n--) {
+        countdown.textContent = String(n);
+        const o = ctx().createOscillator();
+        const g = ctx().createGain();
+        o.frequency.value = n === 1 ? 880 : 660;
+        g.gain.setValueAtTime(0.08, ctx().currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx().currentTime + 0.15);
+        o.connect(g).connect(ctx().destination);
+        o.start();
+        o.stop(ctx().currentTime + 0.16);
+        await sleep(1000);
+      }
+      countdown.hidden = true;
+    }
+
+    async function record() {
+      if (!stream || !track || busy) return;
+      busy = true;
+      refresh();
+      result.hidden = true;
+      await ctx().resume();
+      const f = factor();
+
+      const player = new Audio();
+      player.src = track.url;
+      player.preload = 'auto';
+      player.defaultPlaybackRate = player.playbackRate = f;
+      const keep = pitch.checked;
+      Object.assign(player, { preservesPitch: keep, mozPreservesPitch: keep, webkitPreservesPitch: keep });
+      player.load();
+
+      const type = pickType(['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4']);
+      const chunks: Blob[] = [];
+      const rec = new MediaRecorder(stream, { ...(type && { mimeType: type }), videoBitsPerSecond: 12_000_000 });
+      rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+      const started = new Promise<number>((r) => (rec.onstart = () => r(performance.now())));
+      const stopped = once(rec, 'stop');
+      rec.start(1000);
+      const t0 = await started;
+      recBadge.hidden = false;
+      recLabel.textContent = 'Get ready';
+      say('Recording. The track starts after the count.');
+      await countIn(3);
+
+      const playing = new Promise<number>((r) => player.addEventListener('playing', () => r(performance.now()), { once: true }));
+      await player.play();
+      const lead = ((await playing) - t0) / 1000;
+      recLabel.textContent = `Recording at ${Math.round(f * 100)}%`;
+      say('Perform to the track. Press Stop to end early.');
+      stopBtn.hidden = false;
+
+      let raf = 0;
+      const tick = () => {
+        progress.style.width = `${(player.currentTime / track!.buffer.duration) * 100}%`;
+        raf = requestAnimationFrame(tick);
+      };
+      tick();
+      await new Promise<void>((resolve) => {
+        player.addEventListener('ended', () => resolve(), { once: true });
+        stopBtn.onclick = () => {
+          player.pause();
+          resolve();
+        };
+      });
+      const audioEnd = player.ended ? track.buffer.duration : player.currentTime;
+      cancelAnimationFrame(raf);
+      stopBtn.hidden = true;
+      await sleep(300);
+      rec.stop();
+      await stopped;
+      recBadge.hidden = true;
+      progress.style.width = '0';
+      take = { blob: new Blob(chunks, { type: type || chunks[0]?.type }), lead, factor: f, audioEnd, mirrored: mirror.checked };
+      await render();
+    }
+
+    // ---- Render: the take sped up, with the original track ---------------------------------
+    // During the take, second a of the track was heard at take time lead + a / factor. Played
+    // back 1 / factor times faster, take time v arrives after v × factor seconds, so the track
+    // must start when the take reaches `lead`, and the two run together from there.
+
+    async function render() {
+      if (!take || !track) return;
+      busy = true;
+      refresh();
+      const { blob, lead, factor: f, audioEnd, mirrored } = take;
+      const audio = ctx();
+      await audio.resume();
+      // The camera sees a move a little after it happens, and the track is heard a little after
+      // it plays; both delays are in real (take) time.
+      const latency = (('outputLatency' in audio && audio.outputLatency) || 0.03) + 0.05;
+      const startAt = lead + latency + Number(nudge.value) / 1000 / f;
+
+      const video = document.createElement('video');
+      video.muted = true;
+      video.playsInline = true;
+      const src = URL.createObjectURL(blob);
+      video.src = src;
+      await once(video, 'loadeddata');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const g = canvas.getContext('2d')!;
+      if (mirrored) g.setTransform(-1, 0, 0, 1, canvas.width, 0);
+      preview.hidden = true;
+      canvas.hidden = false;
+
+      const dest = audio.createMediaStreamDestination();
+      const out = new MediaStream([...canvas.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()]);
+      // H.264 MP4 first, which phones and every app can play; then WebM. A bare "video/mp4"
+      // can mean VP9 inside MP4, which many players refuse, so it comes after WebM.
+      const type = pickType([
+        'video/mp4;codecs=avc1.640028,mp4a.40.2',
+        'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+        'video/mp4;codecs=avc1.640028,opus',
+        'video/mp4;codecs=avc1.42E01E,opus',
+        'video/webm;codecs=vp9,opus',
+        'video/webm;codecs=vp8,opus',
+        'video/webm',
+        'video/mp4',
+      ]);
+      const rec = new MediaRecorder(out, { ...(type && { mimeType: type }), videoBitsPerSecond: 10_000_000, audioBitsPerSecond: 192_000 });
+      const chunks: Blob[] = [];
+      rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+      const stopped = once(rec, 'stop');
+
+      recBadge.hidden = false;
+      recLabel.textContent = 'Rendering';
+      say('Rendering: keep this tab open and in front.');
+
+      let source: AudioBufferSourceNode | undefined;
+      let audioStart = 0;
+      let offset = 0;
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        source?.stop();
+        setTimeout(() => rec.state !== 'inactive' && rec.stop(), 120);
+      };
+
+      const frame = (mediaTime: number) => {
+        g.drawImage(video, 0, 0, canvas.width, canvas.height);
+        if (!source && mediaTime >= startAt) {
+          // Start the track now, skipping whatever we are late by.
+          offset = Math.min((mediaTime - startAt) * f, audioEnd);
+          source = audio.createBufferSource();
+          source.buffer = track!.buffer;
+          source.connect(dest);
+          source.onended = finish;
+          rec.start(1000);
+          audioStart = audio.currentTime;
+          source.start(0, offset, Math.max(0, audioEnd - offset));
+        }
+        if (source) progress.style.width = `${((offset + audio.currentTime - audioStart) / audioEnd) * 100}%`;
+      };
+      const loop = 'requestVideoFrameCallback' in video;
+      const next = () => {
+        if (done) return;
+        if (loop) video.requestVideoFrameCallback((_, m) => (frame(m.mediaTime), next()));
+        else requestAnimationFrame(() => (frame(video.currentTime), next()));
+      };
+      video.addEventListener('ended', finish, { once: true });
+      video.playbackRate = 1 / f;
+      next();
+      await video.play();
+      await stopped;
+      video.pause();
+      URL.revokeObjectURL(src);
+
+      let output = new Blob(chunks, { type: type || chunks[0]?.type });
+      // Browsers write WebM without its length, so players can't show it or seek; add it.
+      if (output.type.includes('webm')) output = await fixWebmDuration(output, (audioEnd - offset) * 1000, { logger: false });
+      if (resultUrl) URL.revokeObjectURL(resultUrl);
+      resultUrl = URL.createObjectURL(output);
+      resultVideo.src = resultUrl;
+      const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
+      download.href = resultUrl;
+      const slug = track.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'take';
+      download.download = `${slug}-${Math.round(f * 100)}pct-${stamp}.${ext(output.type)}`;
+      recBadge.hidden = true;
+      progress.style.width = '0';
+      canvas.hidden = true;
+      preview.hidden = false;
+      result.hidden = false;
+      busy = false;
+      refresh();
+      say(`Done: ${clock(audioEnd - offset)} at full speed. Watch it below, then download it.`);
+      result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    recordBtn.addEventListener('click', () => void record().catch((e) => fail(e)));
+    $('[data-rerender]').addEventListener('click', () => !busy && void render().catch((e) => fail(e)));
+    $('[data-retake]').addEventListener('click', () => {
+      result.hidden = true;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    speed.addEventListener('input', refresh);
+    nudge.addEventListener('input', refresh);
+
+    function fail(e: unknown) {
+      busy = false;
+      recBadge.hidden = true;
+      countdown.hidden = true;
+      stopBtn.hidden = true;
+      canvas.hidden = true;
+      preview.hidden = false;
+      refresh();
+      say(`Something went wrong: ${e instanceof Error ? e.message : String(e)}`);
+    }
+
+    if (!('MediaRecorder' in window) || !navigator.mediaDevices?.getUserMedia) {
+      say('This browser cannot record video. Try a recent Chrome, Safari or Firefox.');
+    }
+    void loadTrack(trackSelect.value, trackName());
+    refresh();
+  </script>
+</Base>
+
+<style is:global>
+  .studio {
+    padding: var(--s6) 0 var(--s9);
+  }
+
+  .studio-head {
+    margin: var(--s6) 0 var(--s6);
+  }
+
+  .studio-head h1 {
+    margin-top: var(--s2);
+    font-size: var(--text-2xl);
+  }
+
+  .studio-head .lede {
+    margin-top: var(--s3);
+  }
+
+  .studio-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(16rem, 1fr);
+    gap: var(--s6);
+    align-items: start;
+  }
+
+  .stage {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: #1a1b1c;
+  }
+
+  .stage video,
+  .stage canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .preview.mirrored {
+    transform: scaleX(-1);
+  }
+
+  .stage-empty {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    margin: 0;
+  }
+
+  .stage-empty[hidden],
+  .countdown[hidden],
+  .rec-badge[hidden] {
+    display: none;
+  }
+
+  .countdown {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-size: clamp(5rem, 15vw, 10rem);
+    color: #fff;
+    text-shadow: 0 4px 30px rgb(0 0 0 / 0.5);
+    pointer-events: none;
+  }
+
+  .rec-badge {
+    position: absolute;
+    top: var(--s3);
+    left: var(--s3);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    padding: var(--s1) var(--s3);
+    border-radius: var(--radius);
+    background: rgb(20 21 22 / 0.7);
+    color: #fff;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .rec-badge .dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--rausch);
+  }
+
+  .stage-progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4px;
+    background: rgb(255 255 255 / 0.15);
+  }
+
+  .stage-progress span {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: var(--accent);
+  }
+
+  .panel {
+    display: grid;
+    gap: var(--s5);
+  }
+
+  .field {
+    display: grid;
+    gap: var(--s2);
+  }
+
+  .field > label:first-child {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+  }
+
+  .field output {
+    font-weight: 600;
+    color: var(--accent-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .field select,
+  .row select {
+    padding: var(--s2) var(--s3);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+  }
+
+  .field input[type='range'] {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: var(--s4);
+  }
+
+  .check {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    font-size: var(--text-sm);
+    font-weight: 400;
+  }
+
+  .check input {
+    accent-color: var(--accent);
+  }
+
+  .hint {
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .actions {
+    display: flex;
+    gap: var(--s2);
+  }
+
+  .actions [hidden] {
+    display: none;
+  }
+
+  .record {
+    flex: 1;
+    justify-content: center;
+    padding: var(--s3) var(--s4);
+    font-size: var(--text-md);
+  }
+
+  .record:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .status {
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .result {
+    margin-top: var(--s8);
+    padding-top: var(--s6);
+    border-top: var(--hairline);
+    display: grid;
+    gap: var(--s4);
+    scroll-margin-top: var(--s5);
+  }
+
+  .result[hidden] {
+    display: none;
+  }
+
+  .result-video {
+    width: 100%;
+    max-height: 70vh;
+    border-radius: var(--radius-lg);
+    background: #1a1b1c;
+  }
+
+  .result-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+  }
+
+  .sync {
+    max-width: 28rem;
+  }
+
+  .sync .btn {
+    justify-self: start;
+  }
+
+  @media (max-width: 860px) {
+    .studio-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .stage {
+      aspect-ratio: 3 / 4;
+    }
+  }
+</style>
