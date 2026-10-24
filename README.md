@@ -66,6 +66,11 @@ Logos live in `public/logos/` as trimmed PNGs in their own colours. ALPS's came 
 from nurv.au and Founders Wanted's from Sam; Airbnb, SNHU, altMBA and BDO from Brandfetch.
 Whaleback Systems has none yet.
 
+The Percentage Allocator card embeds Sam's percentcalc app, copied from
+[samperet/percentcalc](https://github.com/samperet/percentcalc) into `public/percentcalc/` (served at
+`/percentcalc/`, installable and offline through its own service worker). To update it, copy the
+repository's files over that folder again.
+
 ## Stories
 
 `/stories/` (`src/pages/stories.astro`) gathers the picture books and the told stories as tiles:

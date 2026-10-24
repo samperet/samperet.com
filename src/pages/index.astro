@@ -140,6 +140,23 @@ const sections: SectionData[] = [
     message: 'Ask about setting it up',
   },
   {
+    name: 'Percentage Allocator',
+    topics: ['personal'],
+    line: 'Split any amount across line items, always adding up to 100%.',
+    tile: { kind: 'App · Open source', src: '/tiles/percentcalc.webp', position: 'center top' },
+    body: [
+      'A small calculator for dividing a total: drag a slider and the other items rebalance, lock an item to hold its share, link items so they move together, and share the result as a link. It installs on a phone like an app and works offline.',
+    ],
+    links: [
+      { label: 'Open the app', href: 'https://samperet.com/percentcalc/' },
+      { label: 'The code on GitHub', href: 'https://github.com/samperet/percentcalc' },
+    ],
+    embed: '/percentcalc/index.html',
+    embedTitle: 'Percentage Allocator, a calculator for splitting an amount',
+    embedRatio: '4 / 3',
+    embedAllow: 'clipboard-write',
+  },
+  {
     name: 'jayaandfiona.com',
     topics: ['family'],
     line: 'Jaya and Fiona’s Fun Zone.',
@@ -639,6 +656,10 @@ const sections: SectionData[] = [
   @media (max-width: 640px) {
     .embed[src='/globe/index.html'] {
       min-height: 24rem;
+    }
+
+    .embed[src='/percentcalc/index.html'] {
+      min-height: 34rem;
     }
   }
 
