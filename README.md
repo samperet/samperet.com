@@ -25,6 +25,12 @@ The rules: hairlines not boxes, one accent, no pills except metadata, nothing an
 own, one flourish per page. **`/branding/`** is the unlinked, `noindex` style guide that shows
 all of it; keep it current when a token or component changes.
 
+## Other sites in this repository
+
+- `sites/automate/` is **automate.samperet.com**, a one-page landing site for home-automation
+  consulting. Plain static files, deployed by its own Vercel project (`automate-samperet`) with
+  this folder as its root directory; see its README.
+
 ## Sections and topics
 
 Every section in `src/pages/index.astro` is a tile (`<details>`, `src/components/Section.astro`):
