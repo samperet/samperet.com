@@ -93,25 +93,7 @@ const KEYS = 'ABCDE';
 
     <header class="mg-head">
       <h1>Join a men’s group, <span>Charlotte VT</span></h1>
-      <p class="mg-lede">Five men. Once a week. Three months. Lover, Warrior, Magician, King.</p>
     </header>
-
-    <div class="seats">
-      <ol class="seat-row" aria-hidden="true">
-        {Array.from({ length: GROUP.size }, (_, i) => <li class:list={['seat', { filled: i < GROUP.filled }]} />)}
-      </ol>
-      <p>
-        <strong>{GROUP.filled} of {GROUP.size} in.</strong>{' '}
-        {needed > 0 ? `${needed} more ${needed === 1 ? 'man' : 'men'} and we start.` : 'The circle is full.'}
-      </p>
-    </div>
-
-    <dl class="mg-facts">
-      <div><dt>Cost</dt><dd>Your commitment and accountability</dd></div>
-      <div><dt>Where</dt><dd>Charlotte, Vermont</dd></div>
-      <div><dt>How often</dt><dd>Weekly, for three months</dd></div>
-      <div><dt>Time, place &amp; start date</dt><dd>Set once five men are in</dd></div>
-    </dl>
 
     <div class="mg-intro measure">
       <p>
@@ -185,6 +167,16 @@ const KEYS = 'ABCDE';
     <section class="mg-apply" id="apply" aria-labelledby="apply-title">
       <h2 id="apply-title">Apply</h2>
 
+      <div class="seats">
+        <ol class="seat-row" aria-hidden="true">
+          {Array.from({ length: GROUP.size }, (_, i) => <li class:list={['seat', { filled: i < GROUP.filled }]} />)}
+        </ol>
+        <p>
+          <strong>{GROUP.filled} of {GROUP.size} in.</strong>{' '}
+          {needed > 0 ? `${needed} more ${needed === 1 ? 'man' : 'men'} and we start.` : 'The circle is full.'}
+        </p>
+      </div>
+
       <p class="mg-note mg-done-nojs" id="applied" tabindex="-1">
         <strong>Got it.</strong> Once five men are in, I’ll write to you with the time, place and start date.
       </p>
@@ -194,15 +186,6 @@ const KEYS = 'ABCDE';
 
       <div class="tf" data-tf>
         <div class="tf-progress" aria-hidden="true"><span data-progress></span></div>
-
-        <div class="tf-screen tf-start" data-start hidden>
-          <p class="tf-big">Five minutes, one question at a time.</p>
-          <p class="tf-sub">{needed} {needed === 1 ? 'place' : 'places'} left. I read every application and answer each one.</p>
-          <div class="tf-actions">
-            <button type="button" class="btn btn-accent tf-ok" data-begin>Start <span aria-hidden="true">→</span></button>
-            <span class="tf-hint">press <b>Enter ↵</b></span>
-          </div>
-        </div>
 
         <form class="tf-form" method="post" action="/api/apply" enctype="multipart/form-data" data-apply>
           <div class="q" data-q>
@@ -491,7 +474,6 @@ const KEYS = 'ABCDE';
     // ---- The application, one question at a time ----
     const tf = document.querySelector<HTMLElement>('[data-tf]')!;
     const form = tf.querySelector<HTMLFormElement>('[data-apply]')!;
-    const start = tf.querySelector<HTMLElement>('[data-start]')!;
     const done = tf.querySelector<HTMLElement>('[data-done]')!;
     const nav = tf.querySelector<HTMLElement>('[data-nav]')!;
     const progress = tf.querySelector<HTMLElement>('[data-progress]')!;
@@ -505,9 +487,8 @@ const KEYS = 'ABCDE';
     // Number what's asked, so a browser that can't record skips the video without a gap.
     for (const [i, q] of questions.entries()) q.querySelector('.q-num')!.firstChild!.textContent = `${i + 1} `;
 
-    let at = -1; // -1 is the start screen
+    let at = -1; // nothing shown yet; the first question opens on load
     tf.classList.add('tf-on');
-    start.hidden = false;
     nav.hidden = false;
     form.noValidate = true; // checked here, with messages in the page's voice
 
@@ -529,12 +510,12 @@ const KEYS = 'ABCDE';
       return null;
     };
 
-    const show = (index: number) => {
+    // `focus` is off for the first question on load, so the page doesn't jump to the form.
+    const show = (index: number, focus = true) => {
       const back = index < at;
       at = index;
       error.textContent = '';
-      start.hidden = at !== -1;
-      form.classList.toggle('active', at >= 0);
+      form.classList.add('active');
       for (const [i, q] of questions.entries()) {
         q.classList.toggle('on', i === at);
         q.classList.toggle('from-above', back);
@@ -543,12 +524,12 @@ const KEYS = 'ABCDE';
       ok.hidden = last;
       submit.hidden = !last;
       hint.hidden = last;
-      progress.style.width = `${(Math.max(at, 0) / questions.length) * 100}%`;
-      (nav.querySelector('[data-prev]') as HTMLButtonElement).disabled = at <= -1;
+      progress.style.width = `${(at / questions.length) * 100}%`;
+      (nav.querySelector('[data-prev]') as HTMLButtonElement).disabled = at === 0;
       (nav.querySelector('[data-next-q]') as HTMLButtonElement).disabled = last;
       if (at === 1) form.querySelector('[data-first]')!.textContent = firstName() ? `, ${firstName()}` : '';
       const q = questions[at];
-      if (q) {
+      if (q && focus) {
         const focusable = q.querySelector<HTMLElement>('.q-input, input:checked, .choice input, [data-camera]');
         focusable?.focus({ preventScroll: true });
       }
@@ -559,7 +540,6 @@ const KEYS = 'ABCDE';
     };
 
     const forward = () => {
-      if (at === -1) return show(0);
       const q = questions[at];
       const issue = problemIn(q);
       if (issue) {
@@ -569,12 +549,8 @@ const KEYS = 'ABCDE';
       if (at < questions.length - 1) show(at + 1);
     };
 
-    start.querySelector('[data-begin]')!.addEventListener('click', () => {
-      show(0);
-      tf.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
     ok.addEventListener('click', forward);
-    nav.querySelector('[data-prev]')!.addEventListener('click', () => at > -1 && show(at - 1));
+    nav.querySelector('[data-prev]')!.addEventListener('click', () => at > 0 && show(at - 1));
     nav.querySelector('[data-next-q]')!.addEventListener('click', forward);
     form.addEventListener('input', () => (error.textContent = ''));
     form.addEventListener('change', (e) => {
@@ -643,7 +619,7 @@ const KEYS = 'ABCDE';
       }
     });
 
-    show(-1);
+    show(0, false);
   </script>
 </Base>
 
@@ -727,7 +703,7 @@ const KEYS = 'ABCDE';
   .mg-head {
     display: grid;
     gap: var(--s4);
-    margin: var(--s7) 0 var(--s5);
+    margin: var(--s7) 0 var(--s7);
   }
 
   .mg-head h1 {
@@ -740,22 +716,13 @@ const KEYS = 'ABCDE';
     color: var(--beach);
   }
 
-  .mg-lede {
-    font-family: var(--grit);
-    font-weight: 500;
-    font-size: clamp(1.15rem, 1rem + 0.8vw, 1.6rem);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
 
-  /* ---- Places filled: five blocks ---- */
+  /* ---- Places filled: five blocks, at the head of the application ---- */
   .seats {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--s3) var(--s4);
-    margin-bottom: var(--s6);
   }
 
   .seat-row {
@@ -790,36 +757,6 @@ const KEYS = 'ABCDE';
     color: var(--beach);
   }
 
-  /* ---- Facts ---- */
-  .mg-facts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
-    gap: var(--s4) var(--s5);
-    margin: 0 0 var(--s7);
-  }
-
-  .mg-facts > div {
-    padding-top: var(--s3);
-    border-top: 4px solid var(--fg);
-  }
-
-  .mg-facts dt {
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .mg-facts dd {
-    margin: var(--s2) 0 0;
-    font-family: var(--grit);
-    font-size: var(--text-lg);
-    font-weight: 600;
-    line-height: 1.15;
-    text-transform: uppercase;
-  }
-
   .mg-intro {
     margin-bottom: var(--s8);
     font-size: var(--text-md);
@@ -838,18 +775,14 @@ const KEYS = 'ABCDE';
   }
 
   .mg-who li {
-    padding: var(--s4) 0 var(--s4) var(--s5);
+    padding: var(--s4) 0;
     border-top: 2px solid var(--rule-strong);
-    border-left: 6px solid var(--beach);
     font-family: var(--grit);
     font-size: clamp(1.3rem, 1rem + 1.1vw, 1.9rem);
     font-weight: 500;
     line-height: 1.25;
   }
 
-  .mg-who li + li {
-    margin-top: var(--s3);
-  }
 
   /* ---- The wheel ---- */
   .mg-work {
@@ -998,13 +931,22 @@ const KEYS = 'ABCDE';
     outline-offset: 2px;
   }
 
-  .panel {
-    padding-left: var(--s5);
-    border-left: 6px solid var(--c);
+  .panel h3 {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--s3);
+    font-size: clamp(3rem, 2rem + 4vw, 5.5rem);
   }
 
-  .panel h3 {
-    font-size: clamp(3rem, 2rem + 4vw, 5.5rem);
+  /* The archetype's colour, as a quarter of the wheel beside its name. */
+  .panel h3::before {
+    content: '';
+    flex: none;
+    width: 0.62em;
+    height: 0.62em;
+    margin-bottom: 0.12em;
+    border-radius: 100% 0 0 0;
+    background: var(--c);
   }
 
   .panel-line {
@@ -1473,7 +1415,6 @@ const KEYS = 'ABCDE';
     display: none;
     max-width: 44rem;
     padding: var(--s4) var(--s5);
-    border-left: 6px solid var(--beach);
     background: var(--bg-raised);
     font-size: var(--text-md);
     outline: none;

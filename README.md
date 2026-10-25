@@ -21,8 +21,8 @@ the photo viewer) from two stylesheets:
   `.arrow-link`, buttons, `.toggle`, `.tag` (metadata only), `.mark` (skill marks), `.badge`.
 
 Fraunces is self-hosted at build time through Astro's `fonts` config (`astro.config.mjs`).
-The rules: hairlines not boxes, one accent, no pills except metadata, nothing animates on its
-own, one flourish per page. **`/branding/`** is the unlinked, `noindex` style guide that shows
+The rules: hairlines not boxes, one accent, no pills except metadata, no bars of colour down
+the side of a block, nothing animates on its own, one flourish per page. **`/branding/`** is the unlinked, `noindex` style guide that shows
 all of it; keep it current when a token or component changes.
 
 ## Other sites in this repository
