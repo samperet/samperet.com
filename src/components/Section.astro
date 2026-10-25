@@ -59,7 +59,7 @@ const inline = (para: string) => {
 };
 
 const slug = (value: string) =>
-  value.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  value.toLowerCase().replace(/['’]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 const topicsOf = (s: SectionData): string[] => [...s.topics, ...(s.children ?? []).flatMap(topicsOf)];
 const topics = [...new Set(topicsOf(section))];

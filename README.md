@@ -109,6 +109,21 @@ rendered from the PDF at 150 dpi (`pdftoppm -r 150 -png book.pdf page`, then res
 title, the dedication and each verse begin, and when to show the painting on a phone.
 Turning a page by hand pauses the reading; Keep reading brings the book back to it.
 
+## Men's group
+
+`/mens-group/` (`src/pages/mens-group.astro`, with a tile on the homepage after HeartWise) invites
+men to a free group meeting weekly for three months, in four rounds of three weeks: Lover,
+Warrior, Magician and King. Each round is a coloured tile; clicking one opens its explanation
+below (one at a time, `#lover`, `#warrior`, `#magician` or `#king` opens one from a link). The
+time, place and start date are set once five men have been accepted, and the page says so.
+
+The application form posts to `POST /api/apply`: name, email and why are required, with phone,
+town, experience and the times that suit them optional, and a box to tick for the twelve weeks.
+Applications land with Merlin's messages (they show at `/backend`) and are emailed to Sam with
+the applicant as the reply-to. Without JavaScript the rounds are all open and the form posts
+itself and comes back to the page's thank-you note (`#applied`). `public/tiles/mens-group.svg`
+is the tile: the four round colours and a circle of five.
+
 ## Admin studio
 
 `/admin` (`src/pages/admin.astro`) is the content studio, behind HTTP Basic auth (any username).
@@ -126,7 +141,7 @@ or stored.
 
 ## Backend, traffic and messages
 
-The site is static except for three on-demand routes on Vercel (`@astrojs/vercel`):
+The site is static except for a few on-demand routes on Vercel (`@astrojs/vercel`):
 
 - `POST /api/track`: page views and clicks from `src/scripts/track.ts`, each with a per-tab
   session id, the device type and the visitor's city/region/country from Vercel's
@@ -134,6 +149,7 @@ The site is static except for three on-demand routes on Vercel (`@astrojs/vercel
   Do Not Track, and known bots, are not logged.
 - `POST /api/message`: messages sent through Merlin's chat (name and text; he reminds
   visitors to put a way to reply in the message).
+- `POST /api/apply`: applications to the men's group, kept and emailed like messages.
 - `/backend`: the dashboard (visitors, page views, clicks, messages, interests, geography,
   what was clicked, recent activity), behind HTTP Basic auth.
 
