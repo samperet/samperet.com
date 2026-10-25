@@ -33,7 +33,12 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
   let body: Record<string, unknown>;
   try {
-    body = type.includes('application/json') ? JSON.parse(await request.text()) : Object.fromEntries(await request.formData());
+    if (type.includes('application/json')) body = JSON.parse(await request.text());
+    else {
+      const form = await request.formData();
+      // Checkbox groups (the times that suit) send one value per box ticked.
+      body = { ...Object.fromEntries(form), times: form.getAll('times').filter((t) => typeof t === 'string').join(', ') };
+    }
   } catch {
     return reply(400, 'That didn’t come through. Try again.');
   }
@@ -44,7 +49,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const email = clip(body.email, 200);
   const why = clip(body.why, 4000);
   if (!name || !email || !EMAIL.test(email) || !why) return reply(400, 'A name, an email address and a few words on why are needed.');
-  if (!body.commit) return reply(400, 'The group asks for twelve weeks. Tick the box if you can commit to them.');
+  if (body.commit !== 'yes') return reply(400, 'The group asks for three months of commitment and accountability.');
 
   const video = body.video instanceof File && body.video.size > 0 ? body.video : null;
   if (video && (!video.type.startsWith('video/') || video.size > VIDEO_MAX)) return reply(400, 'That video is too large to send. Record a shorter one.');
@@ -68,9 +73,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     lives && `Lives in: ${lives}`,
     `\nWhat draws him to the group:\n${why}`,
     video && `\nWhen has he felt most alive? His video is attached (${[length, `${(video.size / 1e6).toFixed(1)} MB`, ext].filter(Boolean).join(', ')}).`,
-    experience && `\nExperience with men’s work or circles:\n${experience}`,
-    times && `\nTimes that work:\n${times}`,
-    '\nCan commit to twelve weeks: yes',
+    experience && `\nMen’s work or circles before: ${experience}`,
+    times && `\nTimes that work: ${times}`,
+    '\nCommits to three months and to being accountable: yes',
   ]
     .filter(Boolean)
     .join('\n');

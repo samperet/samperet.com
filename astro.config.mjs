@@ -21,6 +21,18 @@ export default defineConfig({
       fallbacks: ['Iowan Old Style', 'Georgia', 'serif'],
       formats: ['woff2'],
     },
+    // Oswald, a condensed grotesque, is the men's group page's own face: that page is darker and
+    // rougher than the rest of the site. Loaded only there.
+    {
+      provider: fontProviders.google(),
+      name: 'Oswald',
+      cssVariable: '--font-oswald',
+      weights: [500, 600, 700],
+      styles: ['normal'],
+      subsets: ['latin'],
+      fallbacks: ['Arial Narrow', 'Impact', 'sans-serif'],
+      formats: ['woff2'],
+    },
   ],
   env: {
     schema: {
