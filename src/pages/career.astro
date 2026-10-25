@@ -24,7 +24,8 @@ type Role = {
   // Projects worth naming on their own, each with its partner's logo.
   projects?: { logo: Logo; partner: string; title: string; text: string; skills: Skill[] }[];
 };
-type Photo = { src: string; thumb?: string; width?: number; height?: number; alt: string; story?: { title: string; audio: string; captions: string } };
+// `caption` is Sam's own words, shown under the photo in the viewer.
+type Photo = { src: string; thumb?: string; width?: number; height?: number; alt: string; caption?: string; story?: { title: string; audio: string; captions: string } };
 // Logos keep their own colours. Files are trimmed PNGs in public/logos/.
 type Logo = { src: string; width: number; height: number };
 const LOGOS = {
@@ -160,6 +161,16 @@ const roles: Role[] = [
       },
       { src: '/photos/airbnb-wood-ball.jpg', alt: 'Selfie in safety glasses in a workshop, in front of a giant sphere made of patchwork wood' },
       { src: '/photos/airbnb-bow-tie.webp', alt: 'A selfie in a grey vest and red bow tie at the Airbnb office, colleagues at a cart behind' },
+      {
+        src: '/photos/airbnb-table.webp',
+        alt: 'A long glossy black table on a cross-shaped wooden base, with benches either side, in a meeting room with red curtains and a brick wall',
+        caption: 'The table I designed and made: Brian Chesky’s favorite table in the office',
+      },
+      {
+        src: '/photos/airbnb-503-sign.webp',
+        alt: 'Marquee letters reading 503, made of wood and studded with round bulbs, on a red brick wall',
+        caption: 'The 503 sign I designed and made for our corporate restaurant',
+      },
     ],
   },
   {
@@ -416,10 +427,11 @@ const description =
                   ))}
                   {r.photos && (
                     <div class:list={['photos', { strip: r.strip }]}>
-                      {r.photos.map(({ src, thumb, width, height, alt, story }) => (
+                      {r.photos.map(({ src, thumb, width, height, alt, caption, story }) => (
                         <a
                           href={src}
                           class:list={{ 'has-story': story }}
+                          data-caption={caption}
                           data-story-title={story?.title}
                           data-story-audio={story?.audio}
                           data-story-captions={story?.captions}
