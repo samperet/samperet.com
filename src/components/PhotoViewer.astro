@@ -45,7 +45,7 @@
   const time = dialog.querySelector<HTMLElement>('[data-viewer-time]')!;
 
   type Story = { title: string; audio: string; captions: string };
-  type Photo = { src: string; alt: string; story?: Story };
+  type Photo = { src: string; alt: string; caption?: string; story?: Story };
 
   let photos: Photo[] = [];
   let index = 0;
@@ -130,8 +130,8 @@
     img.classList.remove('viewer-in');
     img.src = photo.src;
     img.alt = photo.alt;
-    // No caption under a photo: its alt text is for screen readers only. A story keeps its title.
-    caption.textContent = photo.story ? photo.story.title : '';
+    // Only Sam's own captions show under a photo; alt text is for screen readers. A story shows its title.
+    caption.textContent = photo.story ? photo.story.title : (photo.caption ?? '');
     count.textContent = photos.length > 1 ? `${index + 1} / ${photos.length}` : '';
     void img.offsetWidth;
     img.classList.add('viewer-in');
@@ -141,10 +141,11 @@
   };
 
   const photoOf = (a: HTMLAnchorElement): Photo => {
-    const { storyTitle, storyAudio, storyCaptions } = a.dataset;
+    const { caption, storyTitle, storyAudio, storyCaptions } = a.dataset;
     return {
       src: a.getAttribute('href')!,
       alt: a.querySelector('img')?.alt ?? '',
+      caption,
       story: storyAudio && storyCaptions ? { title: storyTitle ?? '', audio: storyAudio, captions: storyCaptions } : undefined,
     };
   };

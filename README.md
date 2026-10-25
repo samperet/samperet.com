@@ -44,7 +44,8 @@ Professional goes to `/career/`, where the work now lives. Tiles can nest (a sec
 chat (CommunityOS uses it for "Ask about setting it up"). A section's `books` adds a "Recommended reading" shelf: each cover (in `public/reading/`) is a
 little book that opens on its spine on hover and links out. Tile pictures that aren't
 already elsewhere live in `public/tiles/`. Photos open in a full-screen viewer
-(`src/components/PhotoViewer.astro`).
+(`src/components/PhotoViewer.astro`). A photo shows a caption there only when it has
+`caption`, which is Sam's own words; `alt` is for screen readers and never shown.
 
 A photo can carry a story: `story: { title, audio, captions }` on the photo plays the audio
 over the picture with the WebVTT captions as subtitles, starting as soon as the photo is

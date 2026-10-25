@@ -3,11 +3,12 @@
 // one line over it; opened, it spans the whole grid and its story unfolds below the picture. A
 // tile with `children` holds smaller tiles, and opens for any topic one of its children has.
 
-// A photo may carry a story: audio told over it, with WebVTT captions as subtitles
-// (played by PhotoViewer.astro).
+// A photo may carry Sam's own caption, shown under it in the viewer, or a story: audio told
+// over it, with WebVTT captions as subtitles (played by PhotoViewer.astro).
 export type Photo = {
   src: string;
   alt: string;
+  caption?: string;
   story?: { title: string; audio: string; captions: string };
 };
 
@@ -184,10 +185,11 @@ const id = slug(name);
     )}
     {photos.length > 0 && (
       <div class="photos">
-        {photos.map(({ src, alt, story }) => (
+        {photos.map(({ src, alt, caption, story }) => (
           <a
             href={src}
             class:list={{ 'has-story': story }}
+            data-caption={caption}
             data-story-title={story?.title}
             data-story-audio={story?.audio}
             data-story-captions={story?.captions}
