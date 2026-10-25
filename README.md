@@ -112,8 +112,9 @@ Turning a page by hand pauses the reading; Keep reading brings the book back to 
 
 ## Men's group
 
-`/mens-group/` (`src/pages/mens-group.astro`; its homepage tile, Men's Work, after HeartWise, links
-straight to it rather than unfolding, as any tile with `link` does) invites
+`/mens-group/` (`src/pages/mens-group.astro`; on the homepage it is a small tile inside the
+HeartWise card, "Join a men's group" over the lava-flow photo from Sam's 2012 MKP initiation, which
+links straight to the page rather than unfolding, as any tile with `link` does) invites
 men to a group in Charlotte, VT, meeting weekly for three months through Lover, Warrior, Magician
 and King. The cost is commitment and accountability.
 

@@ -16,10 +16,10 @@ export type Photo = {
 export type SectionData = {
   name: string;
   topics: string[];
-  line: string;
+  line?: string; // one line under the title; a tile may go without
   // The tile's face: a picture, or a palette colour when there is none. `kind` is the small
   // label above the title ("Book", "Project").
-  tile: { kind: string; src?: string; alt?: string; color?: string; position?: string };
+  tile: { kind?: string; src?: string; alt?: string; color?: string; position?: string };
   link?: string; // the page the tile opens directly, in place of unfolding
   body?: string[];
   href?: string;
@@ -93,9 +93,9 @@ const id = slug(name);
         />
       )}
       <span class="caption">
-        <span class="kind">{tile.kind}</span>
+        {tile.kind && <span class="kind">{tile.kind}</span>}
         <Heading>{name}</Heading>
-        <span class="line">{line}</span>
+        {line && <span class="line">{line}</span>}
       </span>
       <span class="go-mark" aria-hidden="true">→</span>
     </span>
@@ -119,9 +119,9 @@ const id = slug(name);
       />
     )}
     <span class="caption">
-      <span class="kind">{tile.kind}</span>
+      {tile.kind && <span class="kind">{tile.kind}</span>}
       <Heading>{name}</Heading>
-      <span class="line">{line}</span>
+      {line && <span class="line">{line}</span>}
     </span>
     <span class="toggle-mark" aria-hidden="true"></span>
   </summary>

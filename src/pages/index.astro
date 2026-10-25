@@ -131,13 +131,18 @@ const sections: SectionData[] = [
       { src: '/photos/heartwise-rug-circle.webp', alt: 'A circle on a patterned rug in a bright room, snow outside, one person standing to speak' },
       { src: '/photos/heartwise-embrace.webp', alt: 'A HeartWise circle in a heap of hugs on a living-room floor' },
     ],
-  },
-  {
-    name: 'Men’s Work',
-    topics: ['personal'],
-    line: 'Lover, Warrior, Magician, King.',
-    tile: { kind: 'Circle · Charlotte VT', src: '/tiles/mens-group.svg', position: 'center top' },
-    link: '/mens-group/',
+    children: [
+      {
+        name: 'Join a men’s group',
+        topics: ['personal'],
+        tile: {
+          src: '/travel/lava-flow-big-island.webp',
+          alt: 'Two men throwing shakas at night in front of glowing lava on the Big Island, after the ManKind Project initiation in 2012',
+          position: 'center 40%',
+        },
+        link: '/mens-group/',
+      },
+    ],
   },
   {
     name: 'CommunityOS',
