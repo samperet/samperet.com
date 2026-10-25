@@ -112,7 +112,8 @@ Turning a page by hand pauses the reading; Keep reading brings the book back to 
 
 ## Men's group
 
-`/mens-group/` (`src/pages/mens-group.astro`, with a tile on the homepage after HeartWise) invites
+`/mens-group/` (`src/pages/mens-group.astro`; its homepage tile, Men's Work, after HeartWise, links
+straight to it rather than unfolding, as any tile with `link` does) invites
 men to a group in Charlotte, VT, meeting weekly for three months through Lover, Warrior, Magician
 and King. The cost is commitment and accountability.
 
@@ -122,7 +123,7 @@ and sets headings in Oswald, a condensed grotesque loaded only on this page (`as
 Merlin and the photo viewer are off here.
 
 Five blocks show the places filled: `src/data/mens-group.ts` holds `{ size: 5, filled: 2 }`,
-which the page and the homepage tile both read, so raise `filled` as men are accepted. The time,
+which the page reads, so raise `filled` as men are accepted. The time,
 place and start date are set once all five are in.
 
 The archetypes sit on a wheel, Lover at the top. Clicking turns it a quarter counter-clockwise to

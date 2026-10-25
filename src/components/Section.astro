@@ -1,7 +1,8 @@
 ---
 // One homepage tile. Closed, it is a picture (or a block of palette colour) with its title and
 // one line over it; opened, it spans the whole grid and its story unfolds below the picture. A
-// tile with `children` holds smaller tiles, and opens for any topic one of its children has.
+// tile with `children` holds smaller tiles, and opens for any topic one of its children has. A
+// tile with `link` doesn't unfold: it is a link straight to that page.
 
 // A photo may carry Sam's own caption, shown under it in the viewer, or a story: audio told
 // over it, with WebVTT captions as subtitles (played by PhotoViewer.astro).
@@ -19,6 +20,7 @@ export type SectionData = {
   // The tile's face: a picture, or a palette colour when there is none. `kind` is the small
   // label above the title ("Book", "Project").
   tile: { kind: string; src?: string; alt?: string; color?: string; position?: string };
+  link?: string; // the page the tile opens directly, in place of unfolding
   body?: string[];
   href?: string;
   // Extra links under the text, and an optional button that opens Merlin's message chat.
@@ -43,7 +45,7 @@ export type SectionData = {
 type Props = { section: SectionData; child?: boolean };
 
 const { section, child = false } = Astro.props;
-const { name, line, tile, href, links = [], message, books = [], memories = [], embed, embedTitle, embedRatio, embedAllow, body = [], photos = [], cover, children = [] } = section;
+const { name, line, tile, link, href, links = [], message, books = [], memories = [], embed, embedTitle, embedRatio, embedAllow, body = [], photos = [], cover, children = [] } = section;
 
 // Body text may carry inline links written as [words](https://…).
 const LINK = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
@@ -70,6 +72,35 @@ const host = href && new URL(href).hostname.replace(/^www\./, '');
 const id = slug(name);
 ---
 
+{link ? (
+  <a
+    class:list={['item', 'tile', 'tile-link', { child, 'is-color': !tile.src }]}
+    id={id}
+    href={link}
+    data-topics={topics.join(' ')}
+    data-track={`tile:go:${id}`}
+    style={tile.color ? `--tile-color: ${tile.color}` : undefined}
+  >
+    <span class="tile-face">
+      {tile.src && (
+        <img
+          class="face"
+          src={tile.src}
+          alt={tile.alt ?? ''}
+          loading="lazy"
+          decoding="async"
+          style={tile.position ? `object-position: ${tile.position}` : undefined}
+        />
+      )}
+      <span class="caption">
+        <span class="kind">{tile.kind}</span>
+        <Heading>{name}</Heading>
+        <span class="line">{line}</span>
+      </span>
+      <span class="go-mark" aria-hidden="true">→</span>
+    </span>
+  </a>
+) : (
 <details
   class:list={['item', 'tile', { child, parent: children.length > 0, 'is-color': !tile.src }]}
   id={id}
@@ -211,6 +242,7 @@ const id = slug(name);
     )}
   </div>
 </details>
+)}
 
 <script>
   import { clock, pickSource } from '../scripts/narration';

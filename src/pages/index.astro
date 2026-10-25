@@ -1,7 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
 import Section, { type SectionData } from '../components/Section.astro';
-import { GROUP } from '../data/mens-group';
 
 const title = 'Samperet.com';
 const description = 'Strategy, relationships, systems & design.';
@@ -134,15 +133,11 @@ const sections: SectionData[] = [
     ],
   },
   {
-    name: 'Men’s Group',
+    name: 'Men’s Work',
     topics: ['personal'],
-    line: 'Join a men’s group, Charlotte VT. Lover, Warrior, Magician, King.',
+    line: 'Lover, Warrior, Magician, King.',
     tile: { kind: 'Circle · Charlotte VT', src: '/tiles/mens-group.svg', position: 'center top' },
-    body: [
-      'Five men in Charlotte, Vermont, meeting once a week for three months: Lover, Warrior, Magician, King. The cost is your commitment and accountability.',
-      `${GROUP.filled} of ${GROUP.size} are in. The time, place and start date are set once five men are in.`,
-    ],
-    links: [{ label: 'Read more and apply', href: 'https://samperet.com/mens-group/' }],
+    link: '/mens-group/',
   },
   {
     name: 'CommunityOS',
@@ -298,7 +293,7 @@ const sections: SectionData[] = [
       'common-pastures-portal': 'communityos',
     };
     // Tiles that became pages of their own.
-    const MOVED: Record<string, string> = { 'foreside-fiasco': '/stories/' };
+    const MOVED: Record<string, string> = { 'foreside-fiasco': '/stories/', 'mens-group': '/mens-group/', 'mens-work': '/mens-group/' };
     const fromHash = () => {
       const id = location.hash.slice(1);
       if (MOVED[id]) return location.replace(MOVED[id]);
@@ -403,7 +398,8 @@ const sections: SectionData[] = [
     display: none;
   }
 
-  .tile > summary {
+  .tile > summary,
+  .tile-link > .tile-face {
     position: relative;
     display: block;
     aspect-ratio: 4 / 3;
@@ -424,8 +420,17 @@ const sections: SectionData[] = [
     display: none;
   }
 
-  .tile > summary:focus-visible {
+  .tile > summary:focus-visible,
+  .tile-link:focus-visible {
     outline-offset: 3px;
+  }
+
+  /* A tile that is a link: the whole picture goes to its page. */
+  .tile-link {
+    display: block;
+    border-radius: var(--radius-lg);
+    color: inherit;
+    text-decoration: none;
   }
 
   .face {
@@ -437,7 +442,8 @@ const sections: SectionData[] = [
     transition: filter var(--fast) var(--ease);
   }
 
-  .tile > summary:hover .face {
+  .tile > summary:hover .face,
+  .tile-link:hover .face {
     filter: brightness(0.92);
   }
 
@@ -512,6 +518,29 @@ const sections: SectionData[] = [
   .tile > summary:hover .toggle-mark,
   .tile > summary:focus-visible .toggle-mark {
     background: var(--accent);
+  }
+
+  /* On a link tile, an arrow in the corner where the plus would be. */
+  .go-mark {
+    position: absolute;
+    top: var(--s3);
+    right: var(--s3);
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius);
+    background: rgb(20 21 22 / 0.45);
+    color: #fff;
+    font-size: 1rem;
+    line-height: 1;
+    transition: background var(--fast) var(--ease), transform var(--fast) var(--ease);
+  }
+
+  .tile-link:hover .go-mark,
+  .tile-link:focus-visible .go-mark {
+    background: var(--accent);
+    transform: translateX(0.15em);
   }
 
   .tile[open] > summary .toggle-mark {
