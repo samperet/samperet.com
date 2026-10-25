@@ -113,17 +113,31 @@ Turning a page by hand pauses the reading; Keep reading brings the book back to 
 ## Men's group
 
 `/mens-group/` (`src/pages/mens-group.astro`, with a tile on the homepage after HeartWise) invites
-men to a free group meeting weekly for three months, in four rounds of three weeks: Lover,
-Warrior, Magician and King. Each round is a coloured tile; clicking one opens its explanation
-below (one at a time, `#lover`, `#warrior`, `#magician` or `#king` opens one from a link). The
-time, place and start date are set once five men have been accepted, and the page says so.
+men to a group in Charlotte, VT, meeting weekly for three months in four rounds of three weeks:
+Lover, Warrior, Magician and King. The cost is commitment and accountability. The page shows the
+places filled as five seats: `src/data/mens-group.ts` holds `{ size: 5, filled: 2 }`, which the
+page and the homepage tile both read, so raise `filled` as men are accepted. The time, place and
+start date are set once all five places are filled, and the page says so.
+
+The rounds sit on a wheel, Lover at the top. Clicking turns it a quarter counter-clockwise to the
+next round (clicking another round turns straight to it, always counter-clockwise) and the
+explanation beside it follows; `#lover`, `#warrior`, `#magician` or `#king` opens on one. MKP
+publishes no colours for the archetypes, so the colours follow their elements in Cliff Barry's
+Shadow Work map: Kazan for the Lover (water), burnt sienna `#a3472a` for the Warrior (earth),
+Hackberry for the Magician (air) and Beach gold for the King (fire). Clockwise from the top the
+wheel keeps that map's compass order (King north, Lover east, Warrior south, Magician west).
 
 The application form posts to `POST /api/apply`: name, email and why are required, with phone,
 town, experience and the times that suit them optional, and a box to tick for the twelve weeks.
-Applications land with Merlin's messages (they show at `/backend`) and are emailed to Sam with
-the applicant as the reply-to. Without JavaScript the rounds are all open and the form posts
-itself and comes back to the page's thank-you note (`#applied`). `public/tiles/mens-group.svg`
-is the tile: the four round colours and a circle of five.
+Applicants can record a video, up to a minute, answering "When have you felt most alive?" with
+their camera (MediaRecorder at about 350 kb/s, so a minute stays under Vercel's 4.5 MB request
+limit; WebM gets its duration written in by `fix-webm-duration`). Applications land with
+Merlin's messages (they show at `/backend`) and are emailed to Sam with the applicant as the
+reply-to; the video travels only as an attachment to that email, never stored on the site, so an
+application with a video succeeds only once the email is sent. Without JavaScript the rounds are
+all shown, the video part is hidden, and the form posts itself and comes back to the page's
+thank-you note (`#applied`). `public/tiles/mens-group.svg` is the tile: four colours and a
+circle of five.
 
 ## Admin studio
 

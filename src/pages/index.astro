@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Section, { type SectionData } from '../components/Section.astro';
+import { GROUP } from '../data/mens-group';
 
 const title = 'Samperet.com';
 const description = 'Strategy, relationships, systems & design.';
@@ -135,10 +136,11 @@ const sections: SectionData[] = [
   {
     name: 'Men’s Group',
     topics: ['personal'],
-    line: 'Free, weekly for three months: Lover, Warrior, Magician, King.',
-    tile: { kind: 'Circle · Free', src: '/tiles/mens-group.svg', position: 'center top' },
+    line: 'Join a men’s group in Charlotte VT: Lover, Warrior, Magician, King.',
+    tile: { kind: 'Circle · Charlotte VT', src: '/tiles/mens-group.svg', position: 'center top' },
     body: [
-      'A small circle of men meeting once a week for twelve weeks, in four rounds of three: Lover, Warrior, Magician and King. It costs nothing. The time, place and start date are set once five men have been accepted.',
+      'A small circle of men in Charlotte, Vermont, meeting once a week for three months, in four rounds: Lover, Warrior, Magician and King. The cost is your commitment and accountability.',
+      `${GROUP.filled} of ${GROUP.size} places are filled. The time, place and start date are set once five men have been accepted.`,
     ],
     links: [{ label: 'Read about the rounds and apply', href: 'https://samperet.com/mens-group/' }],
   },
