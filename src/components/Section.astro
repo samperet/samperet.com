@@ -42,10 +42,14 @@ export type SectionData = {
   children?: SectionData[];
 };
 
+import { sizeOf } from '../lib/photo-size';
+
 type Props = { section: SectionData; child?: boolean };
 
 const { section, child = false } = Astro.props;
 const { name, line, tile, link, href, links = [], message, books = [], memories = [], embed, embedTitle, embedRatio, embedAllow, body = [], photos = [], cover, children = [] } = section;
+// Each photo keeps its own shape in the gallery, so it needs its size.
+const gallery = await Promise.all(photos.map(async (photo) => ({ ...photo, size: await sizeOf(photo.src) })));
 
 // Body text may carry inline links written as [words](https://…).
 const LINK = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
@@ -216,16 +220,17 @@ const id = slug(name);
     )}
     {photos.length > 0 && (
       <div class="photos">
-        {photos.map(({ src, alt, caption, story }) => (
+        {gallery.map(({ src, alt, caption, story, size }) => (
           <a
             href={src}
             class:list={{ 'has-story': story }}
+            style={size ? `--ratio: ${(size.width / size.height).toFixed(4)}` : undefined}
             data-caption={caption}
             data-story-title={story?.title}
             data-story-audio={story?.audio}
             data-story-captions={story?.captions}
           >
-            <img src={src} alt={alt} loading="lazy" decoding="async" />
+            <img src={src} alt={alt} width={size?.width} height={size?.height} loading="lazy" decoding="async" />
             {story && (
               <span class="badge">
                 <span aria-hidden="true">▶</span> {story.title}

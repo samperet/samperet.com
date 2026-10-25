@@ -603,22 +603,32 @@ const sections: SectionData[] = [
     height: auto;
   }
 
+  /* A justified gallery: every photo whole, at its own shape. Each one starts at the row
+     height (--row) and grows in proportion to its width, so a row fills the width and its
+     photos share one height; the filler after the last photo keeps a short last row from
+     stretching. */
   .photos {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    --row: 11rem;
+    display: flex;
+    flex-wrap: wrap;
     gap: var(--s2);
+  }
+
+  .photos::after {
+    content: '';
+    flex: 1000 1 0;
   }
 
   .photos img {
     width: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
+    height: auto;
     border-radius: var(--radius-lg);
   }
 
   .photos a {
     position: relative;
     display: block;
+    flex: var(--ratio, 1.333) 1 calc(var(--ratio, 1.333) * var(--row));
   }
 
   .photos a:hover img,

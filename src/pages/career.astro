@@ -3,6 +3,7 @@
 // the tagline are the lens: choose one and the highlights that show it stay, the rest step
 // back. Nothing moves on its own. Print gives a clean document.
 import Base from '../layouts/Base.astro';
+import { sizeOf } from '../lib/photo-size';
 
 type Skill = 'strategy' | 'relationships' | 'systems' | 'design';
 type Highlight = { text: string; skills: Skill[] };
@@ -291,6 +292,13 @@ const toc = [
   { id: 'awards', name: 'Awards' },
 ];
 
+// Photos keep their own shape in the galleries, so each needs its size: the one given, or the file's.
+for (const photo of roles.flatMap((r) => r.photos ?? [])) {
+  if (photo.width && photo.height) continue;
+  const size = await sizeOf(photo.thumb ?? photo.src);
+  if (size) Object.assign(photo, size);
+}
+
 const description =
   'Samuel Peret: technology and operations leader. Enterprise AI, zero-to-one team building. ALPS, Founders Wanted, Airbnb, Cloud Nurv, Whaleback Systems.';
 ---
@@ -431,6 +439,7 @@ const description =
                         <a
                           href={src}
                           class:list={{ 'has-story': story }}
+                          style={width && height ? `--ratio: ${(width / height).toFixed(4)}` : undefined}
                           data-caption={caption}
                           data-story-title={story?.title}
                           data-story-audio={story?.audio}
@@ -907,23 +916,33 @@ const description =
     gap: var(--s3);
   }
 
+  /* A justified gallery: every photo whole, at its own shape. Each one starts at the row
+     height (--row) and grows in proportion to its width, so a row fills the width and its
+     photos share one height; the filler after the last photo keeps a short last row from
+     stretching. */
   .photos {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    --row: 9rem;
+    display: flex;
+    flex-wrap: wrap;
     gap: var(--s2);
     margin-top: var(--s5);
     max-width: 40rem;
   }
 
+  .photos::after {
+    content: '';
+    flex: 1000 1 0;
+  }
+
   .photos a {
     position: relative;
     display: block;
+    flex: var(--ratio, 1.333) 1 calc(var(--ratio, 1.333) * var(--row));
   }
 
   .photos img {
     width: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
+    height: auto;
     border-radius: var(--radius-lg);
   }
 
@@ -942,10 +961,15 @@ const description =
 
   /* A small row of thumbnails: same height, natural widths, full screen on click. */
   .photos.strip {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s2);
     max-width: none;
+  }
+
+  .photos.strip a {
+    flex: none;
+  }
+
+  .photos.strip::after {
+    content: none;
   }
 
   .photos.strip img {
