@@ -132,18 +132,7 @@ const sections: SectionData[] = [
       { src: '/photos/heartwise-rug-circle.webp', alt: 'A circle on a patterned rug in a bright room, snow outside, one person standing to speak' },
       { src: '/photos/heartwise-embrace.webp', alt: 'A HeartWise circle in a heap of hugs on a living-room floor' },
     ],
-    children: [
-      {
-        name: 'Join a men’s group',
-        topics: ['personal'],
-        tile: {
-          src: '/travel/lava-flow-big-island.webp',
-          alt: 'Two men throwing shakas at night in front of glowing lava on the Big Island, after the ManKind Project initiation in 2012',
-          position: 'center 40%',
-        },
-        link: '/mens-group/',
-      },
-    ],
+    cta: { text: 'I’m currently looking for men to start a men’s group with.', label: 'Join a men’s group', href: '/mens-group/' },
   },
   {
     name: 'CommunityOS',
@@ -178,7 +167,7 @@ const sections: SectionData[] = [
     name: 'Stories',
     topics: ['family'],
     line: 'Picture books and stories, to read or to listen to.',
-    tile: { kind: 'Read · Listen', src: '/books/golden-berry/cover-640.webp', alt: 'The cover of The Golden Berry: a watercolor of a girl in a red hooded cape holding up a golden berry, a basket of blueberries in her other hand', position: 'center 30%' },
+    tile: { kind: 'Read · Listen', src: '/photos/airbnb-bearshark.jpg', alt: 'A bear-shark sculpture, half polar bear and half shark, suspended from the ceiling of an Airbnb office' },
     children: [
       {
         name: 'Foreside Fiasco',
@@ -444,9 +433,35 @@ const sections: SectionData[] = [
     list-style: none;
   }
 
+  /* An open tile reads as a page: no picture across the top, no kind or line, just its title. */
   .tile[open] > summary {
     aspect-ratio: auto;
-    height: clamp(12rem, 30vw, 20rem);
+    min-height: 2.5rem;
+    overflow: visible;
+    border-radius: 0;
+    background: none;
+    color: var(--fg);
+  }
+
+  .tile[open] > summary .face,
+  .tile[open] > summary .kind,
+  .tile[open] > summary .line {
+    display: none;
+  }
+
+  .tile[open] > summary .caption {
+    position: static;
+    padding: 0 3rem 0 0;
+    background: none;
+  }
+
+  .tile[open] > summary h3 {
+    font-size: var(--text-2xl);
+    line-height: var(--leading-tight);
+  }
+
+  .tile.child[open] > summary h4 {
+    font-size: var(--text-xl);
   }
 
   .tile > summary::-webkit-details-marker {
@@ -887,13 +902,28 @@ const sections: SectionData[] = [
     background: #fff;
   }
 
-  /* "Join a men's group" shouts, in the men's group page's own face. */
-  #join-a-mens-group h4 {
+  /* A card's closing call to action: a line, then the button. The men's group's button speaks
+     in that page's own face, in capitals. */
+  .cta {
+    display: grid;
+    justify-items: start;
+    gap: var(--s4);
+    padding-top: var(--s5);
+    border-top: var(--hairline);
+  }
+
+  .cta p {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    line-height: var(--leading-snug);
+  }
+
+  .cta-btn {
+    padding: 0.85rem 1.5rem;
     font-family: var(--font-oswald, 'Oswald'), 'Arial Narrow', Impact, sans-serif;
-    font-size: clamp(2.6rem, 1.6rem + 3.2vw, 4rem);
+    font-size: clamp(1.3rem, 1rem + 1.2vw, 1.9rem);
     font-weight: 700;
-    line-height: 0.92;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
   }
 

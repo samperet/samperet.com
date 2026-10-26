@@ -43,7 +43,7 @@ Professional goes to `/career/`, where the work now lives. Tiles can nest (a sec
 `children`), though none do now. A section's `message` adds a button that opens Merlin's message
 chat (CommunityOS uses it for "Ask about setting it up"). A section's `books` adds a "Recommended reading" shelf: each cover (in `public/reading/`) is a
 little book that opens on its spine on hover and links out. Tile pictures that aren't
-already elsewhere live in `public/tiles/`. Photos open in a full-screen viewer
+already elsewhere live in `public/tiles/`. An open tile shows only its title on top, with no picture, kind or line. Photos open in a full-screen viewer
 (`src/components/PhotoViewer.astro`). Galleries never crop: they are justified, each photo at
 its own shape and each row grown to the full width at one height, using sizes read from the
 files at build time (`src/lib/photo-size.ts`, with sharp). Tile faces are the one place a
@@ -118,9 +118,9 @@ Turning a page by hand pauses the reading; Keep reading brings the book back to 
 
 ## Men's group
 
-`/mens-group/` (`src/pages/mens-group.astro`; on the homepage it is a small tile inside the
-HeartWise card, "Join a men's group" over the lava-flow photo from Sam's 2012 MKP initiation, which
-links straight to the page rather than unfolding, as any tile with `link` does) invites
+`/mens-group/` (`src/pages/mens-group.astro`; on the homepage the HeartWise card ends with "I'm
+currently looking for men to start a men's group with." and a "Join a men's group" button to it,
+a card's `cta`) invites
 men to a group in Charlotte, VT, meeting weekly for three months through Lover, Warrior, Magician
 and King. The cost is commitment and accountability.
 

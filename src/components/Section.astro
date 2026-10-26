@@ -43,6 +43,8 @@ export type SectionData = {
   // A linked cover image (a book, a project page): opens its own page, not the viewer.
   cover?: { src: string; alt: string; href: string; label: string; width: number; height: number };
   children?: SectionData[];
+  // A line and a button at the foot of the card.
+  cta?: { text: string; label: string; href: string };
 };
 
 import { sizeOf } from '../lib/photo-size';
@@ -50,7 +52,7 @@ import { sizeOf } from '../lib/photo-size';
 type Props = { section: SectionData; child?: boolean };
 
 const { section, child = false } = Astro.props;
-const { name, line, tile, link, story, href, links = [], message, books = [], memories = [], embed, embedTitle, embedRatio, embedAllow, embedLast = false, body = [], photos = [], cover, children = [] } = section;
+const { name, line, tile, link, story, href, links = [], message, books = [], memories = [], embed, embedTitle, embedRatio, embedAllow, embedLast = false, body = [], photos = [], cover, children = [], cta } = section;
 // The live site or app a card embeds, wherever the card puts it.
 const frame = embed && {
   class: 'embed',
@@ -253,6 +255,14 @@ const id = slug(name);
       </div>
     )}
     {embed && embedLast && <iframe {...frame} />}
+    {cta && (
+      <div class="cta">
+        <p>{cta.text}</p>
+        <a class="btn btn-accent cta-btn" href={cta.href} data-track={`tile:cta:${id}`}>
+          {cta.label} <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    )}
   </div>
 </details>
 )}
