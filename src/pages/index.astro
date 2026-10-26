@@ -212,7 +212,6 @@ const sections: SectionData[] = [
     href: 'https://jayaandfiona.com',
     embed: 'https://jayaandfiona.com/',
     embedTitle: 'jayaandfiona.com, Jaya and Fiona’s Fun Zone',
-    embedRatio: '16 / 10',
     embedLast: true,
   },
 ];
@@ -854,6 +853,38 @@ const sections: SectionData[] = [
     background: #fff;
   }
 
+  /* jayaandfiona.com runs edge to edge across the window, and as tall as its page so nothing
+     scrolls inside it: the page is 1571px tall from 768px wide, 1184px below that and 1161px
+     under 390px (measured 2026-10-26), and fills the frame when the window is taller. If the
+     site grows, raise these. */
+  .embed[src='https://jayaandfiona.com/'] {
+    width: 100vw;
+    max-width: none;
+    margin-inline: calc(50% - 50vw);
+    height: max(100vh, 1600px);
+    aspect-ratio: auto;
+    border: 0;
+    border-block: var(--hairline);
+    border-radius: 0;
+  }
+
+  @media (max-width: 767px) {
+    .embed[src='https://jayaandfiona.com/'] {
+      height: max(100vh, 1200px);
+    }
+  }
+
+  @media (max-width: 389px) {
+    .embed[src='https://jayaandfiona.com/'] {
+      height: max(100vh, 1180px);
+    }
+  }
+
+  /* The full-width embed is as wide as the window, scrollbar included; clip that sliver. */
+  body {
+    overflow-x: clip;
+  }
+
   /* The travel globe needs height more than width on a phone. */
   @media (max-width: 640px) {
     .embed[src='/globe/index.html'] {
@@ -864,9 +895,6 @@ const sections: SectionData[] = [
       min-height: 34rem;
     }
 
-    .embed[src='https://jayaandfiona.com/'] {
-      min-height: 36rem;
-    }
   }
 
   @media (max-width: 640px) {
