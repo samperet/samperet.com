@@ -175,6 +175,11 @@ const KEYS = 'ABCDE';
     <section class="mg-apply" id="apply" aria-labelledby="apply-title">
       <h2 id="apply-title">Apply</h2>
 
+      <dl class="terms">
+        <div><dt>Cost</dt><dd>No cost beyond your commitment of time</dd></div>
+        <div><dt>Schedule</dt><dd>Time and location to be set once we have 5 men ready to go</dd></div>
+      </dl>
+
       <div class="seats">
         <ol class="seat-row" aria-hidden="true">
           {Array.from({ length: GROUP.size }, (_, i) => <li class:list={['seat', { filled: i < GROUP.filled }]} />)}
@@ -776,6 +781,36 @@ const KEYS = 'ABCDE';
     color: var(--beach);
   }
 
+
+  /* ---- What it costs and when it meets, under the Apply heading ---- */
+  .terms {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: var(--s4) var(--s6);
+    max-width: 52rem;
+    margin: 0;
+  }
+
+  .terms > div {
+    padding-top: var(--s3);
+    border-top: 4px solid var(--fg);
+  }
+
+  .terms dt {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .terms dd {
+    margin: var(--s2) 0 0;
+    font-family: var(--grit);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    line-height: 1.2;
+  }
 
   /* ---- Places filled: five blocks, at the head of the application ---- */
   .seats {
