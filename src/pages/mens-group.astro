@@ -3,9 +3,9 @@
 // near-black paper with grain, Oswald for headings, square edges. Merlin and the photo viewer stay
 // off this page.
 //
-// The four archetypes sit on a wheel, Lover at the top. Clicking turns it a quarter counter-
-// clockwise to the next (or straight to the one clicked); the words turn with the wheel, upright
-// when their wedge is on top. The explanation sits beside it.
+// The four archetypes sit on a wheel, Lover at the top, and it turns clockwise with the scroll,
+// bringing Warrior, Magician and King to the top in turn; the words turn with the wheel, upright
+// when their wedge is on top. The explanations sit beside it.
 //
 // The application asks one question at a time, like Typeform: Enter moves on, letters pick
 // choices, and an optional video answers "When have you felt most alive?". It posts to
@@ -19,8 +19,7 @@ type Archetype = { id: string; name: string; element: string; line: string; colo
 
 // Colours follow each archetype's element in Cliff Barry's Shadow Work map (MKP publishes none):
 // Kazan for the Lover's water, burnt sienna for the Warrior's earth, Hackberry for the
-// Magician's air, Beach gold for the King's fire. Clockwise from the top the wheel keeps that
-// map's order (King north, Lover east, Warrior south, Magician west), turned so Lover leads.
+// Magician's air, Beach gold for the King's fire.
 const archetypes: Archetype[] = [
   {
     id: 'lover',
@@ -141,7 +140,7 @@ const KEYS = 'ABCDE';
                     aria-label={a.name}
                     aria-controls={`${a.id}-panel`}
                     aria-pressed={i === 0 ? 'true' : 'false'}
-                    style={`--at: ${i * 90}deg; --c: ${a.color}; --ink: ${a.ink}`}
+                    style={`--at: ${(360 - i * 90) % 360}deg; --c: ${a.color}; --ink: ${a.ink}`}
                     data-track={`mens-group:wheel:${a.id}`}
                   >
                     <span class="wedge-name">{a.name}</span>
@@ -150,7 +149,7 @@ const KEYS = 'ABCDE';
               }
             </div>
             <button type="button" class="wheel-hub" data-next aria-label="Turn to the next" data-track="mens-group:wheel:next">
-              Next <span aria-hidden="true">↺</span>
+              Next <span aria-hidden="true">↻</span>
             </button>
           </div>
         </div>
@@ -185,6 +184,10 @@ const KEYS = 'ABCDE';
           {needed > 0 ? `${needed} more ${needed === 1 ? 'man' : 'men'} and we start.` : 'The circle is full.'}
         </p>
       </div>
+
+      <button type="button" class="btn btn-accent apply-start" data-apply-start hidden>
+        Apply now <span aria-hidden="true">→</span>
+      </button>
 
       <p class="mg-note mg-done-nojs" id="applied" tabindex="-1">
         <strong>Got it.</strong> Once five men are in, I’ll write to you with the time, place and start date.
@@ -320,10 +323,11 @@ const KEYS = 'ABCDE';
 
     // ---- The wheel ----
     // The four explanations stack beside the wheel (below it on a phone), and the wheel stays
-    // in view, turning with the scroll itself: a quarter turn counter-clockwise from one
-    // explanation to the next, smoothly in between, and back as the reader scrolls up. Wedges sit
-    // a quarter apart (Lover 0°, Warrior 90°, Magician 180°, King 270°), so an archetype is on
-    // top exactly when its explanation reaches the reading line. Clicking a wedge, or the hub for
+    // in view, turning with the scroll itself: a quarter turn clockwise from one explanation to
+    // the next, smoothly in between, and back as the reader scrolls up. The wedges run
+    // counter-clockwise from the top (Lover 0°, Warrior 270°, Magician 180°, King 90°), so turning
+    // clockwise brings them up in order, each on top exactly when its explanation reaches the
+    // reading line. Clicking a wedge, or the hub for
     // the next one, scrolls to that explanation, and the wheel turns along the way.
     const wheel = document.querySelector<HTMLElement>('[data-wheel]')!;
     const dock = document.querySelector<HTMLElement>('[data-dock]')!;
@@ -349,7 +353,7 @@ const KEYS = 'ABCDE';
 
     const sync = () => {
       const at = throughWheel();
-      wheel.style.setProperty('--turn', `${at * -90}deg`);
+      wheel.style.setProperty('--turn', `${at * 90}deg`);
       const index = Math.round(at);
       if (index === current) return;
       current = index;
@@ -535,6 +539,16 @@ const KEYS = 'ABCDE';
 
     let at = -1; // nothing shown yet; the first question opens on load
     tf.classList.add('tf-on');
+    // The form waits behind the Apply now button (without JavaScript it simply shows).
+    const applyStart = document.querySelector<HTMLButtonElement>('[data-apply-start]')!;
+    applyStart.hidden = false;
+    tf.hidden = true;
+    applyStart.addEventListener('click', () => {
+      applyStart.hidden = true;
+      tf.hidden = false;
+      tf.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+      show(0);
+    });
     nav.hidden = false;
     form.noValidate = true; // checked here, with messages in the page's voice
 
@@ -1070,6 +1084,21 @@ const KEYS = 'ABCDE';
   }
 
   .tf-progress {
+    display: none;
+  }
+
+  .tf[hidden] {
+    display: none;
+  }
+
+  .grit .apply-start {
+    justify-self: start;
+    padding: 0.9rem 1.6rem;
+    font-size: clamp(1.4rem, 1rem + 1.4vw, 2rem);
+    font-weight: 700;
+  }
+
+  .apply-start[hidden] {
     display: none;
   }
 

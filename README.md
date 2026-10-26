@@ -136,13 +136,14 @@ Five blocks show the places filled: `src/data/mens-group.ts` holds `{ size: 5, f
 which the page reads, so raise `filled` as men are accepted. The time,
 place and start date are set once all five are in.
 
-The archetypes sit on a wheel, Lover at the top. Clicking turns it a quarter counter-clockwise to
-the next (clicking another one turns straight to it, always counter-clockwise) and the
-explanation beside it follows; the names turn with the wheel, upright on top. `#lover`,
+The archetypes sit on a wheel that stays in view while their explanations scroll past, turning
+clockwise with the scroll so Lover, Warrior, Magician and King come to the top in order (the
+wedges run counter-clockwise from the top for that); clicking one scrolls to it, and the names
+turn with the wheel, upright on top. `#lover`,
 `#warrior`, `#magician` or `#king` opens on one. MKP publishes no colours for the archetypes, so
 they follow their elements in Cliff Barry's Shadow Work map: Kazan for the Lover (water), burnt
 sienna `#a3472a` for the Warrior (earth), Hackberry for the Magician (air) and Beach gold for the
-King (fire). Clockwise from the top the wheel keeps that map's compass order.
+King (fire).
 
 The application asks one question at a time, like Typeform: a progress bar, Enter to move on
 (Shift+Enter for a new line), letters to pick choices, ↑ ↓ to go back and forth. Name, email,

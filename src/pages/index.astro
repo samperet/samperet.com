@@ -122,17 +122,16 @@ const sections: SectionData[] = [
       'HeartWise is where I bring Heart iQ to people. Heart iQ starts from a simple observation: some parts of us only appear in the presence of other people. Most personal growth happens alone, reading and reflecting, yet the places shaped in relationship stay hidden in solitude and return when someone comes close. A circle that is held well enough, for long enough, becomes a place to be met rather than to perform or be fixed, and the group can reach places together that none of us could reach alone.',
       'I have been leading exquisite circles of healing and transformation since 2016.',
     ],
-    links: [
-      { label: 'getheartwise.com', href: 'https://www.getheartwise.com' },
-      { label: 'heartiq.org', href: 'https://heartiq.org' },
-    ],
     photos: [
       { src: '/photos/heartwise-circle.webp', alt: 'A HeartWise circle: some thirty people piled together, smiling, on the floor of a studio after a workshop' },
       { src: '/photos/heartwise-group.webp', alt: 'A HeartWise group standing together under the beams of a timber hall after a workshop' },
       { src: '/photos/heartwise-rug-circle.webp', alt: 'A circle on a patterned rug in a bright room, snow outside, one person standing to speak' },
       { src: '/photos/heartwise-embrace.webp', alt: 'A HeartWise circle in a heap of hugs on a living-room floor' },
     ],
-    cta: { text: 'I’m currently looking for men to start a men’s group with.', label: 'Join a men’s group', href: '/mens-group/' },
+    cta: [
+      { label: 'getheartwise.com', href: 'https://www.getheartwise.com' },
+      { text: 'I’m currently looking for men to start a men’s group with.', label: 'Join a men’s group', href: '/mens-group/' },
+    ],
   },
   {
     name: 'Stories',
@@ -985,6 +984,10 @@ const projects: SectionData[] = [
     gap: var(--s4);
     padding-top: var(--s5);
     border-top: var(--hairline);
+  }
+
+  .cta p:not(:first-child) {
+    margin-top: var(--s4); /* a line starts a new call, set apart from the button before */
   }
 
   .cta p {
