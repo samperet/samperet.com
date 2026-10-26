@@ -89,9 +89,10 @@ heights, measured from the site, are in `index.astro` and need raising if the si
 
 ## Stories
 
-`/stories/` (`src/pages/stories.astro`) gathers the picture books and the told stories as tiles:
-Foreside Fiasco and The Golden Berry open their flipbooks, and the bear shark opens the photo
-viewer and plays Sam telling it. The homepage links to it next to Career.
+Stories is a card on the homepage, before Family. Inside it, Foreside Fiasco and The Golden
+Berry are tiles that open their flipbook pages, and The Bear Shark is a tile that opens the photo
+viewer and plays Sam telling it (a link tile with `story`). The books' "← Home" returns to the
+open card, and the old `/stories/` page (`src/pages/stories.astro`) now only forwards to it.
 
 Both books use `src/components/Flipbook.astro`: give it the page count, image folder and page
 size, and optionally a PDF to download, an `about` note, a `buy` link and `narration` for

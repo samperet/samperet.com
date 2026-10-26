@@ -1,4 +1,5 @@
 ---
+import { Font } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import Section, { type SectionData } from '../components/Section.astro';
 
@@ -174,6 +175,40 @@ const sections: SectionData[] = [
     embedAllow: 'clipboard-write',
   },
   {
+    name: 'Stories',
+    topics: ['family'],
+    line: 'Picture books and stories, to read or to listen to.',
+    tile: { kind: 'Read · Listen', src: '/books/golden-berry/cover-640.webp', alt: 'The cover of The Golden Berry: a watercolor of a girl in a red hooded cape holding up a golden berry, a basket of blueberries in her other hand', position: 'center 30%' },
+    children: [
+      {
+        name: 'Foreside Fiasco',
+        topics: ['family'],
+        line: 'An unfortunate true story.',
+        tile: { kind: 'Picture book · Read aloud', src: '/books/foreside-fiasco/cover-560.webp', position: 'center 35%' },
+        link: '/foreside-fiasco/',
+      },
+      {
+        name: 'The Golden Berry',
+        topics: ['family'],
+        line: 'By Jaya Elnora Peret, painted in watercolor by the Ukrainian artist Kateryna Rohotova.',
+        tile: { kind: 'Picture book · By Jaya', src: '/books/golden-berry/cover-640.webp', position: 'center 30%' },
+        link: '/golden-berry/',
+      },
+      {
+        name: 'The Bear Shark',
+        topics: ['family'],
+        line: 'How a 12-foot bear shark got into the building.',
+        tile: {
+          kind: 'Story · Audio',
+          src: '/photos/airbnb-bearshark.jpg',
+          alt: 'A bear-shark sculpture, half polar bear and half shark, suspended from the ceiling of an Airbnb office',
+        },
+        link: '/photos/airbnb-bearshark.jpg',
+        story: { title: 'The story of the bear shark', audio: '/stories/bear-shark.m4a', captions: '/stories/bear-shark.vtt' },
+      },
+    ],
+  },
+  {
     name: 'Family',
     topics: ['family'],
     line: 'Jaya, Fiona, Mackensie and the things we make together.',
@@ -218,13 +253,13 @@ const sections: SectionData[] = [
 ---
 
 <Base title={title} description={description} path="/">
+  <Font slot="head" cssVariable="--font-oswald" />
   <main class="wrap-wide">
     <header class="hero">
       <h1 class="wordmark">Samperet<span class="dot">.</span>com</h1>
       <p class="lede tagline">strategy, relationships, systems <span class="amp">&amp;</span> design.</p>
       <nav class="hero-links" aria-label="Pages">
         <a class="arrow-link" href="/career/" data-track="nav:career">Career <span class="arrow" aria-hidden="true">→</span></a>
-        <a class="arrow-link" href="/stories/" data-track="nav:stories">Stories <span class="arrow" aria-hidden="true">→</span></a>
       </nav>
       <a class="arrow-link home-btn tile-home" href="/" data-home data-track="nav:home-tile"><span class="arrow" aria-hidden="true">←</span> Home</a>
     </header>
@@ -290,9 +325,12 @@ const sections: SectionData[] = [
       'consciousness-yoga-and-self-development': 'yoga-spirituality-and-personal-development',
       'common-pastures-portal': 'communityos',
       'jayaandfiona-com': 'family',
+      'foreside-fiasco': 'stories',
+      'golden-berry': 'stories',
+      'bear-shark': 'stories',
     };
     // Tiles that became pages of their own.
-    const MOVED: Record<string, string> = { 'foreside-fiasco': '/stories/', 'mens-group': '/mens-group/', 'mens-work': '/mens-group/' };
+    const MOVED: Record<string, string> = { 'mens-group': '/mens-group/', 'mens-work': '/mens-group/' };
     const fromHash = () => {
       const id = location.hash.slice(1);
       if (MOVED[id]) return location.replace(MOVED[id]);
@@ -851,6 +889,16 @@ const sections: SectionData[] = [
     border: var(--hairline);
     border-radius: var(--radius-lg);
     background: #fff;
+  }
+
+  /* "Join a men's group" shouts, in the men's group page's own face. */
+  #join-a-mens-group h4 {
+    font-family: var(--font-oswald, 'Oswald'), 'Arial Narrow', Impact, sans-serif;
+    font-size: clamp(2.6rem, 1.6rem + 3.2vw, 4rem);
+    font-weight: 700;
+    line-height: 0.92;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
   }
 
   /* jayaandfiona.com runs edge to edge across the window, and as tall as its page so nothing

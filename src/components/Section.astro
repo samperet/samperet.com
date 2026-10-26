@@ -21,6 +21,8 @@ export type SectionData = {
   // label above the title ("Book", "Project").
   tile: { kind?: string; src?: string; alt?: string; color?: string; position?: string };
   link?: string; // the page the tile opens directly, in place of unfolding
+  // With `link` set to its photo: a told story, played over the photo in the viewer.
+  story?: { title: string; audio: string; captions: string };
   body?: string[];
   href?: string;
   // Extra links under the text, and an optional button that opens Merlin's message chat.
@@ -48,7 +50,7 @@ import { sizeOf } from '../lib/photo-size';
 type Props = { section: SectionData; child?: boolean };
 
 const { section, child = false } = Astro.props;
-const { name, line, tile, link, href, links = [], message, books = [], memories = [], embed, embedTitle, embedRatio, embedAllow, embedLast = false, body = [], photos = [], cover, children = [] } = section;
+const { name, line, tile, link, story, href, links = [], message, books = [], memories = [], embed, embedTitle, embedRatio, embedAllow, embedLast = false, body = [], photos = [], cover, children = [] } = section;
 // The live site or app a card embeds, wherever the card puts it.
 const frame = embed && {
   class: 'embed',
@@ -95,6 +97,10 @@ const id = slug(name);
     href={link}
     data-topics={topics.join(' ')}
     data-track={`tile:go:${id}`}
+    data-story-tile={story ? '' : undefined}
+    data-story-title={story?.title}
+    data-story-audio={story?.audio}
+    data-story-captions={story?.captions}
     style={tile.color ? `--tile-color: ${tile.color}` : undefined}
   >
     <span class="tile-face">
@@ -113,7 +119,7 @@ const id = slug(name);
         <Heading>{name}</Heading>
         {line && <span class="line">{line}</span>}
       </span>
-      <span class="go-mark" aria-hidden="true">→</span>
+      <span class="go-mark" aria-hidden="true">{story ? '▶' : '→'}</span>
     </span>
   </a>
 ) : (

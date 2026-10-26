@@ -3,7 +3,7 @@
 // link to the full image (so it works without JavaScript); with it, a click opens the viewer
 // on that photo, and the arrows, swipes and arrow keys move through the rest of its section.
 // A photo with a story (data-story-* on its link) plays its audio over the picture, with the
-// WebVTT captions shown as subtitles.
+// WebVTT captions shown as subtitles. A link marked data-story-tile (a told story's tile) opens it alone.
 ---
 
 <dialog class="viewer" aria-label="Photo viewer" data-viewer data-merlin-ui>
@@ -151,10 +151,11 @@
   };
 
   document.addEventListener('click', (e) => {
-    const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('.photos a');
+    const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('.photos a, a[data-story-tile]');
     if (!link || e.metaKey || e.ctrlKey || e.shiftKey) return;
     e.preventDefault();
-    const links = [...link.closest('.photos')!.querySelectorAll<HTMLAnchorElement>('a')];
+    const grid = link.closest('.photos');
+    const links = grid ? [...grid.querySelectorAll<HTMLAnchorElement>('a')] : [link];
     photos = links.map(photoOf);
     dialog.classList.toggle('single', photos.length < 2);
     // Opened by a click, so a story may start playing straight away.
