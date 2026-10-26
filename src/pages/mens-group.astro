@@ -320,51 +320,53 @@ const KEYS = 'ABCDE';
 
     // ---- The wheel ----
     // The four explanations stack beside the wheel (below it on a phone), and the wheel stays
-    // in view, turning to whichever one is being read. Wedges sit a quarter apart (Lover 0°,
-    // Warrior 90°, Magician 180°, King 270°): reading on down the page turns it a quarter
-    // counter-clockwise per archetype, going back up turns it clockwise. Clicking a wedge, or
-    // the hub for the next one, scrolls to that explanation.
+    // in view, turning with the scroll itself: a quarter turn counter-clockwise from one
+    // explanation to the next, smoothly in between, and back as the reader scrolls up. Wedges sit
+    // a quarter apart (Lover 0°, Warrior 90°, Magician 180°, King 270°), so an archetype is on
+    // top exactly when its explanation reaches the reading line. Clicking a wedge, or the hub for
+    // the next one, scrolls to that explanation, and the wheel turns along the way.
     const wheel = document.querySelector<HTMLElement>('[data-wheel]')!;
     const dock = document.querySelector<HTMLElement>('[data-dock]')!;
     const wedges = [...wheel.querySelectorAll<HTMLButtonElement>('[data-wedge]')];
     const panels = [...document.querySelectorAll<HTMLElement>('[data-panel]')];
-    let current = 0;
-    let step = 0;
+    let current = -1;
 
-    const setActive = (index: number, animate = true) => {
+    // The reading line, where an explanation's top sits once it's the one being read: under the
+    // docked wheel on a phone, a quarter of the way down the window beside it.
+    const stacked = matchMedia('(max-width: 860px)');
+    const anchor = () => (stacked.matches ? dock.getBoundingClientRect().bottom + 16 : innerHeight * 0.25);
+
+    // How far through the four the reader is: 0 at Lover, 3 at King, fractions in between.
+    const throughWheel = () => {
+      const line = anchor();
+      const tops = panels.map((p) => p.getBoundingClientRect().top - line);
+      if (tops[0] >= 0) return 0;
+      for (let i = 0; i < tops.length - 1; i++) {
+        if (tops[i + 1] > 0) return i + -tops[i] / (tops[i + 1] - tops[i]);
+      }
+      return tops.length - 1;
+    };
+
+    const sync = () => {
+      const at = throughWheel();
+      wheel.style.setProperty('--turn', `${at * -90}deg`);
+      const index = Math.round(at);
       if (index === current) return;
-      step += index - current;
       current = index;
-      wheel.classList.toggle('still', !animate);
-      wheel.style.setProperty('--turn', `${step * -90}deg`);
       for (const [i, wedge] of wedges.entries()) wedge.setAttribute('aria-pressed', String(i === index));
       for (const [i, panel] of panels.entries()) panel.classList.toggle('on', i === index);
     };
-
-    // Where an explanation's top sits once it's the one being read: under the docked wheel on a
-    // phone, a quarter of the way down the window beside it.
-    const stacked = matchMedia('(max-width: 860px)');
-    const anchor = () => (stacked.matches ? dock.getBoundingClientRect().bottom + 16 : innerHeight * 0.25);
-    const line = () => anchor() + innerHeight * 0.2;
-
-    const sync = (animate = true) => {
-      let index = 0;
-      for (const [i, panel] of panels.entries()) if (panel.getBoundingClientRect().top <= line()) index = i;
-      setActive(index, animate);
-    };
     let queued = false;
-    addEventListener(
-      'scroll',
-      () => {
-        if (queued) return;
-        queued = true;
-        requestAnimationFrame(() => {
-          queued = false;
-          sync();
-        });
-      },
-      { passive: true },
-    );
+    const onScroll = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        sync();
+      });
+    };
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll);
 
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const goTo = (index: number, smooth = true) =>
@@ -380,8 +382,7 @@ const KEYS = 'ABCDE';
     };
     addEventListener('hashchange', fromHash);
     fromHash();
-    sync(false);
-    panels[current].classList.add('on');
+    sync();
 
     // ---- The video: when have you felt most alive? ----
     const LIMIT = 60; // seconds
@@ -880,14 +881,9 @@ const KEYS = 'ABCDE';
 
   .wheel {
     --turn: 0deg;
-    --spin: 650ms;
     position: relative;
     width: 100%;
     aspect-ratio: 1;
-  }
-
-  .wheel.still {
-    --spin: 0ms;
   }
 
   /* The notch over the wheel marks the one that's on. */
@@ -907,8 +903,7 @@ const KEYS = 'ABCDE';
     inset: 0;
     overflow: hidden;
     border-radius: 50%;
-    rotate: var(--turn);
-    transition: rotate var(--spin) var(--ease);
+    rotate: var(--turn); /* set from the scroll position, so no transition */
   }
 
   /* Spokes the colour of the page between the wedges. */
@@ -1543,10 +1538,6 @@ const KEYS = 'ABCDE';
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .wheel {
-      --spin: 0ms;
-    }
-
     .tf-on .q.on {
       animation: none;
     }
