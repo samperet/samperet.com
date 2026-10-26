@@ -95,16 +95,24 @@ const KEYS = 'ABCDE';
       <h1>Men’s work <span>Charlotte VT</span></h1>
     </header>
 
-    <div class="mg-intro measure">
-      <p>
-        We show up, tell the truth about our lives, and hold each other to what we say we’ll do. Nobody gets fixed. Nobody gets lectured. You get
-        met, and you get called on your bullshit.
-      </p>
-      <p>
-        I’ve sat in and built men’s circles since my ManKind Project initiation in 2012, and led circles since 2016. The work runs on the four
-        archetypes from Robert Moore and Douglas Gillette’s <cite>King, Warrior, Magician, Lover</cite>.
-      </p>
-    </div>
+    <p class="mg-lead">
+      Show up, share, hold each other accountable, shift your perspective, check out in your sovereignty. <span>No fixing. No bullshit.</span>
+    </p>
+
+    <section class="mg-about" aria-labelledby="about-title">
+      <h2 id="about-title">About me</h2>
+      <div class="measure">
+        <p>
+          Born in ’86, grew up in NH, lived in California, Australia, Maui and Portland. I’ve sat in and built men’s circles since 2012. I’m a
+          Dad, an entrepreneur, facilitator and yogi. You can check me out at <a href="/">Samperet.com</a>.
+        </p>
+        <p>
+          I’m looking for a specific resonance of men to build this container with. Equal parts passion, curiosity, liveliness and skill. If you
+          have questions, call me at <a href="tel:+16035311077">603.531.1077</a>, otherwise <a href="#apply">fill out the application</a> to
+          apply.
+        </p>
+      </div>
+    </section>
 
     <section class="mg-who" aria-labelledby="who-title">
       <h2 id="who-title">Who I’m looking for</h2>
@@ -794,9 +802,32 @@ const KEYS = 'ABCDE';
     color: var(--beach);
   }
 
-  .mg-intro {
+  /* The creed under the title, in the page's display face; its last words in gold. */
+  .mg-lead {
+    max-width: 30ch;
     margin-bottom: var(--s8);
+    font-family: var(--grit);
+    font-size: clamp(1.6rem, 1.1rem + 2vw, 2.6rem);
+    font-weight: 600;
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  .mg-lead span {
+    color: var(--beach);
+  }
+
+  .mg-about {
+    margin-bottom: var(--s8);
+  }
+
+  .mg-about .measure {
+    margin-top: var(--s5);
     font-size: var(--text-md);
+  }
+
+  .mg-about a {
+    text-decoration-color: var(--beach);
   }
 
   /* ---- Who I'm looking for ---- */
