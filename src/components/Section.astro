@@ -43,6 +43,7 @@ export type SectionData = {
   // A linked cover image (a book, a project page): opens its own page, not the viewer.
   cover?: { src: string; alt: string; href: string; label: string; width: number; height: number };
   children?: SectionData[];
+  childrenIntro?: string; // a line just above the smaller cards
   // Big buttons at the foot of the card, in order, each with an optional line above it.
   cta?: { text?: string; label: string; href: string }[];
 };
@@ -52,7 +53,7 @@ import { sizeOf } from '../lib/photo-size';
 type Props = { section: SectionData; child?: boolean };
 
 const { section, child = false } = Astro.props;
-const { name, line, tile, link, story, href, links = [], message, books = [], memories = [], embed, embedTitle, embedRatio, embedAllow, embedLast = false, body = [], photos = [], cover, children = [], cta = [] } = section;
+const { name, line, tile, link, story, href, links = [], message, books = [], memories = [], embed, embedTitle, embedRatio, embedAllow, embedLast = false, body = [], photos = [], cover, children = [], childrenIntro, cta = [] } = section;
 // The live site or app a card embeds, wherever the card puts it.
 const frame = embed && {
   class: 'embed',
@@ -245,6 +246,7 @@ const id = slug(name);
         ))}
       </div>
     )}
+    {childrenIntro && children.length > 0 && <p class="children-intro">{childrenIntro}</p>}
     {children.length > 0 && (
       <div class="tiles children">
         {children.map((c) => <Astro.self section={c} child />)}

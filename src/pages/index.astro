@@ -99,6 +99,7 @@ const sections: SectionData[] = [
       { src: '/travel/shore-circle.webp', alt: 'A yoga group seated cross-legged on the sand as a wave breaks on the rocks behind them' },
       { src: '/travel/pinnacles-handstand.webp', alt: 'A handstand on the sand among the limestone pillars of the Pinnacles' },
     ],
+    childrenIntro: 'My life partner has an incredible practice as a yoga teacher, medical intuitive and massage therapist. Her offerings can be found here:',
     children: [
       {
         name: 'Intelligent Embodiment',
@@ -984,6 +985,14 @@ const projects: SectionData[] = [
     gap: var(--s4);
     padding-top: var(--s5);
     border-top: var(--hairline);
+  }
+
+  .children-intro {
+    max-width: var(--measure);
+    margin-top: var(--s4);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    line-height: var(--leading-snug);
   }
 
   .cta p:not(:first-child) {
