@@ -15,64 +15,31 @@ import { Font } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import { GROUP } from '../data/mens-group';
 
-type Archetype = { id: string; name: string; element: string; line: string; color: string; ink: string; body: string[]; shadow: string };
+// `element` is what the colour stands for (see below); it isn't shown.
+type Archetype = { id: string; name: string; element: string; color: string; ink: string; text: string };
 
 // Colours follow each archetype's element in Cliff Barry's Shadow Work map (MKP publishes none):
 // Kazan for the Lover's water, burnt sienna for the Warrior's earth, Hackberry for the
 // Magician's air, Beach gold for the King's fire.
 const archetypes: Archetype[] = [
-  {
-    id: 'lover',
-    name: 'Lover',
-    element: 'Water',
-    line: 'Feeling. Connection. Aliveness.',
-    color: 'var(--kazan)',
-    ink: '#fff',
-    body: [
-      'The part of you that feels: joy, grief, desire, beauty, the plain fact of being alive. We start here because a circle runs on connection.',
-      'Slow down. Get to know each other. Say what is actually going on inside.',
-    ],
-    shadow: 'Chasing the next hit, or going numb.',
-  },
+  { id: 'lover', name: 'Lover', element: 'Water', color: 'var(--kazan)', ink: '#fff', text: 'Check in. How are you doing? No response. No feedback.' },
   {
     id: 'warrior',
     name: 'Warrior',
     element: 'Earth',
-    line: 'Purpose. Boundaries. Commitment.',
     color: '#a3472a',
     ink: '#fff',
-    body: [
-      'Energy in service of something: a clear aim, discipline, the guts to act and the guts to say no.',
-      'What are you fighting for? Where is your yes a yes and your no a no? Which commitments do you keep, and which do you dodge?',
-    ],
-    shadow: 'Harsh and controlling, or collapsed and missing from the fight.',
+    text: 'Accountability. Did you do what you said you were going to do? Examine without shame the shadows at play when you’re out of integrity.',
   },
   {
     id: 'magician',
     name: 'Magician',
     element: 'Air',
-    line: 'Awareness. Insight. Change.',
     color: 'var(--hackberry)',
     ink: '#fff',
-    body: [
-      'Seeing under the surface: the patterns you repeat, the stories you tell yourself, what is really driving the reaction.',
-      'We turn the light on the beliefs and old wounds that run us. Seen clearly, they lose their grip.',
-    ],
-    shadow: 'Using what he knows to manipulate, or playing dumb to dodge responsibility.',
+    text: 'Awareness. Insight. Change. How can we use the container to transform what needs to shift?',
   },
-  {
-    id: 'king',
-    name: 'King',
-    element: 'Fire',
-    line: 'Order. Blessing. Leadership.',
-    color: 'var(--beach)',
-    ink: '#141414',
-    body: [
-      'Holding the whole thing: setting direction, making order, blessing the people around you.',
-      'Here the other three come together in how you lead your life, your family and your work. Then we close the circle.',
-    ],
-    shadow: 'A tyrant, or a weakling who gives his power away.',
-  },
+  { id: 'king', name: 'King', element: 'Fire', color: 'var(--beach)', ink: '#141414', text: 'Check out in your sovereignty, extend blessings on your kingdom.' },
 ];
 
 const needed = GROUP.size - GROUP.filled;
@@ -159,12 +126,7 @@ const KEYS = 'ABCDE';
             archetypes.map((a) => (
               <div class="panel" id={`${a.id}-panel`} style={`--c: ${a.color}`} data-panel>
                 <h3>{a.name}</h3>
-                <p class="panel-line">{a.line}</p>
-                {a.body.map((p) => <p>{p}</p>)}
-                <p class="panel-shadow">
-                  <strong>In shadow:</strong> {a.shadow}
-                </p>
-                <p class="panel-element">{a.element}</p>
+                <p class="panel-text">{a.text}</p>
               </div>
             ))
           }
@@ -1069,35 +1031,11 @@ const KEYS = 'ABCDE';
     background: var(--c);
   }
 
-  .panel-line {
-    margin: var(--s2) 0 var(--s4);
-    font-family: var(--grit);
-    font-size: var(--text-lg);
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .panel p {
-    font-size: var(--text-md);
-  }
-
-  .panel-shadow {
-    color: var(--muted);
-  }
-
-  .panel-shadow strong {
-    color: var(--fg);
-  }
-
-  .panel .panel-element {
+  .panel-text {
+    max-width: 34ch;
     margin-top: var(--s4);
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--faint);
+    font-size: clamp(1.2rem, 1rem + 0.8vw, 1.6rem);
+    line-height: 1.4;
   }
 
   /* ---- Apply: one question at a time ---- */
