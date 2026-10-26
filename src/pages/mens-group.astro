@@ -47,7 +47,6 @@ const description = `A men’s group in Charlotte, Vermont, weekly for three mon
 
 // The questions, in order. `optional` ones can be passed with Enter.
 const TIMES = ['Weekday mornings', 'Weekday evenings', 'Weekend mornings', 'Weekend afternoons', 'I’m flexible'];
-const EXPERIENCE = ['Yes, the ManKind Project', 'Yes, other men’s work or circles', 'No, this would be my first'];
 const KEYS = 'ABCDE';
 ---
 
@@ -193,9 +192,19 @@ const KEYS = 'ABCDE';
             <p class="q-tip"><b>Shift ⇧ + Enter ↵</b> for a new line</p>
           </div>
 
-          <div class="q q-video" data-q data-optional data-video hidden>
-            <p class="q-label"><span class="q-num">6 <span aria-hidden="true">→</span></span> When have you felt most alive? <em>Optional</em></p>
-            <p class="q-desc">Answer on video, up to a minute. It comes to me with your application as an email attachment; it isn’t published or kept on this site.</p>
+          <div class="q q-video" data-q data-video hidden>
+            <p class="q-label"><span class="q-num">6 <span aria-hidden="true">→</span></span> When have you felt most alive?</p>
+            <div class="video-intro" data-intro>
+              <p>Answer on camera, in a minute or less.</p>
+              <ul>
+                <li>Find a quiet spot with light on your face.</li>
+                <li>Talk to me like we’re sitting in the circle. No script needed.</li>
+                <li>You’ll see yourself first, then press Record when you’re ready. You can record it again.</li>
+                <li>It comes only to me, with your application. It isn’t posted or kept on this site.</li>
+              </ul>
+              <button type="button" class="btn btn-accent" data-camera>I’m ready <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="video-recorder" data-recorder hidden>
             <div class="video-stage" data-stage>
               <video class="video-live" data-live playsinline muted hidden></video>
               <video class="video-take" data-take playsinline controls hidden></video>
@@ -204,31 +213,17 @@ const KEYS = 'ABCDE';
               <span class="video-clock" data-clock hidden>0:00 / 1:00</span>
             </div>
             <div class="video-controls">
-              <button type="button" class="btn" data-camera>Turn on camera</button>
               <button type="button" class="btn btn-accent" data-record hidden><span class="rec-dot" aria-hidden="true"></span> Record</button>
               <button type="button" class="btn btn-accent" data-stop hidden>Stop</button>
               <button type="button" class="btn btn-quiet" data-again hidden>Record again</button>
-              <button type="button" class="btn btn-quiet" data-remove hidden>Remove video</button>
+            </div>
             </div>
             <p class="video-status" data-status aria-live="polite"></p>
           </div>
 
-          <fieldset class="q" data-q data-optional>
-            <legend class="q-label"><span class="q-num">7 <span aria-hidden="true">→</span></span> Have you done men’s work or sat in a men’s circle before? <em>Optional</em></legend>
-            <div class="choices">
-              {
-                EXPERIENCE.map((e, i) => (
-                  <label class="choice">
-                    <input type="radio" name="experience" value={e} />
-                    <span class="key">{KEYS[i]}</span> {e}
-                  </label>
-                ))
-              }
-            </div>
-          </fieldset>
 
           <fieldset class="q" data-q data-optional>
-            <legend class="q-label"><span class="q-num">8 <span aria-hidden="true">→</span></span> When can you usually meet? <em>Choose as many as you like</em></legend>
+            <legend class="q-label"><span class="q-num">7 <span aria-hidden="true">→</span></span> When can you usually meet? <em>Choose as many as you like</em></legend>
             <div class="choices">
               {
                 TIMES.map((t, i) => (
@@ -242,7 +237,7 @@ const KEYS = 'ABCDE';
           </fieldset>
 
           <fieldset class="q" data-q data-commit>
-            <legend class="q-label"><span class="q-num">9 <span aria-hidden="true">→</span></span> Can you commit to meeting weekly for three months, and to being accountable to the group?</legend>
+            <legend class="q-label"><span class="q-num">8 <span aria-hidden="true">→</span></span> Can you commit to meeting weekly for three months, and to being accountable to the group?</legend>
             <div class="choices">
               <label class="choice">
                 <input type="radio" name="commit" value="yes" required />
@@ -365,12 +360,18 @@ const KEYS = 'ABCDE';
     const countEl = videoQ.querySelector<HTMLElement>('[data-count]')!;
     const clockEl = videoQ.querySelector<HTMLElement>('[data-clock]')!;
     const status = videoQ.querySelector<HTMLElement>('[data-status]')!;
+    // What to record and how comes first; the camera and Record button appear after "I'm ready".
+    const intro = videoQ.querySelector<HTMLElement>('[data-intro]')!;
+    const recorderBox = videoQ.querySelector<HTMLElement>('[data-recorder]')!;
+    const camera = intro.querySelector<HTMLButtonElement>('[data-camera]')!;
+    const showIntro = (on: boolean) => {
+      intro.hidden = !on;
+      recorderBox.hidden = on;
+    };
     const vb = {
-      camera: videoQ.querySelector<HTMLButtonElement>('[data-camera]')!,
       record: videoQ.querySelector<HTMLButtonElement>('[data-record]')!,
       stop: videoQ.querySelector<HTMLButtonElement>('[data-stop]')!,
       again: videoQ.querySelector<HTMLButtonElement>('[data-again]')!,
-      remove: videoQ.querySelector<HTMLButtonElement>('[data-remove]')!,
     };
     type VideoButton = keyof typeof vb;
     const showButtons = (...names: VideoButton[]) => {
@@ -405,18 +406,19 @@ const KEYS = 'ABCDE';
 
     const cameraOn = async () => {
       status.textContent = '';
-      vb.camera.disabled = true;
+      camera.disabled = vb.again.disabled = true;
       try {
         stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
           audio: { echoCancellation: true, noiseSuppression: true },
         });
       } catch {
-        status.textContent = 'The camera didn’t turn on. Allow this page to use your camera and microphone, or skip this one.';
-        vb.camera.disabled = false;
+        status.textContent = 'The camera didn’t turn on. Allow this page to use your camera and microphone, then try again.';
+        camera.disabled = vb.again.disabled = false;
         return;
       }
-      vb.camera.disabled = false;
+      camera.disabled = vb.again.disabled = false;
+      showIntro(false);
       clearTake();
       live.srcObject = stream;
       live.hidden = false;
@@ -474,19 +476,14 @@ const KEYS = 'ABCDE';
       takeUrl = URL.createObjectURL(blob);
       takeView.src = takeUrl;
       takeView.hidden = false;
-      showButtons('again', 'remove');
+      showButtons('again');
       status.textContent = `Your video (${clock(seconds)}) goes with your application.`;
     };
 
-    vb.camera.addEventListener('click', cameraOn);
+    camera.addEventListener('click', cameraOn);
     vb.record.addEventListener('click', () => void record());
     vb.stop.addEventListener('click', () => recorder?.state === 'recording' && recorder.stop());
     vb.again.addEventListener('click', cameraOn);
-    vb.remove.addEventListener('click', () => {
-      clearTake();
-      showButtons('camera');
-      status.textContent = 'Video removed.';
-    });
 
     // ---- The application, one question at a time ----
     const tf = document.querySelector<HTMLElement>('[data-tf]')!;
@@ -529,6 +526,7 @@ const KEYS = 'ABCDE';
         return choice === 'yes' ? null : 'This group needs a yes.';
       }
       if (q === videoQ && recorder?.state === 'recording') return 'Stop the recording first.';
+      if (q === videoQ && !take) return 'Record your answer to go on.';
       for (const field of inputsOf(q)) {
         if (field.checkValidity()) continue;
         if (field.type === 'email' && field.value.trim()) return 'That email doesn’t look right.';
@@ -560,9 +558,11 @@ const KEYS = 'ABCDE';
         const focusable = q.querySelector<HTMLElement>('.q-input, input:checked, .choice input, [data-camera]');
         focusable?.focus({ preventScroll: true });
       }
+      // Leaving the video with the camera on and nothing recorded goes back to its intro.
       if (q !== videoQ && stream && recorder?.state !== 'recording') {
         stopCamera();
-        showButtons(take ? 'again' : 'camera', ...(take ? (['remove'] as VideoButton[]) : []));
+        if (take) showButtons('again');
+        else showIntro(true);
       }
     };
 
@@ -583,8 +583,6 @@ const KEYS = 'ABCDE';
     form.addEventListener('change', (e) => {
       const target = e.target as HTMLInputElement;
       if (target.name === 'commit') notNow.hidden = target.value !== 'no';
-      // A single choice moves on by itself, as Typeform does; checkboxes wait for OK.
-      if (target.type === 'radio' && target.name === 'experience') setTimeout(forward, 350);
     });
 
     // Enter moves on (Shift+Enter is a new line in the long answer); letters pick choices.
@@ -1372,7 +1370,36 @@ const KEYS = 'ABCDE';
     outline: none;
   }
 
-  /* ---- The video ---- */
+  /* ---- The video: what to record first, then the camera ---- */
+  .video-intro,
+  .video-recorder {
+    display: grid;
+    gap: var(--s4);
+    justify-items: start;
+  }
+
+  .video-intro[hidden],
+  .video-recorder[hidden] {
+    display: none;
+  }
+
+  .video-intro > p {
+    font-size: var(--text-md);
+  }
+
+  .video-intro ul {
+    display: grid;
+    gap: var(--s2);
+    max-width: 40rem;
+    margin: 0;
+    padding-left: 1.2em;
+    color: var(--muted);
+  }
+
+  .video-intro li::marker {
+    color: var(--beach);
+  }
+
   .video-stage {
     position: relative;
     display: grid;

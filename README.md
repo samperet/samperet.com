@@ -146,10 +146,12 @@ sienna `#a3472a` for the Warrior (earth), Hackberry for the Magician (air) and B
 King (fire).
 
 The application asks one question at a time, like Typeform: a progress bar, Enter to move on
-(Shift+Enter for a new line), letters to pick choices, ↑ ↓ to go back and forth. Name, email,
-why and the commitment are required; phone, town, men's work before and the times that suit are
-optional. Applicants can record a video, up to a minute, answering "When have you felt most
-alive?" (MediaRecorder at about 350 kb/s, so a minute stays under Vercel's 4.5 MB request limit;
+(Shift+Enter for a new line), letters to pick choices, ↑ ↓ to go back and forth. It waits behind
+an APPLY NOW button. Name, email, why, the video and the commitment are required; phone, town and
+the times that suit are optional. The video answers "When have you felt most alive?" in up to a
+minute: a short note on what to record comes first, and the camera and Record button only after
+"I'm ready" (the page requires it where the browser can record; the server still accepts an
+application without one, for browsers that can't) (MediaRecorder at about 350 kb/s, so a minute stays under Vercel's 4.5 MB request limit;
 WebM gets its duration written in by `fix-webm-duration`). It posts to `POST /api/apply`:
 applications land with Merlin's messages (they show at `/backend`) and are emailed to Sam with
 the applicant as the reply-to. The video travels only as an attachment to that email, never

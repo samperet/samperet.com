@@ -528,7 +528,7 @@ const projects: SectionData[] = [
 
   .tile[open] > summary .caption {
     position: static;
-    padding: 0 3rem 0 0;
+    padding: 0;
     background: none;
   }
 
@@ -604,8 +604,8 @@ const projects: SectionData[] = [
     overflow-wrap: normal;
   }
 
-  /* No mark on a closed tile; an open one has a cross in the corner to close it. */
-  .tile:not([open]) > summary .toggle-mark {
+  /* No mark in the corner, open or closed: Home closes an open card. */
+  .toggle-mark {
     display: none;
   }
 
