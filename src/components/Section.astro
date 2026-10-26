@@ -36,6 +36,7 @@ export type SectionData = {
   embedTitle?: string;
   embedRatio?: string;
   embedAllow?: string; // browser features the embed may use, e.g. clipboard-write
+  embedLast?: boolean; // the embed goes at the foot of the card, after everything else
   photos?: Photo[];
   // A linked cover image (a book, a project page): opens its own page, not the viewer.
   cover?: { src: string; alt: string; href: string; label: string; width: number; height: number };
@@ -47,7 +48,18 @@ import { sizeOf } from '../lib/photo-size';
 type Props = { section: SectionData; child?: boolean };
 
 const { section, child = false } = Astro.props;
-const { name, line, tile, link, href, links = [], message, books = [], memories = [], embed, embedTitle, embedRatio, embedAllow, body = [], photos = [], cover, children = [] } = section;
+const { name, line, tile, link, href, links = [], message, books = [], memories = [], embed, embedTitle, embedRatio, embedAllow, embedLast = false, body = [], photos = [], cover, children = [] } = section;
+// The live site or app a card embeds, wherever the card puts it.
+const frame = embed && {
+  class: 'embed',
+  src: embed,
+  title: embedTitle ?? `${name}, live site`,
+  style: embedRatio ? `aspect-ratio: ${embedRatio}` : undefined,
+  allow: embedAllow,
+  loading: 'lazy' as const,
+  referrerpolicy: 'strict-origin-when-cross-origin' as const,
+  sandbox: 'allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox',
+};
 // Each photo keeps its own shape in the gallery, so it needs its size.
 const gallery = await Promise.all(photos.map(async (photo) => ({ ...photo, size: await sizeOf(photo.src) })));
 
@@ -200,18 +212,7 @@ const id = slug(name);
         </ul>
       </div>
     )}
-    {embed && (
-      <iframe
-        class="embed"
-        src={embed}
-        title={embedTitle ?? `${name}, live site`}
-        style={embedRatio ? `aspect-ratio: ${embedRatio}` : undefined}
-        allow={embedAllow}
-        loading="lazy"
-        referrerpolicy="strict-origin-when-cross-origin"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
-      />
-    )}
+    {embed && !embedLast && <iframe {...frame} />}
     {cover && (
       <a class="cover" href={cover.href}>
         <img src={cover.src} alt={cover.alt} width={cover.width} height={cover.height} loading="lazy" decoding="async" />
@@ -245,6 +246,7 @@ const id = slug(name);
         {children.map((c) => <Astro.self section={c} child />)}
       </div>
     )}
+    {embed && embedLast && <iframe {...frame} />}
   </div>
 </details>
 )}

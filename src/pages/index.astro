@@ -178,6 +178,9 @@ const sections: SectionData[] = [
     topics: ['family'],
     line: 'Jaya, Fiona, Mackensie and the things we make together.',
     tile: { kind: 'Family', src: '/photos/family-beach.webp', alt: 'The family on the beach, the girls riding on our shoulders and waving', position: 'center 30%' },
+    body: [
+      'jayaandfiona.com hosts experiences for my kids that make learning and communicating fun. Making things for them was my entrance to vibe coding, before the term was coined.',
+    ],
     photos: [
       { src: '/photos/family-beach.webp', alt: 'The family on the beach, the girls riding on our shoulders and waving' },
       { src: '/photos/jaya-and-fiona.webp', alt: 'Jaya and Fiona in red dresses, side by side' },
@@ -206,20 +209,11 @@ const sections: SectionData[] = [
         ],
       },
     ],
-    children: [
-      {
-        name: 'jayaandfiona.com',
-        topics: ['family'],
-        line: 'Jaya and Fiona’s Fun Zone.',
-        tile: { kind: 'Project · For my kids', src: '/tiles/jayaandfiona.webp', position: 'top' },
-        href: 'https://jayaandfiona.com',
-        embed: 'https://jayaandfiona.com/',
-        body: [
-          'Hosting experiences for my kids that make learning and communicating fun.',
-          'Making things for them was my entrance to vibe coding, before the term was coined.',
-        ],
-      },
-    ],
+    href: 'https://jayaandfiona.com',
+    embed: 'https://jayaandfiona.com/',
+    embedTitle: 'jayaandfiona.com, Jaya and Fiona’s Fun Zone',
+    embedRatio: '16 / 10',
+    embedLast: true,
   },
 ];
 ---
@@ -296,6 +290,7 @@ const sections: SectionData[] = [
       samasangha: 'yoga-spirituality-and-personal-development',
       'consciousness-yoga-and-self-development': 'yoga-spirituality-and-personal-development',
       'common-pastures-portal': 'communityos',
+      'jayaandfiona-com': 'family',
     };
     // Tiles that became pages of their own.
     const MOVED: Record<string, string> = { 'foreside-fiasco': '/stories/', 'mens-group': '/mens-group/', 'mens-work': '/mens-group/' };
@@ -867,6 +862,10 @@ const sections: SectionData[] = [
 
     .embed[src='/percentcalc/index.html'] {
       min-height: 34rem;
+    }
+
+    .embed[src='https://jayaandfiona.com/'] {
+      min-height: 36rem;
     }
   }
 
