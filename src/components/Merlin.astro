@@ -241,12 +241,27 @@ const places = JSON.stringify(PLACES).replace(/</g, '\\u003c');
   const log = () => card.querySelector<HTMLElement>('.merlin-chat-log')!;
   const input = () => card.querySelector<HTMLTextAreaElement>('#merlin-chat-input')!;
 
+  // The log keeps to its newest line; once it scrolls, its top edge fades under his name.
+  const scrollLog = () => {
+    const el = log();
+    el.scrollTop = el.scrollHeight;
+    el.classList.toggle('is-scrolled', el.scrollTop > 0);
+  };
+  card.addEventListener(
+    'scroll',
+    (e) => {
+      const el = e.target as HTMLElement;
+      if (el.classList?.contains('merlin-chat-log')) el.classList.toggle('is-scrolled', el.scrollTop > 0);
+    },
+    true,
+  );
+
   const line = (who: 'merlin' | 'you', text: string) => {
     const p = document.createElement('p');
     p.className = `merlin-chat-${who}`;
     p.textContent = text;
     log().appendChild(p);
-    log().scrollTop = log().scrollHeight;
+    scrollLog();
     placeCard();
   };
   const merlinSays = (text: string) => line('merlin', text);
@@ -301,21 +316,22 @@ const places = JSON.stringify(PLACES).replace(/</g, '\\u003c');
     }
     p.append(clean.slice(last));
     log().appendChild(p);
-    log().scrollTop = log().scrollHeight;
+    scrollLog();
     placeCard();
     return p;
   };
 
-  // A button under an answer: to another page, or to the message form.
-  const answerButton = (p: HTMLElement, html: string, attrs: Record<string, string>, href?: string) => {
+  // A choice under an answer (to another page, or to the message form): a row with an arrow,
+  // like his menu, so the card's one button stays the one that sends.
+  const answerButton = (p: HTMLElement, label: string, attrs: Record<string, string>, href?: string, arrow = '→') => {
     const el = document.createElement(href ? 'a' : 'button');
-    el.className = 'btn btn-primary merlin-go';
+    el.className = 'merlin-option merlin-go';
     if (href) (el as HTMLAnchorElement).href = href;
     else (el as HTMLButtonElement).type = 'button';
     Object.assign(el.dataset, attrs);
-    el.innerHTML = html;
+    el.innerHTML = `<span>${esc(label)}</span><span class="arrow" aria-hidden="true">${arrow}</span>`;
     p.after(el);
-    log().scrollTop = log().scrollHeight;
+    scrollLog();
     placeCard();
     return el;
   };
@@ -369,7 +385,7 @@ const places = JSON.stringify(PLACES).replace(/</g, '\\u003c');
     const url = new URL(place.path, location.href);
     if (url.origin === location.origin && url.pathname === location.pathname) return goHere(url);
     const away = url.origin !== location.origin;
-    const button = answerButton(p, `Take me there <span aria-hidden="true">${away ? '↗' : '→'}</span>`, { track: 'merlin:go' }, place.path);
+    const button = answerButton(p, 'Take me there', { track: 'merlin:go' }, place.path, away ? '↗' : '→');
     button.addEventListener('click', () => keep(away ? undefined : { path: place.path, title: place.title }));
     button.focus({ preventScroll: true });
   };
@@ -431,7 +447,7 @@ const places = JSON.stringify(PLACES).replace(/</g, '\\u003c');
       const p = answerLine(result.answer);
       live.textContent = result.answer;
       agent?.play('Explain');
-      if (result.message) answerButton(p, 'Write to Sam <span aria-hidden="true">→</span>', { toMessage: '', track: 'merlin:ask:to-message' });
+      if (result.message) answerButton(p, 'Write to Sam', { toMessage: '', track: 'merlin:ask:to-message' });
       if (result.go) takeTo(result.go, p);
     } catch (err) {
       pending.remove();
@@ -439,7 +455,7 @@ const places = JSON.stringify(PLACES).replace(/</g, '\\u003c');
       // his crystal ball: he says so, and points to the real site.
       if (!/(^|\.)samperet\.com$|\.vercel\.app$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) {
         const p = answerLine('I can only answer questions on samperet.com itself.');
-        answerButton(p, 'Ask me there <span aria-hidden="true">↗</span>', { track: 'merlin:ask:offsite' }, 'https://samperet.com/');
+        answerButton(p, 'Ask me there', { track: 'merlin:ask:offsite' }, 'https://samperet.com/', '↗');
         asking = false;
         if (send) send.disabled = false;
         return;
@@ -987,12 +1003,12 @@ const places = JSON.stringify(PLACES).replace(/</g, '\\u003c');
     color: var(--faint);
   }
 
-  .merlin-chat-form textarea:focus {
-    border-color: var(--fg);
-  }
-
+  /* One ring when focused: the border and a hairline outside it, both in the focus colour. */
+  .merlin-chat-form textarea:focus,
   .merlin-chat-form textarea:focus-visible {
-    outline-offset: 1px;
+    border-color: var(--focus);
+    outline: 1px solid var(--focus);
+    outline-offset: 0;
   }
 
   .merlin-chat-actions {
@@ -1013,12 +1029,20 @@ const places = JSON.stringify(PLACES).replace(/</g, '\\u003c');
     font-style: italic;
   }
 
-  /* Under an answer: Take me there, or Write to Sam. */
-  .merlin-ask .merlin-go {
-    justify-self: start;
-    margin-top: var(--s1);
-    padding: 0.4rem 0.9rem;
-    font-size: var(--text-sm);
+  /* Under an answer: Take me there, or Write to Sam, as rows between hairlines. */
+  .merlin-chat-log .merlin-go {
+    border-block: var(--hairline);
+    font-family: var(--font-body);
+    text-decoration: none;
+  }
+
+  .merlin-chat-log .merlin-go + .merlin-go {
+    margin-top: calc(-1 * var(--s2));
+    border-top: 0;
+  }
+
+  .merlin-chat-log.is-scrolled {
+    mask-image: linear-gradient(to bottom, transparent, #000 2rem);
   }
 
   .merlin-ask .merlin-ask-form + .merlin-options {

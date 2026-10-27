@@ -313,19 +313,34 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
           </p>
           <p class="measure">
             Everything he says goes in one card, built from the system: raised paper, a hairline, the one
-            shadow. His lines are Fraunces; the visitor’s are the sans, set in with a Kazan rule. Choices
-            are rows with an arrow, never pills. A square of Beach beside his name is all that is left of
-            the yellow balloon.
+            shadow. He opens on a line to type into (a question, or the name of a place he takes you to),
+            then the topics. His lines are Fraunces; the visitor’s are the sans, ranged right in the muted
+            ink, never set off by a bar of colour. Choices, and the places an answer can take you, are rows
+            with an arrow, never pills; the one button is the one that sends. A square of Beach beside his
+            name is all that is left of the yellow balloon.
           </p>
           <div class="merlin-specimen" aria-hidden="true">
             <div class="m-card">
               <div class="m-head"><span class="m-name">Merlin</span><span class="m-x">×</span></div>
-              <p class="m-say">What are you interested in?</p>
+              <p class="m-say">What are you looking for?</p>
+              <div class="m-field m-line">Ask me anything, or name a place</div>
+              <div class="m-actions"><span>Enter to ask</span><span class="btn btn-primary">Ask</span></div>
               <ul class="m-options">
                 <li><span>Professional</span><span>→</span></li>
                 <li><span>Personal</span><span>→</span></li>
+                <li><span>Send me a message</span><span>→</span></li>
                 <li class="m-aside"><span>Tell me a joke</span><span>→</span></li>
               </ul>
+            </div>
+            <div class="m-card">
+              <div class="m-head"><span class="m-name">Merlin</span><span class="m-x">×</span></div>
+              <p class="m-you">What did Sam do at ALPS?</p>
+              <p class="m-say">Sam joined Acadia Leadership Partners as its second employee and built much of how it runs. His career page has the whole story.</p>
+              <ul class="m-options m-go">
+                <li><span>Take me there</span><span>→</span></li>
+              </ul>
+              <div class="m-field m-line">Ask about Sam or the site</div>
+              <div class="m-actions"><span class="m-back">Back to the menu</span><span class="btn btn-primary">Ask</span></div>
             </div>
             <div class="m-card">
               <div class="m-head"><span class="m-name">Merlin</span><span class="m-x">×</span></div>
@@ -929,6 +944,24 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     background: var(--bg);
     color: var(--faint);
     min-height: 4.5rem;
+  }
+
+  .m-field.m-line {
+    min-height: 0;
+  }
+
+  /* A place an answer can take you: a row between hairlines. */
+  .m-options.m-go {
+    margin-top: var(--s2);
+    border-block: var(--hairline);
+  }
+
+  .m-back {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 0.2em;
   }
 
   .m-actions {
