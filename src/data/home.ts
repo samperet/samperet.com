@@ -218,6 +218,31 @@ export const projects: SectionData[] = [
     link: 'https://hautomation.samperet.com',
   },
   {
+    name: 'Streamdeck Hautomate',
+    topics: ['personal'],
+    line: 'A Stream Deck that plays your record collection.',
+    tile: { kind: 'Project · Open source', src: '/tiles/streamdeck.webp', alt: 'A Stream Deck XL: genre keys on the left, an album cover cut across nine keys on the right', position: 'right center' },
+    body: [
+      'Our living room’s record shelf, on a Stream Deck. Every key is an album cover: tap one and it plays on the speaker through Home Assistant and Spotify. Genres open pages of covers, and whatever is playing spreads across nine keys, cropped around the gaps so it reads as one picture, with “artist – song” scrolling slowly underneath in large type.',
+      'Volume is built to feel right: small steps when it’s quiet and bigger ones as it gets louder, slow taps fine-tune, a quick run of taps jumps, and holding slides all the way in three seconds, with the level drawn across the cover. Everyone in the house has their own folder they fill by voice (“add Kind of Blue to my folder”), and More holds a sleep timer, sound effects, karaoke on the TV, a Lights Out game and a music visualizer that turns the keys into a spectrum analyser.',
+      'It works on the 32-key Stream Deck XL and the 15-key MK.2, and comes with a browser emulator, so you can try every page before you own a deck. It’s open source under the MIT licence; the setup guide walks through Home Assistant, Spotify and Docker.',
+    ],
+    links: [
+      { label: 'The code and setup guide on GitHub', href: 'https://github.com/samperet/Streamdeck-Hautomate' },
+    ],
+    photos: [
+      { src: '/streamdeck/xl-home.webp', alt: 'Home on the Stream Deck XL: genre keys, the playing album across nine keys and the scrolling line', caption: 'Home on the XL: genres, the cover across nine keys, and the scrolling line under it' },
+      { src: '/streamdeck/xl-albums.webp', alt: 'A page of 24 album covers on the Stream Deck XL', caption: 'A genre: 24 covers a page' },
+      { src: '/streamdeck/xl-volume.webp', alt: 'The volume level drawn in large numbers across the album cover', caption: 'The volume, drawn across the cover while it changes' },
+      { src: '/streamdeck/xl-now-playing.webp', alt: 'The Now Playing page on the Stream Deck XL with the cover large', caption: 'Now Playing, after tapping an album' },
+      { src: '/streamdeck/xl-more.webp', alt: 'The More page: amp, sleep, visualizer, TV, karaoke, sound effects, Lights Out and Random keys', caption: 'More: the amp, a sleep timer, the TV, karaoke, games and Random' },
+      { src: '/streamdeck/mk2-home.webp', alt: 'Home on the 15-key Stream Deck', caption: 'The same deck on 15 keys' },
+      { src: '/streamdeck/mk2-albums.webp', alt: 'A page of album covers on the 15-key Stream Deck', caption: 'A genre on 15 keys' },
+      { src: '/streamdeck/mk2-now-playing.webp', alt: 'Now Playing on the 15-key Stream Deck with the cover across nine keys', caption: 'Now Playing on 15 keys' },
+      { src: '/streamdeck/mk2-lights-out.webp', alt: 'The Lights Out game on the 15-key Stream Deck', caption: 'Lights Out: the whole deck is the board' },
+    ],
+  },
+  {
     name: 'CommunityOS',
     topics: ['personal'],
     line: 'A free portal for communities that organize in circles.',

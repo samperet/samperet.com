@@ -42,7 +42,7 @@ Every section in `src/pages/index.astro` is a tile (`<details>`, `src/components
 a picture from `tile.src` (or a palette colour, `tile.color`) with only its title on it, as large as
 the card allows: the homepage script fits each title to its card's width and the lower three
 fifths of its height (`kind` and `line` stay in the data but aren't shown). HAUTomation (a link tile
-straight to hautomation.samperet.com), CommunityOS and the Percentage Allocator are smaller cards
+straight to hautomation.samperet.com), Streamdeck Hautomate, CommunityOS and the Percentage Allocator are smaller cards
 under a Projects heading after the main grid.
 Clicking it, or a link to its id (e.g. `/#travel-and-adventure`; old ids such as `/#travel` still work), opens it on its own: the other tiles step
 out and its text, links, photos and embeds follow below. While a card is open the header
