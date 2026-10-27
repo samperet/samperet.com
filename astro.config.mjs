@@ -2,7 +2,7 @@
 import { defineConfig, envField, fontProviders } from 'astro/config';
 import vercel from '@astrojs/vercel';
 
-// Static site. The on-demand routes are the tracking beacon and Merlin's messages
+// Static site. The on-demand routes are the tracking beacon, Merlin's messages and answers
 // (src/pages/api/) and the password-protected traffic dashboard at /backend.
 export default defineConfig({
   site: 'https://samperet.com',
@@ -45,6 +45,9 @@ export default defineConfig({
       RESEND_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
       RESEND_FROM: envField.string({ context: 'server', access: 'secret', optional: true, default: 'Merlin <merlin@samperet.com>' }),
       MESSAGE_NOTIFY_TO: envField.string({ context: 'server', access: 'secret', optional: true, default: 'samperet@gmail.com' }),
+      // Anthropic API key: Merlin answers visitors' questions with it (src/pages/api/ask.ts).
+      // Without it he says he can't answer just now and offers to take a message.
+      ANTHROPIC_API: envField.string({ context: 'server', access: 'secret', optional: true }),
       // Password for /backend (any username). Without it, /backend stays locked.
       BACKEND_PASSWORD: envField.string({ context: 'server', access: 'secret', optional: true }),
       // Password for /admin (any username). Without it, /admin uses the hashed default in src/middleware.ts.

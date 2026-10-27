@@ -67,10 +67,10 @@ first time the card opens on a visit, asks the question with the parts as answer
 card to the one chosen and goes back to his hat.
 
 **Footer.** Every public page ends with `src/components/Footer.astro`: the page's shelf, links,
-and the copyright. On the homepage it holds two more cards: Recommended Books (every book) and
-Photos (every photo on the site, by the card or career chapter it appears in, filterable like a
-card in parts; the career photos come from `src/data/photos.ts`). Other pages link to them
-(`/#recommended-books`, `/#photos`). Tile pictures that aren't
+and the copyright. Its text links include Recommended books and Photos, which open two homepage
+cards (`/#recommended-books`, `/#photos`) that show only while open: every book, and every photo on
+the site by the card or career chapter it appears in, filterable like a card in parts (the career
+photos come from `src/data/photos.ts`). Tile pictures that aren't
 already elsewhere live in `public/tiles/`. An open tile shows only its title on top, with no picture, kind or line. Photos open in a full-screen viewer
 (`src/components/PhotoViewer.astro`). Galleries never crop: they are justified, each photo at
 its own shape and each row grown to the full width at one height, using sizes read from the
@@ -214,6 +214,7 @@ The site is static except for a few on-demand routes on Vercel (`@astrojs/vercel
 - `POST /api/message`: messages sent through Merlin's chat (name and text; he reminds
   visitors to put a way to reply in the message).
 - `POST /api/apply`: applications to the men's group, kept and emailed like messages.
+- `POST /api/ask`: questions to Merlin, answered through Claude (see Merlin below).
 - `/backend`: the dashboard (visitors, page views, clicks, messages, interests, geography,
   what was clicked, recent activity), behind HTTP Basic auth.
 
@@ -226,6 +227,7 @@ Environment variables on the Vercel project (server-only):
 | `RESEND_KEY` | Resend API key: each message is also emailed to Sam. |
 | `MESSAGE_NOTIFY_TO` | Who gets those emails. Default `samperet@gmail.com`. |
 | `RESEND_FROM` | Sender, on a domain verified in Resend. Default `Merlin <merlin@samperet.com>`. |
+| `ANTHROPIC_API` | Anthropic API key, for Merlin's answers. Without it he says he can't answer just now and offers to take a message. |
 
 A message counts as delivered when either the database or the email took it, so one being
 down loses nothing. When the visitor's message contains an email address, replies go to it.
@@ -238,9 +240,29 @@ Locally, without `DATABASE_URL`, `npm run dev` uses an in-memory PGlite database
 `src/components/Merlin.astro` puts Merlin, the original Microsoft Agent character, on
 the homepage, hidden behind a wizard-hat button in the bottom-right corner
 (`public/merlin/hat.webp`). Summoned, he asks what the visitor is interested in and opens
-those sections, takes messages for Sam through a short chat, tells a few jokes, and points
+those sections, answers questions about Sam and the site, takes messages for Sam through a
+short chat, tells a few jokes, and points
 at wherever you click. The hat hides while he's out; clicking him asks again, and
 "Silencio" puts him away. He's on every page except the backend and the brand guide.
+
+**Questions.** "Ask me a question" in his menu opens a short chat answered through Claude
+(`src/pages/api/ask.ts`, model in its `MODEL` constant: Claude Opus 5.5 at low effort, with
+server-side refusal fallbacks). His briefing is the site's own words, gathered by
+`src/lib/knowledge.ts` from the data the pages render (`src/data/home.ts` for the homepage cards,
+`src/data/career.ts` for the CV, `src/data/books.ts`, `src/data/mens-group.ts`) plus short
+summaries of the men's group and HAUTomation; so an edit to a card reaches him on the next deploy.
+He answers in a few sentences, in the third person about Sam, and links to where on the site to
+look; in the chat only the site's own paths and a short list of known sites become links. The
+conversation lives in the page only, and the last six turns go with each question, with the page
+the visitor is on.
+
+Guardrails: same-origin browsers only (an `Origin` header is required), no bots, a body under
+8 KB and a question under 500 characters; per address 6 questions a minute and 40 a day, 30 per
+conversation, and at most 400 a day per server instance; short answers; and a system prompt that
+keeps him to Sam and the site, declines everything else, gives no medical, legal or financial
+advice, and treats what visitors write as questions, never instructions. The limits are kept in
+memory, so they hold per server instance: a monthly spend limit on the API key in the Anthropic
+Console is the backstop. Each answer logs its token counts (not the question) to the Vercel logs.
 
 Everything he says, asks and takes down appears in one card built from the design system
 (see `/branding/#merlin`); clippyjs's own yellow speech balloon is never used.

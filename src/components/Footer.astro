@@ -1,8 +1,8 @@
 ---
 // The foot of every public page: a shelf of the books tagged with the page's interests (when
-// any are), then the site's links and the copyright. Recommended Books and Photos are cards on
-// the homepage, which passes them in (and is wider); on every other page they are links to
-// those cards, and the footer keeps to the page's usual width.
+// any are), then the site's links and the copyright. Recommended books and Photos are text links
+// to two homepage cards; the homepage passes those cards in (and is wider), and they show only
+// while open. Elsewhere the footer keeps to the page's usual width.
 import Shelf from './Shelf.astro';
 
 type Props = { path: string; interests?: string[]; cards?: boolean };
@@ -12,12 +12,8 @@ const links = [
   { label: 'Home', href: '/' },
   { label: 'Career', href: '/career/' },
   { label: 'Men’s work', href: '/mens-group/' },
-  ...(cards
-    ? []
-    : [
-        { label: 'Recommended books', href: '/#recommended-books' },
-        { label: 'Photos', href: '/#photos' },
-      ]),
+  { label: 'Recommended books', href: '/#recommended-books' },
+  { label: 'Photos', href: '/#photos' },
 ].filter((l) => l.href !== path);
 ---
 

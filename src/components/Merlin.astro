@@ -1,8 +1,8 @@
 ---
 // Merlin, the original Microsoft Agent character, played from his own sprite sheet and frame
 // data via clippyjs. He waits behind a wizard-hat button in the corner; summoned, he asks what
-// the visitor is interested in (src/scripts/topics.ts) or takes a message for Sam
-// (/api/message). Everything he says is in one card styled by the design system; Vivify
+// the visitor is interested in (src/scripts/topics.ts), answers questions about Sam and the
+// site through Claude (/api/ask), or takes a message for Sam (/api/message). Everything he says is in one card styled by the design system; Vivify
 // supplies the click marker.
 import '../styles/vivify-subset.css';
 ---
@@ -122,6 +122,7 @@ import '../styles/vivify-subset.css';
       'Merlin asks what you are interested in',
       `<p class="merlin-say">What are you interested in?</p>
       <ul class="merlin-options">
+        ${option('data-question data-track="merlin:ask"', 'Ask me a question')}
         ${Object.entries(TOPICS)
           .map(([key, { label }]) => option(`data-ask="${key}" data-track="merlin:topic:${key}"`, label))
           .join('')}
@@ -232,6 +233,107 @@ import '../styles/vivify-subset.css';
   };
   const merlinSays = (text: string) => line('merlin', text);
 
+  // Questions about Sam and the site, answered through Claude (/api/ask). The conversation lives
+  // in this page's memory only; the last few turns go along with each question so follow-ups make
+  // sense. Answers may carry markdown links: only the site's own paths and a few known sites
+  // become links, everything else stays text.
+  type Turn = { role: 'user' | 'assistant'; text: string };
+  const convo: Turn[] = [];
+  let asking = false;
+  const SUGGESTIONS = ['What does Sam do?', 'What is HeartWise?', 'How do I join the men’s group?'];
+  const LINKABLE = /^(?:\/(?!\/)|https:\/\/(?:[a-z0-9-]+\.)*(?:samperet\.com|getheartwise\.com|intelligentembodiment\.com|samasangha\.org|jayaandfiona\.com|openlibrary\.org|substack\.com|acadialps\.com|fuseanalytics\.com)(?:[\/?#]|$)|https:\/\/(?:www\.)?(?:github\.com\/samperet|linkedin\.com\/in\/samperet)\b)/i;
+  const askInput = () => card.querySelector<HTMLTextAreaElement>('#merlin-ask-input')!;
+
+  const answerLine = (text: string) => {
+    const p = document.createElement('p');
+    p.className = 'merlin-chat-merlin';
+    const clean = text.replace(/\*\*([^*]+)\*\*/g, '$1');
+    let last = 0;
+    for (const m of clean.matchAll(/\[([^\]]+)\]\(([^)\s]+)\)/g)) {
+      p.append(clean.slice(last, m.index));
+      if (LINKABLE.test(m[2])) {
+        const a = document.createElement('a');
+        a.href = m[2];
+        a.textContent = m[1];
+        a.dataset.track = 'merlin:ask:link';
+        if (/^https?:/.test(m[2]) && !/^https:\/\/samperet\.com/.test(m[2])) a.target = '_blank';
+        p.append(a);
+      } else p.append(m[1]);
+      last = m.index! + m[0].length;
+    }
+    p.append(clean.slice(last));
+    log().appendChild(p);
+    log().scrollTop = log().scrollHeight;
+    placeCard();
+    return p;
+  };
+
+  const showQuestions = () => {
+    frame(
+      'Ask Merlin about Sam and this site',
+      `<div class="merlin-chat-log" aria-live="polite"></div>
+      ${convo.length ? '' : `<ul class="merlin-options merlin-suggest">${SUGGESTIONS.map((q) => option('data-suggest data-track="merlin:ask:suggested"', q)).join('')}</ul>`}
+      <form class="merlin-chat-form merlin-ask-form">
+        <label class="sr-only" for="merlin-ask-input">Your question</label>
+        <textarea id="merlin-ask-input" rows="2" maxlength="500" required placeholder="Ask about Sam or the site"></textarea>
+        <div class="merlin-chat-actions">
+          <button type="button" class="merlin-back" data-restart>Back to the menu</button>
+          <button type="submit" class="btn btn-primary merlin-send" data-track="merlin:ask:submit">Ask</button>
+        </div>
+      </form>`,
+    );
+    if (!convo.length) merlinSays('Ask me anything about Sam or this site, and I’ll point you to the right place.');
+    for (const turn of convo) turn.role === 'user' ? line('you', turn.text) : answerLine(turn.text);
+    askInput().focus();
+  };
+
+  // Where the visitor is: the path, and the card open on the homepage, if any.
+  const whereAmI = () => {
+    const open = [...document.querySelectorAll<HTMLElement>('details.tile[open]')].pop();
+    return location.pathname + (open?.id ? `#${open.id}` : '');
+  };
+
+  const ask = async (question: string) => {
+    if (asking) return;
+    asking = true;
+    card.querySelector('.merlin-suggest')?.remove();
+    line('you', question);
+    const pending = answerLine('Consulting the crystal ball…');
+    pending.classList.add('is-pending');
+    const send = card.querySelector<HTMLButtonElement>('.merlin-send');
+    if (send) send.disabled = true;
+    agent?.stop();
+    agent?.play('Think');
+    try {
+      const res = await fetch('/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, history: convo.slice(-6), page: whereAmI(), session: sessionId() }),
+      });
+      const result = await res.json().catch(() => ({}));
+      pending.remove();
+      if (!res.ok || !result.ok) throw new Error(result.error || 'My magic fizzled. Try again, or send Sam a message through me.');
+      convo.push({ role: 'user', text: question }, { role: 'assistant', text: result.answer });
+      answerLine(result.answer);
+      live.textContent = result.answer;
+      agent?.play('Explain');
+    } catch (err) {
+      pending.remove();
+      const p = answerLine(err instanceof Error && err.message !== 'Failed to fetch' ? err.message : 'My magic fizzled. Try again, or send Sam a message through me.');
+      const to = document.createElement('button');
+      to.type = 'button';
+      to.className = 'merlin-to-message';
+      to.dataset.toMessage = '';
+      to.textContent = 'Send Sam a message';
+      p.append(' ', to);
+      agent?.play('Sad');
+    } finally {
+      asking = false;
+      if (send) send.disabled = false;
+      card.querySelector<HTMLTextAreaElement>('#merlin-ask-input')?.focus();
+    }
+  };
+
   const prompt = (next: Step) => {
     step = next;
     const field = input();
@@ -288,6 +390,14 @@ import '../styles/vivify-subset.css';
 
   card.addEventListener('submit', (e) => {
     e.preventDefault();
+    if ((e.target as HTMLElement).classList.contains('merlin-ask-form')) {
+      const question = askInput().value.trim();
+      if (question && !asking) {
+        askInput().value = '';
+        void ask(question);
+      }
+      return;
+    }
     const value = input().value.trim();
     if (step === 'sending' || step === 'done' || !value) return;
     answer(value);
@@ -296,9 +406,9 @@ import '../styles/vivify-subset.css';
   card.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') return hideCard();
     // Enter sends; Shift+Enter makes a new line in the message.
-    if (e.key === 'Enter' && !e.shiftKey && (e.target as HTMLElement).id === 'merlin-chat-input') {
+    if (e.key === 'Enter' && !e.shiftKey && ['merlin-chat-input', 'merlin-ask-input'].includes((e.target as HTMLElement).id)) {
       e.preventDefault();
-      card.querySelector<HTMLFormElement>('.merlin-chat-form')?.requestSubmit();
+      (e.target as HTMLElement).closest<HTMLFormElement>('form')?.requestSubmit();
     }
   });
 
@@ -306,6 +416,10 @@ import '../styles/vivify-subset.css';
     const target = e.target as HTMLElement;
     if (target.closest('.merlin-ask-close')) return hideCard();
     if (target.closest('[data-restart]')) return showAsk();
+    if (target.closest('[data-question]')) return showQuestions();
+    const suggested = target.closest<HTMLButtonElement>('[data-suggest]');
+    if (suggested) return void ask(suggested.textContent!.replace('→', '').trim());
+    if (target.closest('[data-to-message]')) return showChat();
     if (target.closest('[data-joke]')) return tellJoke();
     if (target.closest('[data-punchline]')) return revealPunchline();
     if (target.closest('[data-away]')) return dismiss();
@@ -750,6 +864,40 @@ import '../styles/vivify-subset.css';
     align-items: center;
     justify-content: space-between;
     gap: var(--s3);
+  }
+
+  /* An answer's links, a thinking line while it comes, and the way back to the menu. */
+  .merlin-chat-merlin a {
+    color: var(--accent-text);
+    text-underline-offset: 0.18em;
+  }
+
+  .merlin-chat-merlin.is-pending {
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .merlin-back,
+  .merlin-to-message {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    font-size: var(--text-sm);
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 0.2em;
+  }
+
+  .merlin-to-message {
+    font-family: var(--font-body);
+    color: var(--accent-text);
+  }
+
+  .merlin-back:hover,
+  .merlin-to-message:hover {
+    color: var(--fg);
   }
 
   .merlin-hint {
