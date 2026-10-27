@@ -109,7 +109,8 @@ Sam at 603.531.1077 with questions.
 Sam's home automation practice: a technical partner for people doing custom projects, building
 technology into furniture and doing creative custom work, who want someone to make it work. Sam
 has been automating home systems since 2000 (${new Date().getFullYear() - 2000} years). Tools he
-uses: Jellyfin and Stremio. To start, email sam@peret.net about the project.
+uses: Jellyfin and Stremio. To start, book a half-hour call on the HAUTomation site (its booking
+calendar is at the bottom of the page), or email sam@peret.net about the project.
 
 ## Merlin
 
