@@ -179,8 +179,10 @@ place and start date are set once all five are in.
 
 The archetypes sit on a wheel that stays in view while their explanations scroll past, turning
 clockwise with the scroll so Lover, Warrior, Magician and King come to the top in order (the
-wedges run counter-clockwise from the top for that); clicking one scrolls to it, and the names
-turn with the wheel, upright on top. `#lover`,
+wedges run counter-clockwise from the top for that). It moves like a dial with detents: it
+clicks into each round (a few degrees past, settling back, the notch dipping) and holds there
+for most of the scroll to the next (60%) before the scroll turns it on. Clicking one
+scrolls to it, and the names turn with the wheel, upright on top. `#lover`,
 `#warrior`, `#magician` or `#king` opens on one. MKP publishes no colours for the archetypes, so
 they follow their elements in Cliff Barry's Shadow Work map: Kazan for the Lover (water), burnt
 sienna `#a3472a` for the Warrior (earth), Hackberry for the Magician (air) and Beach gold for the

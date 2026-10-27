@@ -5,8 +5,9 @@
 // Merlin and the photo viewer stay off this page.
 //
 // The four archetypes sit on a wheel, Lover at the top, and it turns clockwise with the scroll,
-// bringing Warrior, Magician and King to the top in turn; the words turn with the wheel, upright
-// when their wedge is on top. The explanations sit beside it.
+// bringing Warrior, Magician and King to the top in turn, clicking into place on each and resting
+// there a while before the scroll turns it on; the words turn with the wheel, upright when their
+// wedge is on top. The explanations sit beside it.
 //
 // The application asks one question at a time, like Typeform: Enter moves on, letters pick
 // choices, and an optional video answers "When have you felt most alive?". It posts to
@@ -288,15 +289,20 @@ const KEYS = 'ABCDE';
     // ---- The wheel ----
     // The four explanations stack beside the wheel (below it on a phone), and the wheel stays
     // in view, turning with the scroll itself: a quarter turn clockwise from one explanation to
-    // the next, smoothly in between, and back as the reader scrolls up. The wedges run
-    // counter-clockwise from the top (Lover 0°, Warrior 270°, Magician 180°, King 90°), so turning
-    // clockwise brings them up in order, each on top exactly when its explanation reaches the
-    // reading line. Clicking a wedge, or the hub for
-    // the next one, scrolls to that explanation, and the wheel turns along the way.
+    // the next, and back as the reader scrolls up. The wedges run counter-clockwise from the top
+    // (Lover 0°, Warrior 270°, Magician 180°, King 90°), so turning clockwise brings them up in
+    // order. It moves like a dial with detents: each round holds still while its explanation is
+    // read (most of the scroll from one to the next), the scroll then turns it on,
+    // and it clicks into the next with a small overshoot and the notch dipping, as the next
+    // explanation nears the reading line. Clicking a wedge, or the hub for the next one, scrolls
+    // to that explanation, and the wheel turns along the way.
     const wheel = document.querySelector<HTMLElement>('[data-wheel]')!;
+    const disc = wheel.querySelector<HTMLElement>('.wheel-disc')!;
+    const notch = wheel.querySelector<HTMLElement>('.wheel-pointer')!;
     const dock = document.querySelector<HTMLElement>('[data-dock]')!;
     const wedges = [...wheel.querySelectorAll<HTMLButtonElement>('[data-wedge]')];
     const panels = [...document.querySelectorAll<HTMLElement>('[data-panel]')];
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     let current = -1;
 
     // The reading line, where an explanation's top sits once it's the one being read: under the
@@ -315,14 +321,37 @@ const KEYS = 'ABCDE';
       return tops.length - 1;
     };
 
+    // Where the wheel stands, in quarter turns, for a place in the scroll: still for the 60% of
+    // the way around each round (centred on its explanation reaching the reading line), turning
+    // in the 40% between. The turn starts gently and arrives at speed, into the click.
+    const HOLD = 0.6;
+    const turnFor = (at: number) => {
+      const u = Math.min(at + HOLD / 2, panels.length - 1 + HOLD / 2);
+      const round = Math.floor(u);
+      const s = Math.max(0, (u - round - HOLD) / (1 - HOLD));
+      return round + s * s * (2 - s);
+    };
+
+    // The click: the wheel runs a few degrees past the round and settles back, and the notch dips
+    // as it catches.
+    const click = (dir: number) => {
+      if (reduced.matches) return;
+      disc.animate(
+        [{ transform: 'none' }, { transform: `rotate(${dir * 6}deg)`, offset: 0.3 }, { transform: `rotate(${dir * -1.5}deg)`, offset: 0.65 }, { transform: 'none' }],
+        { duration: 420, easing: 'ease-out' },
+      );
+      notch.animate([{ transform: 'none' }, { transform: 'translateY(0.35rem)', offset: 0.3 }, { transform: 'none' }], { duration: 300, easing: 'ease-out' });
+    };
+
     const sync = () => {
-      const at = throughWheel();
-      wheel.style.setProperty('--turn', `${at * 90}deg`);
-      const index = Math.round(at);
-      if (index === current) return;
-      current = index;
-      for (const [i, wedge] of wedges.entries()) wedge.setAttribute('aria-pressed', String(i === index));
-      for (const [i, panel] of panels.entries()) panel.classList.toggle('on', i === index);
+      const turn = turnFor(throughWheel());
+      wheel.style.setProperty('--turn', `${turn * 90}deg`);
+      // A round is on once the wheel has clicked into it; while turning, the last one stays on.
+      if (!Number.isInteger(turn) || turn === current) return;
+      if (current >= 0) click(Math.sign(turn - current));
+      current = turn;
+      for (const [i, wedge] of wedges.entries()) wedge.setAttribute('aria-pressed', String(i === turn));
+      for (const [i, panel] of panels.entries()) panel.classList.toggle('on', i === turn);
     };
     let queued = false;
     const onScroll = () => {
@@ -336,7 +365,6 @@ const KEYS = 'ABCDE';
     addEventListener('scroll', onScroll, { passive: true });
     addEventListener('resize', onScroll);
 
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const goTo = (index: number, smooth = true) =>
       scrollTo({ top: scrollY + panels[index].getBoundingClientRect().top - anchor(), behavior: smooth && !reduced.matches ? 'smooth' : 'auto' });
 
@@ -910,7 +938,7 @@ const KEYS = 'ABCDE';
     inset: 0;
     overflow: hidden;
     border-radius: 50%;
-    rotate: var(--turn); /* set from the scroll position, so no transition */
+    rotate: var(--turn); /* set from the scroll position, so no transition; the click is a transform */
   }
 
   /* Spokes the colour of the page between the wedges. */
