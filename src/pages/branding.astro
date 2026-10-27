@@ -317,11 +317,10 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
             then the topics. His lines are Fraunces; the visitor’s are the sans, ranged right in the muted
             ink, never set off by a bar of colour. Choices, and the places an answer can take you, are rows
             with an arrow, never pills; the one button is the one that sends. The card carries no name,
-            since he stands beside it; only the close button sits in its corner.
+            since he stands beside it; Silencio and the close button sit together at its foot.
           </p>
           <div class="merlin-specimen" aria-hidden="true">
             <div class="m-card">
-              <div class="m-head"><span class="m-x">×</span></div>
               <p class="m-say">What are you looking for?</p>
               <div class="m-field m-line">Ask me anything, or name a place</div>
               <div class="m-actions"><span>Enter to ask</span><span class="btn btn-primary">Ask</span></div>
@@ -331,9 +330,9 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
                 <li><span>Send me a message</span><span>→</span></li>
                 <li class="m-aside"><span>Tell me a joke</span><span>→</span></li>
               </ul>
+              <div class="m-foot"><span class="m-away">Silencio</span><span class="m-x">×</span></div>
             </div>
             <div class="m-card">
-              <div class="m-head"><span class="m-x">×</span></div>
               <p class="m-you">What did Sam do at ALPS?</p>
               <p class="m-say">Sam joined Acadia Leadership Partners as its second employee and built much of how it runs. His career page has the whole story.</p>
               <ul class="m-options m-go">
@@ -341,14 +340,15 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
               </ul>
               <div class="m-field m-line">Ask about Sam or the site</div>
               <div class="m-actions"><span class="m-back">Back to the menu</span><span class="btn btn-primary">Ask</span></div>
+              <div class="m-foot"><span class="m-away">Silencio</span><span class="m-x">×</span></div>
             </div>
             <div class="m-card">
-              <div class="m-head"><span class="m-x">×</span></div>
               <p class="m-say">Happy to carry a message to Sam. What’s your name?</p>
               <p class="m-you">Ada</p>
               <p class="m-say">Nice to meet you, Ada! What would you like to say?</p>
               <div class="m-field">Your message, and how to reach you</div>
               <div class="m-actions"><span>Enter to send</span><span class="btn btn-primary">Send</span></div>
+              <div class="m-foot"><span class="m-away">Silencio</span><span class="m-x">×</span></div>
             </div>
           </div>
         </div>
@@ -865,11 +865,22 @@ const space = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     font-size: var(--text-sm);
   }
 
-  .m-head {
+  .m-foot {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: var(--s1);
+    align-items: center;
+    gap: var(--s3);
+    margin-top: var(--s3);
+    padding-top: var(--s2);
+    border-top: var(--hairline);
     color: var(--muted);
+  }
+
+  .m-away {
+    font-size: var(--text-xs);
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 0.18em;
   }
 
   .m-say {

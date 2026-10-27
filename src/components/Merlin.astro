@@ -105,16 +105,16 @@ const places = JSON.stringify(PLACES).replace(/</g, '\\u003c');
 
   const esc = (t: string) => t.replace(/[&<>"]/g, (c) => `&${({ '&': 'amp', '<': 'lt', '>': 'gt', '"': 'quot' } as Record<string, string>)[c]};`);
 
-  // Every view is the same frame: the close button in the corner, the body, and a way to send
-  // him back to his hat.
-  const frame = (label: string, body: string, foot = true) => {
+  // Every view is the same frame: the body, then a foot with a way to send him back to his hat
+  // and the close button beside it.
+  const frame = (label: string, body: string) => {
     card.setAttribute('aria-label', label);
     card.innerHTML = `
-      <header class="merlin-head">
-        <button type="button" class="merlin-ask-close" aria-label="Close">×</button>
-      </header>
       <div class="merlin-body">${body}</div>
-      ${foot ? '<footer class="merlin-foot"><button type="button" class="merlin-away" data-away data-track="merlin:away" aria-label="Silencio: send Merlin back to his hat">Silencio</button></footer>' : ''}`;
+      <footer class="merlin-foot">
+        <button type="button" class="merlin-away" data-away data-track="merlin:away" aria-label="Silencio: send Merlin back to his hat">Silencio</button>
+        <button type="button" class="merlin-ask-close" aria-label="Close">×</button>
+      </footer>`;
     popCard();
   };
 
@@ -240,7 +240,7 @@ const places = JSON.stringify(PLACES).replace(/</g, '\\u003c');
   const log = () => card.querySelector<HTMLElement>('.merlin-chat-log')!;
   const input = () => card.querySelector<HTMLTextAreaElement>('#merlin-chat-input')!;
 
-  // The log keeps to its newest line; once it scrolls, its top edge fades under the close button.
+  // The log keeps to its newest line; once it scrolls, its top edge fades out.
   const scrollLog = () => {
     const el = log();
     el.scrollTop = el.scrollHeight;
@@ -798,19 +798,12 @@ const places = JSON.stringify(PLACES).replace(/</g, '\\u003c');
     }
   }
 
-  /* No name line: he is right there beside it. Just the close button, in the corner. */
-  .merlin-head {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: var(--s1);
-  }
-
   .merlin-ask .merlin-ask-close {
     display: grid;
     place-items: center;
     width: 1.75rem;
     height: 1.75rem;
-    margin: -0.25rem -0.4rem 0 0;
+    margin: -0.35rem -0.4rem -0.35rem 0;
     padding: 0;
     border: 0;
     border-radius: var(--radius);
@@ -904,11 +897,15 @@ const places = JSON.stringify(PLACES).replace(/</g, '\\u003c');
     color: var(--muted);
   }
 
+  /* The foot: Silencio, and the close button beside it. */
   .merlin-foot {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--s3);
     margin-top: var(--s3);
     padding-top: var(--s2);
     border-top: var(--hairline);
-    text-align: right;
   }
 
   .merlin-ask .merlin-away {

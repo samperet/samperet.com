@@ -42,7 +42,12 @@ export const sections: SectionData[] = [
       { src: '/travel/paramotor-snow.webp', alt: 'Strapped into a paramotor on the snow, propeller cage behind, about to take off' },
       { src: '/photos/tacloban-hospital.jpg', alt: 'The relief team on the steps of R.T. Romualdez Hospital in Tacloban' },
       { src: '/photos/tacloban-c130.jpg', alt: 'The team in scrubs with backpacks beside a C-130 on a rain-soaked runway' },
-      { src: '/photos/new-orleans-katrina.jpg', alt: 'Volunteers with a resident beside a storm-damaged house marked FEMA in New Orleans' },
+      {
+        src: '/photos/new-orleans-katrina.jpg',
+        alt: 'Volunteers with a resident beside a storm-damaged house marked FEMA in New Orleans',
+        // Sam tells it; the globe's New Orleans waypoint opens this photo and plays it too.
+        story: { title: 'New Orleans, after Katrina', audio: '/stories/new-orleans.m4a', captions: '/stories/new-orleans.vtt' },
+      },
     ],
   },
   {

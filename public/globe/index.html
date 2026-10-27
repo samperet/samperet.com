@@ -9,8 +9,9 @@
   The travel globe shown in the Travel & Adventure card. Built from Sam's Route Atlas export:
   the same stops and route curve, redrawn in the site's palette. Route curves are illustrative,
   not GPS tracks. Pins mark the countries and cities, named on hover or tap (pins too close to
-  tell apart, like Hong Kong and Shenzhen, share one label). It never moves on its own: drag to
-  turn it, or press Spin.
+  tell apart, like Hong Kong and Shenzhen, share one label). A waypoint (the round ▶ in New
+  Orleans) plays one of Sam's stories: it asks the page around the globe to open that photo, whose
+  story then plays in the photo viewer. It never moves on its own: drag to turn it, or press Spin.
 -->
 <style>
   html, body { margin: 0; height: 100%; background: #fbfaf7; color: #232527; font: 14px/1.4 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
@@ -56,6 +57,8 @@
     ['France', 2.21, 46.23], ['Spain', -3.75, 40.46], ['Italy', 12.57, 41.87], ['The Czech Republic', 15.47, 49.82],
     ['Amsterdam, the Netherlands', 4.9, 52.37], ['Moldova', 28.37, 47.41], ['Ukraine', 31.17, 48.38], ['Mexico', -102.55, 23.63],
   ].map(([name, lon, lat]) => ({ name, at: [lon, lat], x: 0, y: 0, shown: false }));
+  // Waypoints: a story Sam tells about the place, played over its photo on the page.
+  PINS.push({ name: '▶ New Orleans, after Katrina', at: [-90.07, 29.95], x: 0, y: 0, shown: false, photo: '/photos/new-orleans-katrina.jpg' });
   const canvas = document.getElementById('globe');
   const label = document.getElementById('label');
   let picked = null; // the pins whose label is showing
@@ -91,7 +94,7 @@
   for (let i = 1; i < STOPS.length; i++) km += d3.geoDistance(STOPS[i - 1], STOPS[i]) * 6371;
   document.getElementById('stops').textContent = STOPS.length;
   document.getElementById('km').textContent = Math.round(km).toLocaleString('en-US');
-  canvas.setAttribute('aria-label', 'A globe tracing my travels: ' + STOPS.length + ' stops, about ' + (Math.round(km / 1000) * 1000).toLocaleString('en-US') + ' km, with pins on ' + PINS.map((p) => p.name).join(', ') + '. Drag or use the arrow keys to turn it.');
+  canvas.setAttribute('aria-label', 'A globe tracing my travels: ' + STOPS.length + ' stops, about ' + (Math.round(km / 1000) * 1000).toLocaleString('en-US') + ' km, with pins on ' + PINS.filter((p) => !p.photo).map((p) => p.name).join(', ') + ', and a waypoint in New Orleans that plays my story of the weeks after Hurricane Katrina (it also plays from that photo, below the globe). Drag or use the arrow keys to turn it.');
 
   function draw() {
     if (!w) return;
@@ -113,13 +116,23 @@
     ctx.shadowBlur = 0;
     ctx.restore();
 
-    // The pins on the side facing us: a round head on a short stem, its point on the place.
+    // The pins on the side facing us: a round head on a short stem, its point on the place. A
+    // waypoint is a round play button on the place itself.
     const centre = [-rotation[0], -rotation[1]];
     for (const pin of PINS) {
       pin.shown = d3.geoDistance(pin.at, centre) < Math.PI / 2 - 0.05;
       if (!pin.shown) continue;
       [pin.x, pin.y] = projection(pin.at);
       const on = picked?.includes(pin);
+      if (pin.photo) {
+        const r = on ? 10.5 : 9;
+        ctx.beginPath(); ctx.arc(pin.x, pin.y, r, 0, 2 * Math.PI);
+        ctx.fillStyle = '#007a87'; ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pin.x - r * 0.3, pin.y - r * 0.42); ctx.lineTo(pin.x + r * 0.45, pin.y); ctx.lineTo(pin.x - r * 0.3, pin.y + r * 0.42); ctx.closePath();
+        ctx.fillStyle = '#fff'; ctx.fill();
+        continue;
+      }
       ctx.beginPath(); ctx.moveTo(pin.x, pin.y); ctx.lineTo(pin.x, pin.y - 10);
       ctx.strokeStyle = '#232527'; ctx.lineWidth = 1.5; ctx.stroke();
       ctx.beginPath(); ctx.arc(pin.x, pin.y - 12, on ? 6 : 4.5, 0, 2 * Math.PI);
@@ -135,12 +148,12 @@
     if (!shown.length) { label.hidden = true; return; }
     label.textContent = shown.map((p) => p.name).join(' · ');
     label.style.left = shown[0].x + 'px';
-    label.style.top = shown[0].y + 'px';
+    label.style.top = shown[0].y + (shown[0].photo ? 8 : 0) + 'px';
     label.hidden = false;
   }
   // The pins under a point: within reach of the nearest one's head or stem, and any as close.
   function pinsAt(x, y, reach) {
-    const near = PINS.filter((p) => p.shown).map((p) => [p, Math.min(Math.hypot(p.x - x, p.y - 12 - y), Math.hypot(p.x - x, p.y - y))]).filter(([, d]) => d <= reach);
+    const near = PINS.filter((p) => p.shown).map((p) => [p, p.photo ? Math.hypot(p.x - x, p.y - y) - 6 : Math.min(Math.hypot(p.x - x, p.y - 12 - y), Math.hypot(p.x - x, p.y - y))]).filter(([, d]) => d <= reach);
     if (!near.length) return null;
     near.sort((a, b) => a[1] - b[1]);
     const first = near[0][0];
@@ -179,10 +192,15 @@
     rotation = [drag.r[0] + (e.clientX - drag.x) * 0.35, Math.max(-89, Math.min(89, drag.r[1] - (e.clientY - drag.y) * 0.35)), 0];
     draw();
   };
+  // A waypoint plays its story: the page around the globe opens its photo, which tells it.
+  const play = (pin) => { if (parent !== window) parent.postMessage({ type: 'globe:story', photo: pin.photo }, location.origin); };
   canvas.onpointerup = (e) => {
     if (drag && !drag.moved) {
       const r = canvas.getBoundingClientRect();
-      pick(pinsAt(e.clientX - r.left, e.clientY - r.top, e.pointerType === 'mouse' ? 10 : 20));
+      const pins = pinsAt(e.clientX - r.left, e.clientY - r.top, e.pointerType === 'mouse' ? 10 : 20);
+      pick(pins);
+      const story = pins?.find((p) => p.photo);
+      if (story) play(story);
     }
     drag = null;
   };

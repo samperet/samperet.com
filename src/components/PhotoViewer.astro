@@ -4,6 +4,7 @@
 // on that photo, and the arrows, swipes and arrow keys move through the rest of its section.
 // A photo with a story (data-story-* on its link) plays its audio over the picture, with the
 // WebVTT captions shown as subtitles. A link marked data-story-tile (a told story's tile) opens it alone.
+// The travel globe's waypoints open a photo's story too, by message from its frame.
 ---
 
 <dialog class="viewer" aria-label="Photo viewer" data-viewer data-merlin-ui>
@@ -162,6 +163,17 @@
     show(links.indexOf(link), true);
     dialog.showModal();
     document.documentElement.classList.add('viewer-open');
+  });
+
+  // The travel globe's waypoints (public/globe/) ask for a photo's story: the photo in the same
+  // card opens as if it were clicked, and its story plays (the click in the globe counts as the
+  // visitor's own, so the audio may start).
+  addEventListener('message', (e) => {
+    if (e.origin !== location.origin || e.data?.type !== 'globe:story') return;
+    const frame = [...document.querySelectorAll('iframe')].find((f) => f.contentWindow === e.source);
+    const scope = frame?.closest('details') ?? document;
+    const link = [...scope.querySelectorAll<HTMLAnchorElement>('.photos a')].find((a) => a.getAttribute('href') === e.data.photo);
+    link?.click();
   });
 
   dialog.addEventListener('close', () => {

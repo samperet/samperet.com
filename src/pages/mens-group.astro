@@ -293,11 +293,10 @@ const KEYS = 'ABCDE';
     // (Lover 0°, Warrior 270°, Magician 180°, King 90°), so turning clockwise brings them up in
     // order. It moves like a dial with detents: each round holds still while its explanation is
     // read (most of the scroll from one to the next), the scroll then turns it on,
-    // and it clicks into the next with a small overshoot and the notch dipping, as the next
-    // explanation nears the reading line. Clicking a wedge, or the hub for the next one, scrolls
+    // and it clicks into the next, stopping dead as the notch dips, as the next explanation
+    // nears the reading line. Clicking a wedge, or the hub for the next one, scrolls
     // to that explanation, and the wheel turns along the way.
     const wheel = document.querySelector<HTMLElement>('[data-wheel]')!;
-    const disc = wheel.querySelector<HTMLElement>('.wheel-disc')!;
     const notch = wheel.querySelector<HTMLElement>('.wheel-pointer')!;
     const dock = document.querySelector<HTMLElement>('[data-dock]')!;
     const wedges = [...wheel.querySelectorAll<HTMLButtonElement>('[data-wedge]')];
@@ -332,14 +331,9 @@ const KEYS = 'ABCDE';
       return round + s * s * (2 - s);
     };
 
-    // The click: the wheel runs a few degrees past the round and settles back, and the notch dips
-    // as it catches.
-    const click = (dir: number) => {
+    // The click: the wheel stops dead on the round (no bounce), and the notch dips as it catches.
+    const click = () => {
       if (reduced.matches) return;
-      disc.animate(
-        [{ transform: 'none' }, { transform: `rotate(${dir * 6}deg)`, offset: 0.3 }, { transform: `rotate(${dir * -1.5}deg)`, offset: 0.65 }, { transform: 'none' }],
-        { duration: 420, easing: 'ease-out' },
-      );
       notch.animate([{ transform: 'none' }, { transform: 'translateY(0.35rem)', offset: 0.3 }, { transform: 'none' }], { duration: 300, easing: 'ease-out' });
     };
 
@@ -348,7 +342,7 @@ const KEYS = 'ABCDE';
       wheel.style.setProperty('--turn', `${turn * 90}deg`);
       // A round is on once the wheel has clicked into it; while turning, the last one stays on.
       if (!Number.isInteger(turn) || turn === current) return;
-      if (current >= 0) click(Math.sign(turn - current));
+      if (current >= 0) click();
       current = turn;
       for (const [i, wedge] of wedges.entries()) wedge.setAttribute('aria-pressed', String(i === turn));
       for (const [i, panel] of panels.entries()) panel.classList.toggle('on', i === turn);
@@ -938,7 +932,7 @@ const KEYS = 'ABCDE';
     inset: 0;
     overflow: hidden;
     border-radius: 50%;
-    rotate: var(--turn); /* set from the scroll position, so no transition; the click is a transform */
+    rotate: var(--turn); /* set from the scroll position, so no transition */
   }
 
   /* Spokes the colour of the page between the wedges. */
@@ -1088,8 +1082,11 @@ const KEYS = 'ABCDE';
     display: none;
   }
 
+  /* Apply now: most of the page's width, the label centred. */
   .grit .apply-start {
     justify-self: start;
+    justify-content: center;
+    width: 80%;
     padding: 0.9rem 1.6rem;
     font-size: clamp(1.4rem, 1rem + 1.4vw, 2rem);
     font-weight: 700;

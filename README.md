@@ -82,8 +82,10 @@ picture is cut to a shape (4:3); set `tile.position` to keep the right part in v
 A photo can carry a story: `story: { title, audio, captions }` on the photo plays the audio
 over the picture with the WebVTT captions as subtitles, starting as soon as the photo is
 opened. Files live in `public/stories/`, each as `.m4a` plus an `.mp3` twin for browsers
-without AAC. The bear shark is the first one; `tools/story/` has the scripts that cleaned
-the recording, cut the pauses, added the entrance and exit and timed the subtitles.
+without AAC. The bear shark was the first; New Orleans, after Katrina, rides on the FEMA photo
+in the Travel & Adventure card. `tools/story/` has the scripts that cleaned each recording, cut
+the pauses, added the entrance and exit and timed the subtitles, with each story's words in its
+own cue file (`bear-shark.txt`, `new-orleans.txt`).
 "Send me a message" opens a chat with Merlin instead.
 
 The Travel & Adventure card embeds a globe of Sam's travels: `public/globe/` holds the page
@@ -91,8 +93,11 @@ The Travel & Adventure card embeds a globe of Sam's travels: `public/globe/` hol
 Natural Earth's 110m world map. It came from Sam's Route Atlas export, rebuilt because the export
 was broken (a corrupted d3 and map files it could not reach); the route curves are illustrative,
 not GPS tracks. Pins mark sixteen of the countries and cities (`PINS` in the page), each named
-on hover or tap; pins too close to tell apart, like Hong Kong and Shenzhen, share one label. It
-loads only when the card opens, and only turns when dragged or asked to spin.
+on hover or tap; pins too close to tell apart, like Hong Kong and Shenzhen, share one label. A
+waypoint, the round ▶ on New Orleans, plays Sam's story of the weeks after Katrina: the globe
+posts a message to the page, which opens that photo in the same card as though it were
+clicked, and the viewer plays it. It loads only when the card opens, and only turns when dragged
+or asked to spin.
 
 ## Career
 
@@ -182,7 +187,7 @@ place and start date are set once all five are in.
 The archetypes sit on a wheel that stays in view while their explanations scroll past, turning
 clockwise with the scroll so Lover, Warrior, Magician and King come to the top in order (the
 wedges run counter-clockwise from the top for that). It moves like a dial with detents: it
-clicks into each round (a few degrees past, settling back, the notch dipping) and holds there
+clicks into each round (stopping dead, no bounce, as the notch dips) and holds there
 for most of the scroll to the next (60%) before the scroll turns it on. Clicking one
 scrolls to it, and the names turn with the wheel, upright on top. `#lover`,
 `#warrior`, `#magician` or `#king` opens on one. MKP publishes no colours for the archetypes, so
