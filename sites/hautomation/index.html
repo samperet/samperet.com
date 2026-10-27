@@ -22,7 +22,8 @@
   (Calendly's own script and frame), with email as the alternative.
 
   Keep it general about how Sam works and what he does: the one claim is that he has been
-  automating home systems since 2000. The tools he names are Jellyfin and Stremio.
+  automating home systems since 2000. The tools he names are Jellyfin and Stremio, and his own
+  open-source Home Assistant Stream Deck panel has a section in his words (owner, 2026-10-27).
 
   The brand: Swedish modern. Familjen Grotesk (by Familjen STHLM, SIL Open Font License) on warm
   paper, one hero colour, rouge, and nothing else loud. Rouge on paper and paper on rouge both
@@ -147,18 +148,29 @@
   .closing h2 { font-size: clamp(2.4rem, 1.4rem + 4vw, 4.75rem); font-weight: 700; letter-spacing: -0.035em; line-height: 0.98; max-width: 14ch; }
   .closing p { max-width: 46ch; font-size: 1.1875rem; color: var(--on-rouge-muted); }
 
+  /* ---- The Stream Deck panel: Sam's own open-source app, in his words, beside the deck itself ---- */
+  .sd { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(2rem, 5vw, 4rem); align-items: start; }
+  .sd-text { display: grid; gap: 1.1rem; justify-items: start; }
+  .sd-text h2 { font-size: clamp(2rem, 1.3rem + 2.8vw, 3.5rem); max-width: 16ch; margin-bottom: 0.4rem; }
+  .sd-text p { max-width: 50ch; font-size: 1.1875rem; color: var(--ink-muted); }
+  .sd-text p a { color: var(--ink); text-decoration-color: var(--rouge); }
+  .sd-text .btn { margin-top: 0.6rem; }
+  .shot { margin: 0; display: grid; gap: 0.6rem; align-content: start; }
+  .shot img { width: 100%; height: auto; border-radius: var(--radius-lg); }
+  .shot figcaption { font-size: 0.9375rem; color: var(--ink-muted); }
+  .shots { list-style: none; padding: 0; margin: clamp(2.5rem, 5vw, 3.5rem) 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
   footer { padding: 2rem 0 3rem; font-size: 0.875rem; color: var(--ink-muted); }
   footer .wrap { display: grid; gap: 0.75rem; }
   footer .row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1.5rem; }
   footer .fine { font-size: 0.8125rem; }
 
   @media (max-width: 900px) {
-    .hero-inner, .closing-inner { grid-template-columns: 1fr; }
+    .hero-inner, .closing-inner, .sd { grid-template-columns: 1fr; }
   }
 
   @media (max-width: 640px) {
     .top nav a:not(.btn) { display: none; }
-    .points, .tools { grid-template-columns: 1fr; }
+    .points, .tools, .shots { grid-template-columns: 1fr; }
     .years { grid-template-columns: 1fr; }
   }
 
@@ -175,6 +187,7 @@
     <nav aria-label="Sections">
       <a href="#who">Who it’s for</a>
       <a href="#tools">Tools</a>
+      <a href="#stream-deck">Stream Deck</a>
       <a class="btn btn-sm" href="#talk">Book a call</a>
     </nav>
   </header>
@@ -254,6 +267,29 @@
       </div>
     </section>
 
+    <section class="band" id="stream-deck" aria-labelledby="deck-title">
+      <div class="wrap">
+        <div class="sd">
+          <div class="sd-text">
+            <h2 id="deck-title">Open Source Home Assistant Stream Deck Panel</h2>
+            <p>I’ve been doing home automation since I was 14, scripting with X10 and HomeSeer (using the very wizard you’ll find under the hat on <a href="https://samperet.com">samperet.com</a>) and programming macros on remote controls. My largest challenge with home automation is the tactile experience. Enter the Stream Deck.</p>
+            <p>A Stream Deck is a set of programmable buttons, each with an LED screen behind it. Using it for music selection feels like a jukebox. Managing lights or enabling macros feels like a dream.</p>
+            <p>I built an open-source app to control the Stream Deck from a Linux computer or a Raspberry Pi.</p>
+            <a class="btn" href="https://github.com/samperet/Streamdeck-Hautomate" rel="noopener">Download it on GitHub <span class="arrow" aria-hidden="true">↗</span></a>
+          </div>
+          <figure class="shot">
+            <img src="/streamdeck/xl-home.webp" alt="The panel on a 32-key Stream Deck XL: genre keys on the left, the playing album’s cover across nine keys on the right, and the song’s name scrolling underneath" width="1400" height="754" loading="lazy" decoding="async">
+            <figcaption>Music on a Stream Deck XL: a key for each genre, and the album that’s playing across nine keys.</figcaption>
+          </figure>
+        </div>
+        <ul class="shots">
+          <li><figure class="shot"><img src="/streamdeck/xl-albums.webp" alt="A page of 24 album covers on the Stream Deck XL" width="1400" height="754" loading="lazy" decoding="async"><figcaption>A page of albums, like flipping through the jukebox.</figcaption></figure></li>
+          <li><figure class="shot"><img src="/streamdeck/xl-volume.webp" alt="The volume level drawn in large numbers across the album cover" width="1400" height="754" loading="lazy" decoding="async"><figcaption>The volume, drawn across the cover as it changes.</figcaption></figure></li>
+          <li><figure class="shot"><img src="/streamdeck/mk2-now-playing.webp" alt="Now Playing on the 15-key Stream Deck, with the album cover across nine keys" width="1312" height="847" loading="lazy" decoding="async"><figcaption>The same panel on the 15-key Stream Deck.</figcaption></figure></li>
+        </ul>
+      </div>
+    </section>
+
     <section class="band" aria-labelledby="years-title">
       <div class="wrap years">
         <span class="years-number" data-years>26</span>
@@ -287,7 +323,7 @@
         <span>HAUTomation is Sam Peret’s home automation practice · <a href="mailto:sam@peret.net">sam@peret.net</a></span>
         <a href="https://samperet.com">samperet.com</a>
       </div>
-      <p class="fine">Jellyfin and Stremio are trademarks of their owners. HAUTomation is independent and not affiliated with them. The posters are from films of 1914 to 1928, in the public domain, via the Internet Archive.</p>
+      <p class="fine">Jellyfin, Stremio, Stream Deck and Home Assistant are trademarks of their owners. HAUTomation is independent and not affiliated with them. The posters are from films of 1914 to 1928, in the public domain, via the Internet Archive.</p>
     </div>
   </footer>
 

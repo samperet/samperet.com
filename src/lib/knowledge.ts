@@ -114,6 +114,15 @@ has been automating home systems since 2000 (${new Date().getFullYear() - 2000} 
 uses: Jellyfin and Stremio. To start, book a half-hour call on the HAUTomation site (its booking
 calendar is at the bottom of the page), or email sam@peret.net about the project.
 
+The HAUTomation site also has Sam's Open Source Home Assistant Stream Deck Panel (link:
+https://hautomation.samperet.com/#stream-deck). In his words: he has done home automation since he
+was 14, scripting with X10 and HomeSeer (using the very wizard, Merlin, who now lives under the hat
+on samperet.com) and programming macros on remote controls; his largest challenge was the tactile
+experience, and the Stream Deck (programmable buttons, each with an LED screen behind it) answers
+it: music selection feels like a jukebox, and managing lights or enabling macros feels like a
+dream. He built an open-source app to control a Stream Deck from a Linux computer or a Raspberry
+Pi; download it at https://github.com/samperet/Streamdeck-Hautomate.
+
 ## Merlin
 
 Merlin, the wizard in the bottom-right corner (summoned by the hat), can open cards by topic, tell
@@ -136,6 +145,7 @@ const WORDS: Record<string, string> = {
   '/#family': 'kids children jaya fiona mackensie',
   '/#travel-and-adventure': 'travel trips places',
   '/#stories': 'picture books',
+  'https://hautomation.samperet.com/#stream-deck': 'stream deck streamdeck elgato home assistant jukebox raspberry pi buttons',
 };
 
 const placesOf = (s: SectionData, within?: string): Place[] => {
@@ -158,6 +168,7 @@ const careerSections = [
 // In order of preference when two fit a request equally well.
 export const PLACES: Place[] = [
   ...[...sections, ...projects].flatMap((s) => placesOf(s)),
+  { path: 'https://hautomation.samperet.com/#stream-deck', title: 'the Stream Deck panel', within: 'HAUTomation' },
   { path: '/career/', title: 'Career' },
   ...roles.map((r) => ({ path: `/career/#${r.id}`, title: r.name, within: 'Career' })),
   ...careerSections.map(([id, title]) => ({ path: `/career/#${id}`, title, within: 'Career' })),

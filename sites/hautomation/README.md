@@ -8,6 +8,11 @@ page's one script). Keep it general about how he works and what he does. The cal
 half-hour call booked through Sam's Calendly (embedded in the closing section; the hero and header
 buttons jump to it), with email to sam@peret.net as the alternative.
 
+After the tools comes Sam's Open Source Home Assistant Stream Deck Panel (`#stream-deck`), in
+his own words (owner, 2026-10-27), beside screenshots of the panel on the Stream Deck XL and the
+15-key deck (`streamdeck/`), with a button to the code on GitHub
+(github.com/samperet/Streamdeck-Hautomate). It moved here from the samperet.com homepage.
+
 The tools sit in a dark "Get your movie night under control." band with a wall of film posters
 tilted back for depth, each row drifting (still under reduced motion, paused on hover). The
 posters, in `posters/`, are from films of 1914 to 1928, all in the public domain, from the
@@ -18,6 +23,7 @@ The brand is Swedish modern: Familjen Grotesk (by Familjen STHLM, SIL Open Font 
 colour, rouge (`#be2a44`; paper text on it is 5.4:1). The hero's picture is a deck of keys, one lit
 in rouge. Never a plain bar of colour down the side of a block.
 
-Plain static files, no build: `index.html`, `404.html`, `favicon.svg` and the fonts. Its own
+Plain static files, no build: `index.html`, `404.html`, `favicon.svg`, the fonts, the posters
+and the Stream Deck screenshots. Its own
 Vercel project (`hautomation-samperet`) with this folder as the root directory; `vercel.json`
 skips a deploy when a push doesn't change this folder.
