@@ -4,7 +4,7 @@
 // the site goes in.
 import type { SectionData } from '../components/Section.astro';
 import { BOOKS } from '../data/books';
-import { boards, competencies, contact, education, initiatives, roles, summary } from '../data/career';
+import { awards, boards, competencies, contact, education, initiatives, roles, summary } from '../data/career';
 import { sections, projects, footerCards } from '../data/home';
 import { GROUP } from '../data/mens-group';
 
@@ -53,6 +53,7 @@ const career = [
   ...initiatives.map((i) => [`### ${i.title}`, ...i.items.map((t) => `- ${t}`), i.example ? `Example: ${i.example.name} (${i.example.href}). ${i.example.note}` : ''].join('\n')),
   'Education: ' + education.map((e) => `${e.school}, ${e.degree}, ${e.dates}${e.notes.length ? ` (${e.notes.join('; ')})` : ''}`).join('. ') + '.',
   'Boards: ' + boards.map((b) => `${b.org}, ${b.role}, ${b.years}`).join('; ') + '.',
+  'Awards: ' + awards.map((a) => `${a.title}, ${a.org}, ${a.year}: ${a.text}`).join(' ') ,
 ].join('\n\n');
 
 export const SITE = `# samperet.com

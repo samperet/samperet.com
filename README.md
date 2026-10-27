@@ -96,7 +96,11 @@ not GPS tracks. It loads only when the card opens, and only turns when dragged o
 
 `/career/` (`src/pages/career.astro`) is the résumé as a page: summary, competencies, five
 roles with titles and dates, initiatives, education, community, boards and awards, all data
-at the top of the file. Each highlight is marked with the tagline's four skills; choosing one
+in `src/data/career.ts`. It opens on an executive overview (`src/components/CareerDeck.astro`):
+seven slides built from the same data (who, now, in numbers, four strengths, experience, selected
+work, let's talk), moved by the visitor with the arrows, the keyboard or a swipe, never on their
+own, with "Present" for full screen; on phones the slides keep to the short version, and print
+leaves them out. Each highlight is marked with the tagline's four skills; choosing one
 under "Show me" keeps the matching highlights and dims the rest. The side list follows the
 section in view, ALPS has a row of photos and Airbnb the bear-shark story (both open full
 screen). Printing from the browser gives a clean multi-page CV.

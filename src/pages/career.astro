@@ -4,7 +4,8 @@
 // back. Nothing moves on its own. Print gives a clean document.
 import Base from '../layouts/Base.astro';
 import { sizeOf } from '../lib/photo-size';
-import { LOGOS, SKILLS, contact, summary, competencies, roles, initiatives, education, boards, type Highlight } from '../data/career';
+import { SKILLS, awards, contact, summary, competencies, roles, initiatives, education, boards, type Highlight } from '../data/career';
+import CareerDeck from '../components/CareerDeck.astro';
 
 const toc = [
   { id: 'summary', name: 'Summary' },
@@ -30,9 +31,12 @@ const description =
 ---
 
 <Base title="Career · Samuel Peret" description={description} path="/career/" ogType="profile" interests={['career', 'leadership']}>
+  <div class="wrap deck-wrap">
+    <a class="arrow-link home-btn" href="/" data-track="nav:home"><span class="arrow" aria-hidden="true">←</span> Home</a>
+    <CareerDeck />
+  </div>
   <div class="wrap page">
     <aside class="side">
-      <a class="arrow-link home-btn" href="/" data-track="nav:home"><span class="arrow" aria-hidden="true">←</span> Home</a>
       <img
         class="portrait"
         src="/photos/sam-peret-full-1000.webp"
@@ -277,14 +281,16 @@ const description =
       <section id="awards" class="block" data-spy>
         <h2 class="block-title">Awards &amp; recognition</h2>
         <ul class="entries">
-          <li class="entry">
-            <div class="name-row">
-              <h3>Innovation Award</h3>
-              <img class="logo" src={LOGOS.bdo.src} width={LOGOS.bdo.width} height={LOGOS.bdo.height} alt="" />
-            </div>
-            <p class="meta"><span class="title">BDO USA</span><span class="when">2020</span></p>
-            <p class="measure">Recognition for innovation in technology and business solutions.</p>
-          </li>
+          {awards.map((a) => (
+            <li class="entry">
+              <div class="name-row">
+                <h3>{a.title}</h3>
+                {a.logo && <img class="logo" src={a.logo.src} width={a.logo.width} height={a.logo.height} alt="" />}
+              </div>
+              <p class="meta"><span class="title">{a.org}</span><span class="when">{a.year}</span></p>
+              <p class="measure">{a.text}</p>
+            </li>
+          ))}
         </ul>
         <h2 class="block-title interests-title">Additional interests</h2>
         <p class="measure">
@@ -334,7 +340,7 @@ const description =
       spied.forEach((s) => spy.observe(s));
     }
 
-    document.querySelector('[data-contact]')!.addEventListener('click', () => openTopic('message'));
+    for (const b of document.querySelectorAll('[data-contact], [data-deck-message]')) b.addEventListener('click', () => openTopic('message'));
     addEventListener('beforeprint', () => {
       active = null;
       apply();
@@ -366,6 +372,17 @@ const description =
     padding-bottom: var(--s4);
   }
 
+
+  /* The executive overview, with Home above it, opens the page. */
+  .deck-wrap {
+    padding-top: var(--s6);
+  }
+
+  @media print {
+    .deck-wrap {
+      display: none;
+    }
+  }
 
   .portrait {
     width: 100%;

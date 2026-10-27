@@ -1,0 +1,604 @@
+---
+// The executive overview at the top of /career/: seven slides drawn from the CV's own data
+// (src/data/career.ts), so they say nothing the page below doesn't. The visitor moves through
+// them (arrows, the keyboard, a swipe; it is a scroll-snapped strip, so it swipes without
+// script too) and nothing advances on its own. "Present" shows it full screen for a meeting.
+// Hidden in print, where the CV itself is the document.
+import { SKILLS, awards, competencies, contact, initiatives, roles, summary } from '../data/career';
+
+const role = (id: string) => roles.find((r) => r.id === id)!;
+const alps = role('alps');
+const airbnb = role('airbnb');
+const foundersWanted = role('founders-wanted');
+const years = summary[0].match(/(\d+) years of experience/)?.[1];
+// "a network of more than 220 senior executive advisors and partners", in the ALPS highlights.
+const network = alps.highlights.map((h) => h.text.match(/more than (\d+) senior executive advisors and partners/)?.[1]).find(Boolean);
+
+const stats = [
+  years && { value: years, label: 'years building organizations and technical solutions' },
+  alps.stat && { value: alps.stat.value, label: `${alps.stat.label}, at ALPS` },
+  airbnb.stat && { value: airbnb.stat.value, label: `${airbnb.stat.label}, at Airbnb` },
+  network && { value: `${network}+`, label: 'senior executive advisors and partners in the ALPS network' },
+].filter(Boolean) as { value: string; label: string }[];
+
+const strengths = SKILLS.map((s) => ({ ...s, items: competencies.filter((c) => c.skill === s.key) }));
+const yearsOf = (dates: string) => dates.replace(/[A-Z][a-z]+ /g, '').replace('present', 'now');
+const example = initiatives.find((i) => i.example)?.example;
+const work = [
+  ...(foundersWanted.projects ?? []).map((p) => ({ title: p.title, note: p.text, logo: p.logo, alt: `${p.partner} logo` })),
+  ...awards.map((a) => ({ title: `${a.title}, ${a.org}`, note: `${a.year}. ${a.text}`, logo: a.logo, alt: `${a.org} logo` })),
+];
+
+// The intro's first sentence, and the rest, which phones leave out.
+const [lead, ...rest] = summary[0].split(/(?<=\.) /);
+// The example's note, from "The site for…" to the end of its first sentence.
+const exampleNote = example?.note.replace(/^An example of this work: (\w)/, (_, c: string) => c.toUpperCase()).split(/(?<=\.) /)[0];
+
+const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experience', 'Selected work', 'Let’s talk'];
+---
+
+<section class="deck" aria-roledescription="carousel" aria-label="Executive overview" data-deck>
+  <div class="deck-track" tabindex="0" aria-label="Slides: use the arrow keys to move" data-deck-track>
+    <article class="slide slide-intro" aria-roledescription="slide" aria-label={`1 of ${slides.length}: ${slides[0]}`}>
+      <div class="intro-text">
+        <h2 class="deck-name">Samuel Peret</h2>
+        <p class="deck-role">Technology <span class="amp">&amp;</span> operations leader</p>
+        <p class="deck-lede">{lead} <span class="wide-only">{rest.join(' ')}</span></p>
+      </div>
+      {alps.photos?.[0] && (
+        <img class="intro-photo" src={alps.photos[0].thumb ?? alps.photos[0].src} alt={alps.photos[0].alt} width={alps.photos[0].width} height={alps.photos[0].height} loading="eager" decoding="async" />
+      )}
+    </article>
+
+    <article class="slide" aria-roledescription="slide" aria-label={`2 of ${slides.length}: ${slides[1]}`}>
+      <h2 class="slide-title">Now</h2>
+      <p class="deck-big">{summary[2]}</p>
+    </article>
+
+    <article class="slide" aria-roledescription="slide" aria-label={`3 of ${slides.length}: ${slides[2]}`}>
+      <h2 class="slide-title">In numbers</h2>
+      <ul class="stats">
+        {stats.map((s) => (
+          <li>
+            <span class="stat-n">{s.value}</span>
+            <span class="stat-l">{s.label}</span>
+          </li>
+        ))}
+      </ul>
+    </article>
+
+    <article class="slide" aria-roledescription="slide" aria-label={`4 of ${slides.length}: ${slides[3]}`}>
+      <h2 class="slide-title">Four strengths</h2>
+      <ul class="strengths">
+        {strengths.map((s) => (
+          <li style={`--skill: var(--skill-${s.key})`}>
+            <h3><span class="skill-dot" aria-hidden="true"></span>{s.label}</h3>
+            {s.items.map((c) => (
+              <p><strong>{c.name}.</strong> <span class="wide-only">{c.items}</span></p>
+            ))}
+          </li>
+        ))}
+      </ul>
+    </article>
+
+    <article class="slide" aria-roledescription="slide" aria-label={`5 of ${slides.length}: ${slides[4]}`}>
+      <h2 class="slide-title">Experience</h2>
+      <ol class="timeline">
+        {roles.map((r) => (
+          <li>
+            <a href={`#${r.id}`} data-track={`career:deck:role:${r.id}`}>
+              <span class="tl-when">{yearsOf(r.dates)}</span>
+              <span class="tl-what">
+                <span class="tl-name">{r.full ?? r.name}</span>
+                <span class="tl-title">{r.title}</span>
+              </span>
+              {r.logo && <img class="tl-logo" src={r.logo.src} width={r.logo.width} height={r.logo.height} alt="" loading="lazy" decoding="async" />}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </article>
+
+    <article class="slide" aria-roledescription="slide" aria-label={`6 of ${slides.length}: ${slides[5]}`}>
+      <h2 class="slide-title">Selected work</h2>
+      <ul class="work">
+        {work.map((w) => (
+          <li>
+            {w.logo && <img class="work-logo" src={w.logo.src} width={w.logo.width} height={w.logo.height} alt={w.alt} loading="lazy" decoding="async" />}
+            <h3>{w.title}</h3>
+            <p>{w.note}</p>
+          </li>
+        ))}
+        {example && (
+          <li>
+            <img class="work-shot wide-only" src={example.src} alt={example.alt} loading="lazy" decoding="async" />
+            <h3>{example.name}</h3>
+            <p>{exampleNote}</p>
+          </li>
+        )}
+      </ul>
+    </article>
+
+    <article class="slide slide-talk" aria-roledescription="slide" aria-label={`7 of ${slides.length}: ${slides[6]}`}>
+      <h2 class="slide-title deck-name">Let’s talk.</h2>
+      <p class="talk-lines">
+        <a href={`mailto:${contact.email}`}>{contact.email}</a>
+        <a href={`tel:+1${contact.phone.replace(/\D/g, '')}`}>{contact.phone}</a>
+        <a href={contact.linkedin} rel="me">linkedin.com/in/samperet</a>
+      </p>
+      <p class="talk-actions">
+        <button type="button" class="btn btn-accent" data-deck-message data-track="career:deck:message">Send me a message</button>
+        <a class="arrow-link" href="#summary" data-track="career:deck:cv">The full CV <span class="arrow" aria-hidden="true">↓</span></a>
+      </p>
+    </article>
+  </div>
+
+  <div class="deck-bar">
+    <button type="button" class="deck-btn" data-deck-prev aria-label="Previous slide">←</button>
+    <p class="deck-count" aria-live="polite"><span data-deck-n>1</span> of {slides.length} · <span data-deck-title>{slides[0]}</span></p>
+    <button type="button" class="deck-btn" data-deck-next aria-label="Next slide">→</button>
+    <button type="button" class="deck-present" data-deck-present data-track="career:deck:present" hidden>Present</button>
+  </div>
+</section>
+
+<script define:vars={{ titles: slides }}>
+  // Arrows, the keyboard and the counter; the strip itself scrolls and snaps on its own.
+  const deck = document.querySelector('[data-deck]');
+  const track = deck.querySelector('[data-deck-track]');
+  const count = deck.querySelector('[data-deck-n]');
+  const title = deck.querySelector('[data-deck-title]');
+  const prev = deck.querySelector('[data-deck-prev]');
+  const next = deck.querySelector('[data-deck-next]');
+  const present = deck.querySelector('[data-deck-present]');
+  const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const at = () => Math.round(track.scrollLeft / track.clientWidth);
+  const go = (i) => {
+    const n = Math.max(0, Math.min(titles.length - 1, i));
+    track.scrollTo({ left: n * track.clientWidth, behavior: reduced() ? 'auto' : 'smooth' });
+  };
+  const show = () => {
+    const i = at();
+    count.textContent = String(i + 1);
+    title.textContent = titles[i];
+    prev.disabled = i === 0;
+    next.disabled = i === titles.length - 1;
+  };
+  track.addEventListener('scroll', () => requestAnimationFrame(show), { passive: true });
+  prev.addEventListener('click', () => go(at() - 1));
+  next.addEventListener('click', () => go(at() + 1));
+  deck.addEventListener('keydown', (e) => {
+    if (e.target.closest('input, textarea')) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); go(at() + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(at() - 1); }
+    if (e.key === 'Home') { e.preventDefault(); go(0); }
+    if (e.key === 'End') { e.preventDefault(); go(titles.length - 1); }
+  });
+  // Full screen for presenting, where the browser allows it; the slide stays where it was.
+  if (deck.requestFullscreen) {
+    present.hidden = false;
+    present.addEventListener('click', () => (document.fullscreenElement ? document.exitFullscreen() : deck.requestFullscreen()));
+    document.addEventListener('fullscreenchange', () => {
+      const i = at();
+      present.textContent = document.fullscreenElement === deck ? 'Exit' : 'Present';
+      requestAnimationFrame(() => track.scrollTo({ left: i * track.clientWidth, behavior: 'auto' }));
+      if (document.fullscreenElement === deck) track.focus({ preventScroll: true });
+    });
+  }
+  // The strip's position in slides survives a resize.
+  let last = 0;
+  addEventListener('resize', () => track.scrollTo({ left: last * track.clientWidth, behavior: 'auto' }));
+  track.addEventListener('scroll', () => { last = at(); }, { passive: true });
+  show();
+</script>
+
+<style>
+  .deck {
+    --pad: clamp(1.25rem, 4cqi, 3.5rem);
+    margin: var(--s4) 0 var(--s7);
+    container-type: inline-size;
+  }
+
+  .deck-track {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    border: var(--hairline);
+    border-radius: var(--radius-lg);
+    background: var(--bg-raised);
+    box-shadow: var(--shadow);
+  }
+
+  .deck-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .deck-track:focus-visible {
+    outline-offset: 4px;
+  }
+
+  .slide {
+    position: relative;
+    flex: 0 0 100%;
+    display: grid;
+    align-content: center;
+    gap: clamp(1rem, 2.4cqi, 2rem);
+    min-height: min(36rem, 80vh);
+    aspect-ratio: 16 / 9;
+    padding: var(--pad);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    overflow: hidden;
+  }
+
+  .slide-title {
+    font-size: clamp(1.75rem, 1rem + 3.4cqi, 3.25rem);
+    line-height: var(--leading-tight);
+    letter-spacing: -0.02em;
+  }
+
+  /* 1: who */
+  .slide-intro {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--pad);
+  }
+
+  .deck-name {
+    font-size: clamp(2.4rem, 1rem + 6cqi, 5.25rem);
+    font-weight: 500;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  .deck-role {
+    margin-top: var(--s3);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(1.15rem, 0.8rem + 1.4cqi, 1.75rem);
+    color: var(--muted);
+  }
+
+  .deck-lede {
+    margin-top: var(--s5);
+    max-width: 46ch;
+    font-size: clamp(1rem, 0.85rem + 0.6cqi, 1.25rem);
+    color: var(--muted);
+  }
+
+  .intro-photo {
+    width: 100%;
+    height: 100%;
+    max-height: 30rem;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+  }
+
+  /* 2: now */
+  .deck-big {
+    max-width: 34ch;
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 0.9rem + 2cqi, 2.4rem);
+    line-height: var(--leading-snug);
+    letter-spacing: -0.01em;
+  }
+
+  /* 3: numbers */
+  .stats {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.25rem, 3cqi, 2.5rem) clamp(1.5rem, 4cqi, 3.5rem);
+  }
+
+  .stats li {
+    display: grid;
+    gap: var(--s2);
+    padding-top: var(--s3);
+    border-top: var(--hairline);
+  }
+
+  .stat-n {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 1rem + 5cqi, 4.5rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-l {
+    max-width: 30ch;
+    color: var(--muted);
+  }
+
+  /* 4: strengths */
+  .strengths {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(1rem, 2.5cqi, 2rem);
+  }
+
+  .strengths li {
+    display: grid;
+    align-content: start;
+    gap: var(--s2);
+    padding-top: var(--s3);
+    border-top: var(--hairline);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .strengths h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: clamp(1.15rem, 0.9rem + 0.9cqi, 1.5rem);
+    color: var(--fg);
+  }
+
+  .skill-dot {
+    width: 0.6em;
+    height: 0.6em;
+    border-radius: 2px;
+    background: var(--skill);
+  }
+
+  .strengths strong {
+    color: var(--fg);
+    font-weight: 600;
+  }
+
+  /* 5: experience */
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+  }
+
+  .timeline a {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--s4);
+    padding: clamp(0.5rem, 1.2cqi, 0.9rem) 0;
+    border-top: var(--hairline);
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .timeline li:last-child a {
+    border-bottom: var(--hairline);
+  }
+
+  .timeline a:hover .tl-name {
+    color: var(--accent-text);
+  }
+
+  .tl-when {
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  .tl-what {
+    display: grid;
+  }
+
+  .tl-name {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 0.85rem + 0.8cqi, 1.4rem);
+    font-weight: 500;
+    transition: color var(--fast) var(--ease);
+  }
+
+  .tl-title {
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .tl-logo {
+    width: auto;
+    height: 1.6rem;
+    max-width: 7rem;
+    object-fit: contain;
+  }
+
+  /* 6: work */
+  .work {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(1rem, 2.5cqi, 2rem);
+  }
+
+  .work li {
+    display: grid;
+    align-content: start;
+    gap: var(--s2);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .work h3 {
+    font-size: clamp(1.05rem, 0.85rem + 0.7cqi, 1.3rem);
+    color: var(--fg);
+  }
+
+  .work-logo {
+    width: auto;
+    height: 2.4rem;
+    max-width: 8rem;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .work-shot {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top;
+    border: var(--hairline);
+    border-radius: var(--radius);
+  }
+
+  /* 7: talk */
+  .talk-lines {
+    display: grid;
+    gap: var(--s2);
+    font-family: var(--font-display);
+    font-size: clamp(1.15rem, 0.85rem + 1.2cqi, 1.75rem);
+  }
+
+  .talk-lines a {
+    color: var(--fg);
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 0.2em;
+  }
+
+  .talk-lines a:hover {
+    text-decoration-color: var(--accent);
+  }
+
+  .talk-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s4) var(--s6);
+  }
+
+  /* The bar under the slides: back, where you are, forward, and Present. */
+  .deck-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    margin-top: var(--s3);
+  }
+
+  .deck-btn {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+    color: var(--fg);
+    font-size: 1.1rem;
+    transition: border-color var(--fast) var(--ease), color var(--fast) var(--ease);
+  }
+
+  .deck-btn:hover:not(:disabled) {
+    border-color: var(--fg);
+  }
+
+  .deck-btn:disabled {
+    color: var(--faint);
+    cursor: default;
+  }
+
+  .deck-count {
+    margin: 0;
+    min-width: 0;
+    font-size: var(--text-sm);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .deck-present {
+    margin-left: auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 0.2em;
+  }
+
+  .deck-present:hover {
+    color: var(--fg);
+  }
+
+  /* Presenting: the slides fill the screen, the bar stays underneath. */
+  .deck:fullscreen {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    margin: 0;
+    padding: var(--s5);
+    background: var(--bg);
+  }
+
+  .deck:fullscreen .deck-track {
+    border: 0;
+    box-shadow: none;
+  }
+
+  .deck:fullscreen .slide {
+    aspect-ratio: auto;
+    min-height: 0;
+    height: 100%;
+  }
+
+  /* Narrow: the slides grow to fit what they hold, and the grids fold. */
+  @container (max-width: 760px) {
+    .slide {
+      aspect-ratio: auto;
+      align-content: start;
+    }
+
+    .slide-intro {
+      grid-template-columns: 1fr;
+    }
+
+    .intro-photo {
+      max-height: 16rem;
+      order: -1;
+    }
+
+    .strengths,
+    .work {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stats {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .timeline a {
+      grid-template-columns: 5.5rem minmax(0, 1fr);
+    }
+
+    .tl-logo,
+    .wide-only,
+    .deck-present {
+      display: none;
+    }
+  }
+
+  @container (max-width: 480px) {
+    .strengths,
+    .work,
+    .stats {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media print {
+    .deck {
+      display: none;
+    }
+  }
+</style>

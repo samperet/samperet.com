@@ -251,3 +251,7 @@ export const boards = [
   { org: 'Zev Yoga', role: 'Board Member', years: '2009–2015' },
   { org: 'Harambe Entrepreneur Alliance', role: 'Board Member', years: '2008–2012' },
 ];
+
+export const awards: { title: string; org: string; year: string; text: string; logo?: Logo }[] = [
+  { title: 'Innovation Award', org: 'BDO USA', year: '2020', text: 'Recognition for innovation in technology and business solutions.', logo: LOGOS.bdo },
+];
