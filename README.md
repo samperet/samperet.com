@@ -40,8 +40,9 @@ all of it; keep it current when a token or component changes.
 Every section in `src/pages/index.astro` is a tile (`<details>`, `src/components/Section.astro`):
 a picture from `tile.src` (or a palette colour, `tile.color`) with only its title on it, as large as
 the card allows: the homepage script fits each title to its card's width and the lower three
-fifths of its height (`kind` and `line` stay in the data but aren't shown). CommunityOS and the
-Percentage Allocator are smaller cards under a Projects heading after the main grid.
+fifths of its height (`kind` and `line` stay in the data but aren't shown). HAUTomation (linking to
+hautomation.samperet.com), CommunityOS and the Percentage Allocator are smaller cards under a
+Projects heading after the main grid.
 Clicking it, or a link to its id (e.g. `/#travel-and-adventure`; old ids such as `/#travel` still work), opens it on its own: the other tiles step
 out and its text, links, photos and embeds follow below. While a card is open the header
 shrinks and a "← Home" button under Career dismisses it; the cross or Escape does too. Each lists its `topics`; choosing Personal, Family or Adventure
