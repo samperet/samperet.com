@@ -4,8 +4,9 @@ HAUTomation, Sam's home-automation practice: a one-page landing site looking for
 custom, creative projects (technology built into furniture, one-off pieces, creative custom work)
 who want a partner to make them work. It names the tools Sam uses, Jellyfin and Stremio, and makes
 one claim about him: he has been automating home systems since 2000 (the years are counted by the
-page's one script). Keep it general about how he works and what he does. The call to action is an
-email to sam@peret.net.
+page's one script). Keep it general about how he works and what he does. The call to action is a
+half-hour call booked through Sam's Calendly (embedded in the closing section; the hero and header
+buttons jump to it), with email to sam@peret.net as the alternative.
 
 The brand is Swedish modern: Familjen Grotesk (by Familjen STHLM, SIL Open Font License, in
 `fonts/`) on warm paper (`#f4f2ee`), birch panels (`#ebe7e0`) and ink (`#161616`), with one hero

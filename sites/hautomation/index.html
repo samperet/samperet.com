@@ -17,8 +17,9 @@
   hautomation.samperet.com: a one-page landing site for HAUTomation, Sam's home-automation
   practice, looking for people doing custom, creative projects (technology built into furniture,
   one-off pieces) who want a partner to make them work. Its own Vercel project, deployed from
-  sites/hautomation/ in the samperet.com repository. Static: no build, no tracking. The one script
-  counts the years since 2000.
+  sites/hautomation/ in the samperet.com repository. Static: no build, no tracking of its own. The
+  one script counts the years since 2000; the closing call embeds Sam's Calendly booking page
+  (Calendly's own script and frame), with email as the alternative.
 
   Keep it general about how Sam works and what he does: the one claim is that he has been
   automating home systems since 2000. The tools he names are Jellyfin and Stremio.
@@ -131,7 +132,12 @@
   /* ---- Closing call, in rouge again ---- */
   .closing { background: var(--rouge); color: var(--on-rouge); }
   .closing :focus-visible { outline-color: var(--on-rouge); }
-  .closing-inner { display: grid; gap: 1.25rem; justify-items: start; padding: clamp(3.5rem, 8vw, 6rem) 0; }
+  .closing-inner { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 4rem); align-items: start; padding: clamp(3.5rem, 8vw, 6rem) 0; }
+  .closing-text { display: grid; gap: 1.25rem; justify-items: start; }
+  .closing-email a { color: var(--on-rouge); font-weight: 600; }
+  /* The booking calendar (Calendly) sits on a paper panel, so its white page belongs to the design. */
+  .calendar { border-radius: var(--radius-lg); background: #fff; overflow: hidden; box-shadow: 0 34px 60px -24px rgb(60 0 14 / 0.6); }
+  .calendar noscript p { padding: 2rem; color: var(--ink); }
   .closing .label { color: var(--on-rouge-muted); }
   .closing h2 { font-size: clamp(2.4rem, 1.4rem + 4vw, 4.75rem); font-weight: 700; letter-spacing: -0.035em; line-height: 0.98; max-width: 14ch; }
   .closing p { max-width: 46ch; font-size: 1.1875rem; color: var(--on-rouge-muted); }
@@ -142,7 +148,7 @@
   footer .fine { font-size: 0.8125rem; }
 
   @media (max-width: 900px) {
-    .hero-inner { grid-template-columns: 1fr; }
+    .hero-inner, .closing-inner { grid-template-columns: 1fr; }
     .band-head { grid-template-columns: 1fr; }
     .band-head .label { padding-top: 0; }
     .band-body { margin-left: 0; }
@@ -166,7 +172,7 @@
     <nav aria-label="Sections">
       <a href="#who">Who it’s for</a>
       <a href="#tools">Tools</a>
-      <a class="btn btn-sm" href="#talk">Get in touch</a>
+      <a class="btn btn-sm" href="#talk">Book a call</a>
     </nav>
   </header>
 
@@ -178,7 +184,7 @@
           <h1 id="hero-title">Your idea, wired in.</h1>
           <p class="lede">A technical partner for people making something of their own: furniture with technology inside, rooms that respond, one-off pieces that have to just work.</p>
           <div class="cta-row">
-            <a class="btn btn-paper" href="mailto:sam@peret.net?subject=HAUTomation%3A%20a%20project">Tell me about your project <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn btn-paper" href="#talk">Book a call <span class="arrow" aria-hidden="true">↓</span></a>
           </div>
         </div>
 
@@ -255,10 +261,19 @@
 
     <section class="closing" id="talk" aria-labelledby="talk-title">
       <div class="closing-inner wrap">
-        <span class="label">Hej!</span>
-        <h2 id="talk-title">Working on something?</h2>
-        <p>Tell me what you’re making and where the technology comes in. If it sounds like a fit, we’ll find a time to talk.</p>
-        <a class="btn btn-paper" href="mailto:sam@peret.net?subject=HAUTomation%3A%20a%20project">Tell me about your project <span class="arrow" aria-hidden="true">→</span></a>
+        <div class="closing-text">
+          <span class="label">Hej!</span>
+          <h2 id="talk-title">Working on something?</h2>
+          <p>Pick a time for a half-hour call and tell me what you’re making and where the technology comes in.</p>
+          <p class="closing-email">Rather write? <a href="mailto:sam@peret.net?subject=HAUTomation%3A%20a%20project">sam@peret.net</a></p>
+        </div>
+        <!-- Calendly inline widget begin -->
+        <div class="calendar">
+          <div class="calendly-inline-widget" data-url="https://calendly.com/samperet2/30min?hide_event_type_details=1&hide_gdpr_banner=1&primary_color=be2a44" style="min-width:320px;height:700px;"></div>
+          <noscript><p><a href="https://calendly.com/samperet2/30min">Book a time on Calendly</a></p></noscript>
+        </div>
+        <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+        <!-- Calendly inline widget end -->
       </div>
     </section>
   </main>
