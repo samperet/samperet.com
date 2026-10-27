@@ -26,6 +26,15 @@ export const BOOKS: Book[] = [
     tags: ['yoga'],
   },
   {
+    title: 'Hatha Yoga Pradipika',
+    author: 'Svatmarama, translated by Brian Dana Akers',
+    cover: '/reading/hatha-yoga-pradipika.webp',
+    href: 'https://openlibrary.org/isbn/9780971646612',
+    width: 332,
+    height: 500,
+    tags: ['yoga'],
+  },
+  {
     title: 'Death: An Inside Story',
     author: 'Sadhguru',
     cover: '/reading/death-an-inside-story.webp',
@@ -42,6 +51,24 @@ export const BOOKS: Book[] = [
     width: 317,
     height: 475,
     tags: ['spirituality'],
+  },
+  {
+    title: 'The E-Myth Revisited',
+    author: 'Michael E. Gerber',
+    cover: '/reading/the-e-myth-revisited.webp',
+    href: 'https://openlibrary.org/isbn/9780887307287',
+    width: 313,
+    height: 500,
+    tags: ['career', 'leadership'],
+  },
+  {
+    title: 'The Go-Giver',
+    author: 'Bob Burg & John David Mann',
+    cover: '/reading/the-go-giver.webp',
+    href: 'https://openlibrary.org/isbn/9781591842002',
+    width: 177,
+    height: 280,
+    tags: ['career', 'leadership'],
   },
 ];
 
