@@ -1,9 +1,10 @@
 ---
-// The executive overview at the top of /career/: seven slides drawn from the CV's own data
-// (src/data/career.ts), so they say nothing the page below doesn't. The visitor moves through
-// them (arrows, the keyboard, a swipe; it is a scroll-snapped strip, so it swipes without
-// script too) and nothing advances on its own. "Present" shows it full screen for a meeting.
-// Hidden in print, where the CV itself is the document.
+// The executive overview on /career/: seven slides drawn from the CV's own data
+// (src/data/career.ts), so they say nothing the page below doesn't. On the page it is a small
+// cover beside the portrait; a click opens the slides in a dialog nine-tenths of the screen.
+// The visitor moves through them (arrows, the keyboard, a swipe; it is a scroll-snapped strip)
+// and nothing advances on its own. "Present" shows it full screen for a meeting. Close, Escape
+// or a click outside puts it away. Hidden in print, where the CV itself is the document.
 import { SKILLS, awards, competencies, contact, initiatives, roles, summary } from '../data/career';
 
 const role = (id: string) => roles.find((r) => r.id === id)!;
@@ -37,113 +38,133 @@ const exampleNote = example?.note.replace(/^An example of this work: (\w)/, (_, 
 const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experience', 'Selected work', 'Let’s talk'];
 ---
 
-<section class="deck" aria-roledescription="carousel" aria-label="Executive overview" data-deck data-titles={JSON.stringify(slides)}>
-  <div class="deck-track" tabindex="0" aria-label="Slides: use the arrow keys to move" data-deck-track>
-    <article class="slide slide-intro" aria-roledescription="slide" aria-label={`1 of ${slides.length}: ${slides[0]}`}>
-      <div class="intro-text">
-        <h2 class="deck-name">Samuel Peret</h2>
-        <p class="deck-role">Technology <span class="amp">&amp;</span> operations leader</p>
-        <p class="deck-lede">{lead} <span class="wide-only">{rest.join(' ')}</span></p>
-      </div>
-      {alps.photos?.[0] && (
-        <img class="intro-photo" src={alps.photos[0].thumb ?? alps.photos[0].src} alt={alps.photos[0].alt} width={alps.photos[0].width} height={alps.photos[0].height} loading="eager" decoding="async" />
-      )}
-    </article>
+<button type="button" class="deck-cover" aria-haspopup="dialog" data-deck-open data-track="career:deck:open">
+  <span class="cover-slide" aria-hidden="true">
+    <span class="cover-text">
+      <span class="cover-name">Samuel Peret</span>
+      <span class="cover-role">Technology <span class="amp">&amp;</span> operations leader</span>
+    </span>
+    {alps.photos?.[0] && <img class="cover-photo" src={alps.photos[0].thumb ?? alps.photos[0].src} alt="" width={alps.photos[0].width} height={alps.photos[0].height} decoding="async" />}
+    <svg class="cover-expand" viewBox="0 0 16 16" width="16" height="16" focusable="false"><path d="M9.5 2.5h4v4M13.5 2.5 9 7M6.5 13.5h-4v-4M2.5 13.5 7 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </span>
+  <span class="cover-caption">Executive overview <span class="cover-count">· {slides.length} slides</span></span>
+</button>
 
-    <article class="slide" aria-roledescription="slide" aria-label={`2 of ${slides.length}: ${slides[1]}`}>
-      <h2 class="slide-title">Now</h2>
-      <p class="deck-big">{summary[2]}</p>
-    </article>
-
-    <article class="slide" aria-roledescription="slide" aria-label={`3 of ${slides.length}: ${slides[2]}`}>
-      <h2 class="slide-title">In numbers</h2>
-      <ul class="stats">
-        {stats.map((s) => (
-          <li>
-            <span class="stat-n">{s.value}</span>
-            <span class="stat-l">{s.label}</span>
-          </li>
-        ))}
-      </ul>
-    </article>
-
-    <article class="slide" aria-roledescription="slide" aria-label={`4 of ${slides.length}: ${slides[3]}`}>
-      <h2 class="slide-title">Four strengths</h2>
-      <ul class="strengths">
-        {strengths.map((s) => (
-          <li style={`--skill: var(--skill-${s.key})`}>
-            <h3><span class="skill-dot" aria-hidden="true"></span>{s.label}</h3>
-            {s.items.map((c) => (
-              <p><strong>{c.name}.</strong> <span class="wide-only">{c.items}</span></p>
-            ))}
-          </li>
-        ))}
-      </ul>
-    </article>
-
-    <article class="slide" aria-roledescription="slide" aria-label={`5 of ${slides.length}: ${slides[4]}`}>
-      <h2 class="slide-title">Experience</h2>
-      <ol class="timeline">
-        {roles.map((r) => (
-          <li>
-            <a href={`#${r.id}`} data-track={`career:deck:role:${r.id}`}>
-              <span class="tl-when">{yearsOf(r.dates)}</span>
-              <span class="tl-what">
-                <span class="tl-name">{r.full ?? r.name}</span>
-                <span class="tl-title">{r.title}</span>
-              </span>
-              {r.logo && <img class="tl-logo" src={r.logo.src} width={r.logo.width} height={r.logo.height} alt="" loading="lazy" decoding="async" />}
-            </a>
-          </li>
-        ))}
-      </ol>
-    </article>
-
-    <article class="slide" aria-roledescription="slide" aria-label={`6 of ${slides.length}: ${slides[5]}`}>
-      <h2 class="slide-title">Selected work</h2>
-      <ul class="work">
-        {work.map((w) => (
-          <li>
-            {w.logo && <img class="work-logo" src={w.logo.src} width={w.logo.width} height={w.logo.height} alt={w.alt} loading="lazy" decoding="async" />}
-            <h3>{w.title}</h3>
-            <p>{w.note}</p>
-          </li>
-        ))}
-        {example && (
-          <li>
-            <img class="work-shot wide-only" src={example.src} alt={example.alt} loading="lazy" decoding="async" />
-            <h3>{example.name}</h3>
-            <p>{exampleNote}</p>
-          </li>
+<dialog class="deck-dialog" aria-label="Executive overview" data-deck-dialog>
+  <section class="deck" aria-roledescription="carousel" aria-label="Executive overview" data-deck data-titles={JSON.stringify(slides)}>
+    <div class="deck-track" tabindex="0" aria-label="Slides: use the arrow keys to move" data-deck-track>
+      <article class="slide slide-intro" aria-roledescription="slide" aria-label={`1 of ${slides.length}: ${slides[0]}`}>
+        <div class="intro-text">
+          <h2 class="deck-name">Samuel Peret</h2>
+          <p class="deck-role">Technology <span class="amp">&amp;</span> operations leader</p>
+          <p class="deck-lede">{lead} <span class="wide-only">{rest.join(' ')}</span></p>
+        </div>
+        {alps.photos?.[0] && (
+          <img class="intro-photo" src={alps.photos[0].thumb ?? alps.photos[0].src} alt={alps.photos[0].alt} width={alps.photos[0].width} height={alps.photos[0].height} loading="eager" decoding="async" />
         )}
-      </ul>
-    </article>
+      </article>
 
-    <article class="slide slide-talk" aria-roledescription="slide" aria-label={`7 of ${slides.length}: ${slides[6]}`}>
-      <h2 class="slide-title deck-name">Let’s talk.</h2>
-      <p class="talk-lines">
-        <a href={`mailto:${contact.email}`}>{contact.email}</a>
-        <a href={`tel:+1${contact.phone.replace(/\D/g, '')}`}>{contact.phone}</a>
-        <a href={contact.linkedin} rel="me">linkedin.com/in/samperet</a>
-      </p>
-      <p class="talk-actions">
-        <button type="button" class="btn btn-accent" data-deck-message data-track="career:deck:message">Send me a message</button>
-        <a class="arrow-link" href="#summary" data-track="career:deck:cv">The full CV <span class="arrow" aria-hidden="true">↓</span></a>
-      </p>
-    </article>
-  </div>
+      <article class="slide" aria-roledescription="slide" aria-label={`2 of ${slides.length}: ${slides[1]}`}>
+        <h2 class="slide-title">Now</h2>
+        <p class="deck-big">{summary[2]}</p>
+      </article>
 
-  <div class="deck-bar">
-    <button type="button" class="deck-btn" data-deck-prev aria-label="Previous slide">←</button>
-    <p class="deck-count" aria-live="polite"><span data-deck-n>1</span> of {slides.length} · <span data-deck-title>{slides[0]}</span></p>
-    <button type="button" class="deck-btn" data-deck-next aria-label="Next slide">→</button>
-    <button type="button" class="deck-present" data-deck-present data-track="career:deck:present" hidden>Present</button>
-  </div>
-</section>
+      <article class="slide" aria-roledescription="slide" aria-label={`3 of ${slides.length}: ${slides[2]}`}>
+        <h2 class="slide-title">In numbers</h2>
+        <ul class="stats">
+          {stats.map((s) => (
+            <li>
+              <span class="stat-n">{s.value}</span>
+              <span class="stat-l">{s.label}</span>
+            </li>
+          ))}
+        </ul>
+      </article>
+
+      <article class="slide" aria-roledescription="slide" aria-label={`4 of ${slides.length}: ${slides[3]}`}>
+        <h2 class="slide-title">Four strengths</h2>
+        <ul class="strengths">
+          {strengths.map((s) => (
+            <li style={`--skill: var(--skill-${s.key})`}>
+              <h3><span class="skill-dot" aria-hidden="true"></span>{s.label}</h3>
+              {s.items.map((c) => (
+                <p><strong>{c.name}.</strong> <span class="wide-only">{c.items}</span></p>
+              ))}
+            </li>
+          ))}
+        </ul>
+      </article>
+
+      <article class="slide" aria-roledescription="slide" aria-label={`5 of ${slides.length}: ${slides[4]}`}>
+        <h2 class="slide-title">Experience</h2>
+        <ol class="timeline">
+          {roles.map((r) => (
+            <li>
+              <a href={`#${r.id}`} data-track={`career:deck:role:${r.id}`}>
+                <span class="tl-when">{yearsOf(r.dates)}</span>
+                <span class="tl-what">
+                  <span class="tl-name">{r.full ?? r.name}</span>
+                  <span class="tl-title">{r.title}</span>
+                </span>
+                {r.logo && <img class="tl-logo" src={r.logo.src} width={r.logo.width} height={r.logo.height} alt="" loading="lazy" decoding="async" />}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </article>
+
+      <article class="slide" aria-roledescription="slide" aria-label={`6 of ${slides.length}: ${slides[5]}`}>
+        <h2 class="slide-title">Selected work</h2>
+        <ul class="work">
+          {work.map((w) => (
+            <li>
+              {w.logo && <img class="work-logo" src={w.logo.src} width={w.logo.width} height={w.logo.height} alt={w.alt} loading="lazy" decoding="async" />}
+              <h3>{w.title}</h3>
+              <p>{w.note}</p>
+            </li>
+          ))}
+          {example && (
+            <li>
+              <img class="work-shot wide-only" src={example.src} alt={example.alt} loading="lazy" decoding="async" />
+              <h3>{example.name}</h3>
+              <p>{exampleNote}</p>
+            </li>
+          )}
+        </ul>
+      </article>
+
+      <article class="slide slide-talk" aria-roledescription="slide" aria-label={`7 of ${slides.length}: ${slides[6]}`}>
+        <h2 class="slide-title deck-name">Let’s talk.</h2>
+        <p class="talk-lines">
+          <a href={`mailto:${contact.email}`}>{contact.email}</a>
+          <a href={`tel:+1${contact.phone.replace(/\D/g, '')}`}>{contact.phone}</a>
+          <a href={contact.linkedin} rel="me">linkedin.com/in/samperet</a>
+        </p>
+        <p class="talk-actions">
+          <button type="button" class="btn btn-accent" data-deck-message data-track="career:deck:message">Send me a message</button>
+          <a class="arrow-link" href="#summary" data-track="career:deck:cv">The full CV <span class="arrow" aria-hidden="true">↓</span></a>
+        </p>
+      </article>
+    </div>
+
+    <div class="deck-bar">
+      <button type="button" class="deck-btn" data-deck-prev aria-label="Previous slide">←</button>
+      <p class="deck-count" aria-live="polite"><span data-deck-n>1</span> of {slides.length} · <span data-deck-title>{slides[0]}</span></p>
+      <button type="button" class="deck-btn" data-deck-next aria-label="Next slide">→</button>
+      <span class="deck-end">
+        <button type="button" class="deck-present" data-deck-present data-track="career:deck:present" hidden>Present</button>
+        <button type="button" class="deck-btn" data-deck-close aria-label="Close the overview">×</button>
+      </span>
+    </div>
+  </section>
+</dialog>
 
 <script>
-  // Arrows, the keyboard and the counter; the strip itself scrolls and snaps on its own.
-  const deck = document.querySelector<HTMLElement>('[data-deck]')!;
+  // The cover opens the dialog; arrows, the keyboard and the counter move the strip inside it,
+  // which scrolls and snaps on its own.
+  const dialog = document.querySelector<HTMLDialogElement>('[data-deck-dialog]')!;
+  const cover = document.querySelector<HTMLButtonElement>('[data-deck-open]')!;
+  const deck = dialog.querySelector<HTMLElement>('[data-deck]')!;
   const titles: string[] = JSON.parse(deck.dataset.titles!);
   const track = deck.querySelector<HTMLElement>('[data-deck-track]')!;
   const count = deck.querySelector<HTMLElement>('[data-deck-n]')!;
@@ -152,7 +173,8 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
   const next = deck.querySelector<HTMLButtonElement>('[data-deck-next]')!;
   const present = deck.querySelector<HTMLButtonElement>('[data-deck-present]')!;
   const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const at = () => Math.round(track.scrollLeft / track.clientWidth);
+  // While the dialog is shut the strip has no width, and every position is the first slide.
+  const at = () => (track.clientWidth ? Math.round(track.scrollLeft / track.clientWidth) : 0);
   const go = (i: number) => {
     const n = Math.max(0, Math.min(titles.length - 1, i));
     track.scrollTo({ left: n * track.clientWidth, behavior: reduced() ? 'auto' : 'smooth' });
@@ -174,6 +196,29 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
     if (e.key === 'Home') { e.preventDefault(); go(0); }
     if (e.key === 'End') { e.preventDefault(); go(titles.length - 1); }
   });
+
+  // Each opening starts at the first slide, with the strip focused so the arrow keys work.
+  cover.addEventListener('click', () => {
+    dialog.showModal();
+    track.scrollTo({ left: 0, behavior: 'auto' });
+    show();
+    track.focus({ preventScroll: true });
+  });
+  const close = () => {
+    if (document.fullscreenElement === deck) document.exitFullscreen();
+    dialog.close();
+  };
+  deck.querySelector('[data-deck-close]')!.addEventListener('click', close);
+  // A click on the backdrop lands on the dialog itself, which the deck otherwise fills. Links to
+  // the CV below and "Send me a message" put the slides away first (in the capture phase, so the
+  // page's own handlers find it closed and Merlin isn't left behind the dialog).
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) close();
+  });
+  dialog.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a[href^="#"], [data-deck-message]')) close();
+  }, true);
+
   // Full screen for presenting, where the browser allows it; the slide stays where it was.
   if (deck.requestFullscreen) {
     present.hidden = false;
@@ -193,22 +238,178 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
 </script>
 
 <style>
+  /* The cover: the first slide in miniature, under the header beside the portrait. */
+  .deck-cover {
+    display: grid;
+    gap: var(--s2);
+    width: min(100%, 22rem);
+    margin-top: var(--s6);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--fg);
+    text-align: left;
+    cursor: zoom-in;
+    container-type: inline-size;
+  }
+
+  .cover-slide {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: center;
+    gap: 5cqi;
+    aspect-ratio: 16 / 9;
+    padding: 6cqi;
+    border: var(--hairline);
+    border-radius: var(--radius-lg);
+    background: var(--bg-raised);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease), border-color var(--fast) var(--ease);
+  }
+
+  .deck-cover:hover .cover-slide,
+  .deck-cover:focus-visible .cover-slide {
+    transform: translateY(-2px);
+    border-color: var(--rule-strong);
+    box-shadow: 0 16px 40px rgb(35 37 39 / 0.16), 0 1px 2px rgb(35 37 39 / 0.08);
+  }
+
+  .cover-text {
+    display: grid;
+    gap: 2.5cqi;
+  }
+
+  .cover-name {
+    font-family: var(--font-display);
+    font-size: 7.5cqi;
+    font-weight: 500;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  .cover-role {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 3.8cqi;
+    line-height: 1.25;
+    color: var(--muted);
+  }
+
+  .cover-photo {
+    align-self: stretch;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: cover;
+    border-radius: var(--radius);
+  }
+
+  .cover-expand {
+    position: absolute;
+    top: 3.5cqi;
+    right: 3.5cqi;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0.35rem;
+    border-radius: var(--radius);
+    background: rgb(255 255 255 / 0.92);
+    color: var(--fg);
+    box-shadow: 0 1px 3px rgb(35 37 39 / 0.18);
+  }
+
+  .cover-caption {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    transition: color var(--fast) var(--ease);
+  }
+
+  .cover-count {
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  .deck-cover:hover .cover-caption {
+    color: var(--accent-text);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .deck-cover:hover .cover-slide,
+    .deck-cover:focus-visible .cover-slide {
+      transform: none;
+    }
+  }
+
+  /* Opened: nine-tenths of the screen, the page dimmed behind it and held still. */
+  .deck-dialog {
+    width: 90vw;
+    height: 90vh;
+    height: 90dvh;
+    max-width: none;
+    max-height: none;
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-lg);
+    background: var(--bg-raised);
+    color: var(--fg);
+    box-shadow: 0 30px 80px rgb(20 21 22 / 0.35);
+    overflow: hidden;
+  }
+
+  .deck-dialog::backdrop {
+    background: rgb(20 21 22 / 0.6);
+  }
+
+  .deck-dialog[open] {
+    animation: deck-open var(--slow) var(--ease);
+  }
+
+  .deck-dialog[open]::backdrop {
+    animation: deck-fade var(--slow) var(--ease);
+  }
+
+  @keyframes deck-open {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  @keyframes deck-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .deck-dialog[open],
+    .deck-dialog[open]::backdrop {
+      animation: none;
+    }
+  }
+
+  :global(html:has(.deck-dialog[open])) {
+    overflow: hidden;
+  }
+
   .deck {
     --pad: clamp(1.25rem, 4cqi, 3.5rem);
-    margin: var(--s4) 0 var(--s7);
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    height: 100%;
     container-type: inline-size;
   }
 
   .deck-track {
     display: flex;
+    min-height: 0;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
-    border: var(--hairline);
-    border-radius: var(--radius-lg);
-    background: var(--bg-raised);
-    box-shadow: var(--shadow);
   }
 
   .deck-track::-webkit-scrollbar {
@@ -216,7 +417,7 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
   }
 
   .deck-track:focus-visible {
-    outline-offset: 4px;
+    outline-offset: -4px;
   }
 
   .slide {
@@ -224,13 +425,13 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
     flex: 0 0 100%;
     display: grid;
     align-content: center;
+    align-content: safe center;
     gap: clamp(1rem, 2.4cqi, 2rem);
-    min-height: min(36rem, 80vh);
-    aspect-ratio: 16 / 9;
     padding: var(--pad);
     scroll-snap-align: start;
     scroll-snap-stop: always;
-    overflow: hidden;
+    overflow: hidden auto;
+    scrollbar-width: thin;
   }
 
   .slide-title {
@@ -479,12 +680,20 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
     gap: var(--s4) var(--s6);
   }
 
-  /* The bar under the slides: back, where you are, forward, and Present. */
+  /* The bar under the slides: back, where you are, forward; Present and Close at the end. */
   .deck-bar {
     display: flex;
     align-items: center;
     gap: var(--s3);
-    margin-top: var(--s3);
+    padding: var(--s3) var(--s4);
+    border-top: var(--hairline);
+  }
+
+  .deck-end {
+    display: flex;
+    align-items: center;
+    gap: var(--s4);
+    margin-left: auto;
   }
 
   .deck-btn {
@@ -518,7 +727,6 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
   }
 
   .deck-present {
-    margin-left: auto;
     padding: 0;
     border: 0;
     background: none;
@@ -535,28 +743,12 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
 
   /* Presenting: the slides fill the screen, the bar stays underneath. */
   .deck:fullscreen {
-    display: grid;
-    grid-template-rows: 1fr auto;
-    margin: 0;
-    padding: var(--s5);
-    background: var(--bg);
-  }
-
-  .deck:fullscreen .deck-track {
-    border: 0;
-    box-shadow: none;
-  }
-
-  .deck:fullscreen .slide {
-    aspect-ratio: auto;
-    min-height: 0;
-    height: 100%;
+    background: var(--bg-raised);
   }
 
   /* Narrow: the slides grow to fit what they hold, and the grids fold. */
   @container (max-width: 760px) {
     .slide {
-      aspect-ratio: auto;
       align-content: start;
     }
 
@@ -598,7 +790,8 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
   }
 
   @media print {
-    .deck {
+    .deck-cover,
+    .deck-dialog {
       display: none;
     }
   }

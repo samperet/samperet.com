@@ -31,12 +31,9 @@ const description =
 ---
 
 <Base title="Career · Samuel Peret" description={description} path="/career/" ogType="profile" interests={['career', 'leadership']}>
-  <div class="wrap deck-wrap">
-    <a class="arrow-link home-btn" href="/" data-track="nav:home"><span class="arrow" aria-hidden="true">←</span> Home</a>
-    <CareerDeck />
-  </div>
   <div class="wrap page">
     <aside class="side">
+      <a class="arrow-link home-btn" href="/" data-track="nav:home"><span class="arrow" aria-hidden="true">←</span> Home</a>
       <img
         class="portrait"
         src="/photos/sam-peret-full-1000.webp"
@@ -71,6 +68,7 @@ const description =
         <div class="actions">
           <button type="button" class="btn btn-primary" data-contact data-track="career:message">Send me a message</button>
         </div>
+        <CareerDeck />
       </header>
 
       <section id="summary" class="block" data-spy>
@@ -372,17 +370,6 @@ const description =
     padding-bottom: var(--s4);
   }
 
-
-  /* The executive overview, with Home above it, opens the page. */
-  .deck-wrap {
-    padding-top: var(--s6);
-  }
-
-  @media print {
-    .deck-wrap {
-      display: none;
-    }
-  }
 
   .portrait {
     width: 100%;
