@@ -16,7 +16,8 @@ his own words (owner, 2026-10-27), beside screenshots of the panel on the Stream
 The tools sit in a dark "Get your movie night under control." band with a wall of film posters
 tilted back for depth, each row drifting (still under reduced motion, paused on hover). The
 posters, in `posters/`, are from films of 1914 to 1928, all in the public domain, from the
-Internet Archive; the footer says so. No eyebrow labels anywhere on the page.
+Internet Archive. No eyebrow labels anywhere on the page, and the footer is one line, "Designed
+by: samperet.com" (owner, 2026-10-27).
 
 The brand is Swedish modern: Familjen Grotesk (by Familjen STHLM, SIL Open Font License, in
 `fonts/`) on warm paper (`#f4f2ee`), birch panels (`#ebe7e0`) and ink (`#161616`), with one hero

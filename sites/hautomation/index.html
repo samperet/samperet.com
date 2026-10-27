@@ -159,10 +159,8 @@
   .shot img { width: 100%; height: auto; border-radius: var(--radius-lg); }
   .shot figcaption { font-size: 0.9375rem; color: var(--ink-muted); }
   .shots { list-style: none; padding: 0; margin: clamp(2.5rem, 5vw, 3.5rem) 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
+  /* The footer is one line: who designed it. */
   footer { padding: 2rem 0 3rem; font-size: 0.875rem; color: var(--ink-muted); }
-  footer .wrap { display: grid; gap: 0.75rem; }
-  footer .row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1.5rem; }
-  footer .fine { font-size: 0.8125rem; }
 
   @media (max-width: 900px) {
     .hero-inner, .closing-inner, .sd { grid-template-columns: 1fr; }
@@ -319,11 +317,7 @@
 
   <footer>
     <div class="wrap">
-      <div class="row">
-        <span>HAUTomation is Sam Peret’s home automation practice · <a href="mailto:sam@peret.net">sam@peret.net</a></span>
-        <a href="https://samperet.com">samperet.com</a>
-      </div>
-      <p class="fine">Jellyfin, Stremio, Stream Deck and Home Assistant are trademarks of their owners. HAUTomation is independent and not affiliated with them. The posters are from films of 1914 to 1928, in the public domain, via the Internet Archive.</p>
+      <p>Designed by: <a href="https://samperet.com">samperet.com</a></p>
     </div>
   </footer>
 
