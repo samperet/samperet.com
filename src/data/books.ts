@@ -53,6 +53,25 @@ export const BOOKS: Book[] = [
     tags: ['spirituality'],
   },
   {
+    title: 'The Kin of Ata Are Waiting for You',
+    author: 'Dorothy Bryant',
+    cover: '/reading/the-kin-of-ata.webp',
+    href: 'https://openlibrary.org/isbn/9780394732923',
+    width: 322,
+    height: 500,
+    tags: ['spirituality'],
+  },
+  {
+    // The series of nine; the cover is book one, Anastasia.
+    title: 'The Ringing Cedars Series',
+    author: 'Vladimir Megré',
+    cover: '/reading/the-ringing-cedars.webp',
+    href: 'https://openlibrary.org/isbn/9780980181203',
+    width: 320,
+    height: 500,
+    tags: ['spirituality'],
+  },
+  {
     title: 'The E-Myth Revisited',
     author: 'Michael E. Gerber',
     cover: '/reading/the-e-myth-revisited.webp',
