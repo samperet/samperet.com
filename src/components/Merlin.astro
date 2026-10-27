@@ -435,6 +435,15 @@ const places = JSON.stringify(PLACES).replace(/</g, '\\u003c');
       if (result.go) takeTo(result.go, p);
     } catch (err) {
       pending.remove();
+      // A copy of the site anywhere but samperet.com (the review copy, a saved page) can't reach
+      // his crystal ball: he says so, and points to the real site.
+      if (!/(^|\.)samperet\.com$|\.vercel\.app$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) {
+        const p = answerLine('I can only answer questions on samperet.com itself.');
+        answerButton(p, 'Ask me there <span aria-hidden="true">↗</span>', { track: 'merlin:ask:offsite' }, 'https://samperet.com/');
+        asking = false;
+        if (send) send.disabled = false;
+        return;
+      }
       const p = answerLine(err instanceof Error && err.message !== 'Failed to fetch' ? err.message : 'My magic fizzled. Try again, or send Sam a message through me.');
       // Still somewhere to go: the closest place by name, if there is one.
       const near = quickPlace(question.split(/\s+/).slice(-3).join(' '));

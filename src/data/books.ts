@@ -4,7 +4,8 @@
 //
 // Interests in use: yoga, sufism, spirituality, heartwise, circles (the Spirituality card's
 // parts), travel, adventure, stories, family (homepage cards), men (/mens-group/), career,
-// leadership (/career/). Tag a book with any of them and it appears there.
+// leadership (/career/). Tag a book with any of them and it appears there; fiction is shelved only
+// with all the books.
 export type Book = {
   title: string;
   author: string;
@@ -70,6 +71,15 @@ export const BOOKS: Book[] = [
     width: 320,
     height: 500,
     tags: ['spirituality'],
+  },
+  {
+    title: 'The Name of the Wind',
+    author: 'Patrick Rothfuss',
+    cover: '/reading/the-name-of-the-wind.webp',
+    href: 'https://openlibrary.org/isbn/9780756404741',
+    width: 301,
+    height: 500,
+    tags: ['fiction'],
   },
   {
     title: 'The E-Myth Revisited',
