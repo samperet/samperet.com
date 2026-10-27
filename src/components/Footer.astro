@@ -1,0 +1,88 @@
+---
+// The foot of every public page: a shelf of the books tagged with the page's interests (when
+// any are), then the site's links and the copyright. Recommended Books and Photos are cards on
+// the homepage, which passes them in (and is wider); on every other page they are links to
+// those cards, and the footer keeps to the page's usual width.
+import Shelf from './Shelf.astro';
+
+type Props = { path: string; interests?: string[]; cards?: boolean };
+
+const { path, interests, cards = false } = Astro.props;
+const links = [
+  { label: 'Home', href: '/' },
+  { label: 'Career', href: '/career/' },
+  { label: 'Men’s work', href: '/mens-group/' },
+  ...(cards
+    ? []
+    : [
+        { label: 'Recommended books', href: '/#recommended-books' },
+        { label: 'Photos', href: '/#photos' },
+      ]),
+].filter((l) => l.href !== path);
+---
+
+<footer class="site-footer">
+  <div class:list={[cards ? 'wrap-wide' : 'wrap', 'footer-inner']}>
+    {interests && <Shelf interests={interests} level="h2" />}
+    <slot />
+    <div class="footer-base">
+      <nav class="footer-links" aria-label="Site">
+        {links.map((l) => (
+          <a href={l.href} data-track={`footer:${l.label}`}>{l.label}</a>
+        ))}
+      </nav>
+      <p class="copyright">© {new Date().getFullYear()} Sam Peret</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--s8);
+    padding: var(--s7) 0 calc(var(--s7) + 3rem); /* room for Merlin's hat in the corner */
+    border-top: var(--hairline);
+  }
+
+  .footer-inner {
+    display: grid;
+    gap: var(--s6);
+  }
+
+  .footer-base {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--s3) var(--s6);
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2) var(--s5);
+  }
+
+  .footer-links a {
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .footer-links a:hover,
+  .footer-links a:focus-visible {
+    color: var(--accent-text);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .copyright {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  @media print {
+    .site-footer {
+      display: none;
+    }
+  }
+</style>

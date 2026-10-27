@@ -1,25 +1,23 @@
 ---
-// One homepage tile. Closed, it is a picture (or a block of palette colour) with its title and
-// one line over it; opened, it spans the whole grid and its story unfolds below the picture. A
-// tile with `children` holds smaller tiles, and opens for any topic one of its children has. A
-// tile with `link` doesn't unfold: it is a link straight to that page.
+// One homepage tile. Closed, it is a picture (or a block of palette colour) with its title over
+// it; opened, it spans the whole grid and its story unfolds below the title. A tile with
+// `children` holds smaller tiles, and opens for any topic one of its children has. A tile with
+// `link` doesn't unfold: it is a link straight to that page. A tile with `parts` is in sections,
+// each rendered by this component too (`part`), and can narrow to one of them.
 
-// A photo may carry Sam's own caption, shown under it in the viewer, or a story: audio told
-// over it, with WebVTT captions as subtitles (played by PhotoViewer.astro).
-export type Photo = {
-  src: string;
-  alt: string;
-  caption?: string;
-  story?: { title: string; audio: string; captions: string };
-};
+import type { Photo } from '../data/photos';
+import Gallery from './Gallery.astro';
+import Shelf from './Shelf.astro';
+
+export type { Photo };
 
 export type SectionData = {
   name: string;
-  topics: string[];
+  topics?: string[]; // which of Merlin's topics open the card (src/scripts/topics.ts)
   line?: string; // one line under the title; a tile may go without
   // The tile's face: a picture, or a palette colour when there is none, with only the title on
-  // it. `kind` ("Book", "Project") and `line` describe the tile but aren't shown.
-  tile: { kind?: string; src?: string; alt?: string; color?: string; position?: string };
+  // it. `kind` ("Book", "Project") and `line` describe the tile but aren't shown. A part has none.
+  tile?: { kind?: string; src?: string; alt?: string; color?: string; position?: string };
   link?: string; // the page the tile opens directly, in place of unfolding
   // With `link` set to its photo: a told story, played over the photo in the viewer.
   story?: { title: string; audio: string; captions: string };
@@ -28,8 +26,10 @@ export type SectionData = {
   // Extra links under the text, and an optional button that opens Merlin's message chat.
   links?: { label: string; href: string }[];
   message?: string;
-  // Recommended reading: each cover a little book that opens a touch on hover, linking out.
-  books?: { title: string; author: string; cover: string; href: string; width: number; height: number }[];
+  // Interests (see src/data/books.ts): a shelf of the books tagged with any of them closes the
+  // card, and 'all' shelves every book. A card with parts takes its parts' interests; on a part
+  // they say which books stay when the card narrows to it.
+  interests?: string[] | 'all';
   // A memories archive: recordings, each with a play button and its transcript to read.
   memories?: { title: string; audio: string; duration: string; transcript: string[] }[];
   embed?: string;
@@ -47,14 +47,18 @@ export type SectionData = {
   intro?: string;
   // Big buttons at the foot of the card, in order, each with an optional line above it.
   cta?: { text?: string; label: string; href: string }[];
+  // Parts of one card, each under its own heading, with a row of their names at the top that
+  // narrows the card to one. With `ask`, Merlin pops up the first time the card opens and asks
+  // that question, the parts' names his answers.
+  parts?: SectionData[];
+  ask?: string;
+  id?: string; // the anchor, when not the name's slug
 };
 
-import { sizeOf } from '../lib/photo-size';
+type Props = { section: SectionData; child?: boolean; part?: boolean };
 
-type Props = { section: SectionData; child?: boolean };
-
-const { section, child = false } = Astro.props;
-const { name, line, tile, link, story, href, links = [], message, books = [], memories = [], embed, embedTitle, embedRatio, embedAllow, embedLast = false, body = [], photos = [], cover, children = [], cta = [] } = section;
+const { section, child = false, part = false } = Astro.props;
+const { name, tile = {}, link, story, href, links = [], message, memories = [], embed, embedTitle, embedRatio, embedAllow, embedLast = false, body = [], photos = [], cover, children = [], cta = [], parts = [], ask } = section;
 // Smaller cards sit in rows; a card with an `intro` starts a new row, with its line above.
 const rows: { intro?: string; cards: SectionData[] }[] = [];
 for (const c of children) {
@@ -72,8 +76,6 @@ const frame = embed && {
   referrerpolicy: 'strict-origin-when-cross-origin' as const,
   sandbox: 'allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox',
 };
-// Each photo keeps its own shape in the gallery, so it needs its size.
-const gallery = await Promise.all(photos.map(async (photo) => ({ ...photo, size: await sizeOf(photo.src) })));
 
 // Body text may carry inline links written as [words](https://…).
 const LINK = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
@@ -91,13 +93,30 @@ const inline = (para: string) => {
 
 const slug = (value: string) =>
   value.toLowerCase().replace(/['’]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const idOf = (s: SectionData) => s.id ?? slug(s.name);
 
-const topicsOf = (s: SectionData): string[] => [...s.topics, ...(s.children ?? []).flatMap(topicsOf)];
+const topicsOf = (s: SectionData): string[] => [...(s.topics ?? []), ...[...(s.children ?? []), ...(s.parts ?? [])].flatMap(topicsOf)];
 const topics = [...new Set(topicsOf(section))];
+
+// The card's shelf: its own interests, or its parts'. A part has none of its own.
+const own = section.interests;
+const shelf = part ? undefined : (own ?? [...new Set(parts.flatMap((p) => (p.interests === 'all' ? [] : (p.interests ?? []))))]);
+const partInterests = Array.isArray(own) ? own.join(' ') : '';
 
 const Heading = child ? 'h4' : 'h3';
 const host = href && new URL(href).hostname.replace(/^www\./, '');
-const id = slug(name);
+const id = idOf(section);
+// A card unfolds; a part is a plain section of the card it belongs to.
+const Tag = part ? 'section' : 'details';
+const attrs = part
+  ? { class: 'part', id, 'data-part': id, 'data-title': name, 'data-interests': partInterests, 'aria-labelledby': `${id}-title` }
+  : {
+      class: ['item', 'tile', child && 'child', children.length > 0 && 'parent', !tile.src && 'is-color'].filter(Boolean).join(' '),
+      id,
+      'data-topics': topics.join(' '),
+      'data-merlin-asks': ask,
+      style: tile.color ? `--tile-color: ${tile.color}` : undefined,
+    };
 ---
 
 {link ? (
@@ -131,29 +150,38 @@ const id = slug(name);
     </span>
   </a>
 ) : (
-<details
-  class:list={['item', 'tile', { child, parent: children.length > 0, 'is-color': !tile.src }]}
-  id={id}
-  data-topics={topics.join(' ')}
-  style={tile.color ? `--tile-color: ${tile.color}` : undefined}
->
-  <summary>
-    {tile.src && (
-      <img
-        class="face"
-        src={tile.src}
-        alt={tile.alt ?? ''}
-        loading="lazy"
-        decoding="async"
-        style={tile.position ? `object-position: ${tile.position}` : undefined}
-      />
-    )}
-    <span class="caption">
-      <Heading>{name}</Heading>
-    </span>
-    <span class="toggle-mark" aria-hidden="true"></span>
-  </summary>
+<Tag {...attrs}>
+  {part ? (
+    <h4 class="part-title" id={`${id}-title`}>{name}</h4>
+  ) : (
+    <summary>
+      {tile.src && (
+        <img
+          class="face"
+          src={tile.src}
+          alt={tile.alt ?? ''}
+          loading="lazy"
+          decoding="async"
+          style={tile.position ? `object-position: ${tile.position}` : undefined}
+        />
+      )}
+      <span class="caption">
+        <Heading>{name}</Heading>
+      </span>
+      <span class="toggle-mark" aria-hidden="true"></span>
+    </summary>
+  )}
   <div class="body">
+    {parts.length > 1 && (
+      <nav class="part-nav" aria-label={`Show part of ${name}`} data-part-nav hidden>
+        <button type="button" data-focus="" aria-pressed="true" data-track={`part:${id}:all`}>All</button>
+        {parts.map((p) => (
+          <button type="button" data-focus={idOf(p)} aria-pressed="false" data-track={`part:${id}:${idOf(p)}`}>
+            {p.name}
+          </button>
+        ))}
+      </nav>
+    )}
     {body.length > 0 && (
       <div class="text">
         {body.map((para) => <p>{inline(para).map((part) => (part.href ? <a href={part.href}>{part.text}</a> : part.text))}</p>)}
@@ -203,27 +231,6 @@ const id = slug(name);
         </ul>
       </div>
     )}
-    {books.length > 0 && (
-      <div class="reading">
-        <h4 class="eyebrow">Recommended reading</h4>
-        <ul class="shelf">
-          {books.map((book) => (
-            <li>
-              <a class="book-link" href={book.href} target="_blank" rel="noopener" data-track={`book:${book.title}`}>
-                <span class="book3d" style={`aspect-ratio: ${book.width} / ${book.height}`}>
-                  <span class="book-pages" aria-hidden="true"></span>
-                  <span class="book-cover">
-                    <img src={book.cover} alt={`${book.title}, cover`} width={book.width} height={book.height} loading="lazy" decoding="async" />
-                  </span>
-                </span>
-                <span class="book-title">{book.title}</span>
-                <span class="book-author">{book.author}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
     {embed && !embedLast && <iframe {...frame} />}
     {cover && (
       <a class="cover" href={cover.href}>
@@ -231,28 +238,7 @@ const id = slug(name);
         <span class="badge">{cover.label} <span aria-hidden="true">→</span></span>
       </a>
     )}
-    {photos.length > 0 && (
-      <div class="photos">
-        {gallery.map(({ src, alt, caption, story, size }) => (
-          <a
-            href={src}
-            class:list={{ 'has-story': story }}
-            style={size ? `--ratio: ${(size.width / size.height).toFixed(4)}` : undefined}
-            data-caption={caption}
-            data-story-title={story?.title}
-            data-story-audio={story?.audio}
-            data-story-captions={story?.captions}
-          >
-            <img src={src} alt={alt} width={size?.width} height={size?.height} loading="lazy" decoding="async" />
-            {story && (
-              <span class="badge">
-                <span aria-hidden="true">▶</span> {story.title}
-              </span>
-            )}
-          </a>
-        ))}
-      </div>
-    )}
+    {photos.length > 0 && <Gallery photos={photos} />}
     {rows.map((row) => (
       <>
         {row.intro && <p class="children-intro">{row.intro}</p>}
@@ -261,6 +247,7 @@ const id = slug(name);
         </div>
       </>
     ))}
+    {parts.map((p) => <Astro.self section={p} part />)}
     {embed && embedLast && <iframe {...frame} />}
     {cta.length > 0 && (
       <div class="cta">
@@ -274,8 +261,9 @@ const id = slug(name);
         ))}
       </div>
     )}
+    {shelf && (shelf === 'all' || shelf.length > 0) && <Shelf interests={shelf} heading={shelf === 'all' ? false : undefined} />}
   </div>
-</details>
+</Tag>
 )}
 
 <script>

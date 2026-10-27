@@ -1,0 +1,133 @@
+---
+// Recommended reading: the books tagged with any of the given interests (src/data/books.ts),
+// each cover a little book that opens a touch on hover, linking out. Renders nothing when no
+// book matches. Each book carries its tags, so a card narrowed to one interest can hide the rest.
+import { booksFor } from '../data/books';
+
+type Props = {
+  interests: readonly string[] | 'all';
+  heading?: string | false; // false: the card around it already says what it is
+  level?: 'h2' | 'h4'; // h2 at the foot of a page, h4 inside a homepage card
+};
+
+const { interests, heading = 'Recommended reading', level = 'h4' } = Astro.props;
+const books = booksFor(interests);
+const Heading = level;
+---
+
+{books.length > 0 && (
+  <section class="reading" data-shelf aria-label={heading || 'Recommended books'}>
+    {heading && <Heading class="eyebrow">{heading}</Heading>}
+    <ul class="shelf">
+      {books.map((book) => (
+        <li data-tags={book.tags.join(' ')}>
+          <a class="book-link" href={book.href} target="_blank" rel="noopener" data-track={`book:${book.title}`}>
+            <span class="book3d" style={`aspect-ratio: ${book.width} / ${book.height}`}>
+              <span class="book-pages" aria-hidden="true"></span>
+              <span class="book-cover">
+                <img src={book.cover} alt={`${book.title}, cover`} width={book.width} height={book.height} loading="lazy" decoding="async" />
+              </span>
+            </span>
+            <span class="book-title">{book.title}</span>
+            <span class="book-author">{book.author}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .reading .eyebrow {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    letter-spacing: 0.12em;
+  }
+
+  .shelf {
+    list-style: none;
+    margin: var(--s3) 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s6);
+  }
+
+  .shelf li[hidden] {
+    display: none;
+  }
+
+  .book-link {
+    display: grid;
+    gap: var(--s1);
+    width: 8.5rem;
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  /* The pages sit behind the cover; on hover the cover swings open on its spine, a little. */
+  .book3d {
+    position: relative;
+    display: block;
+    margin-bottom: var(--s2);
+    perspective: 700px;
+  }
+
+  .book-pages {
+    position: absolute;
+    inset: 2% 0 2% 3%;
+    border-radius: 0 3px 3px 0;
+    background: repeating-linear-gradient(to right, #fbfaf7 0 2px, #e9e6de 2px 3px);
+    box-shadow: var(--shadow);
+  }
+
+  .book-cover {
+    position: relative;
+    display: block;
+    height: 100%;
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    transition: transform var(--slow) var(--ease), box-shadow var(--slow) var(--ease);
+    border-radius: 2px 4px 4px 2px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgb(35 37 39 / 0.18), 0 1px 2px rgb(35 37 39 / 0.12);
+  }
+
+  .book-cover img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* A soft crease along the spine. */
+  .book-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgb(0 0 0 / 0.28), rgb(255 255 255 / 0.14) 3%, rgb(0 0 0 / 0.06) 6%, transparent 12%);
+    pointer-events: none;
+  }
+
+  .book-link:hover .book-cover,
+  .book-link:focus-visible .book-cover {
+    transform: rotateY(-32deg);
+    box-shadow: 12px 8px 22px rgb(35 37 39 / 0.24);
+  }
+
+  .book-link:focus-visible {
+    outline-offset: 6px;
+  }
+
+  .book-title {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .book-author {
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+</style>

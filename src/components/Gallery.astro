@@ -1,0 +1,38 @@
+---
+// A justified gallery: every photo whole, at its own shape (styled in pages/index.astro). Each
+// opens in the viewer (PhotoViewer.astro), with Sam's caption or its told story.
+import type { Photo } from '../data/photos';
+import { sizeOf } from '../lib/photo-size';
+
+type Props = { photos: Photo[] };
+
+const { photos } = Astro.props;
+// Each photo keeps its own shape in the gallery, so it needs its size.
+const gallery = await Promise.all(
+  photos.map(async (photo) => ({
+    ...photo,
+    size: photo.width && photo.height ? { width: photo.width, height: photo.height } : await sizeOf(photo.thumb ?? photo.src),
+  })),
+);
+---
+
+<div class="photos">
+  {gallery.map(({ src, thumb, alt, caption, story, size }) => (
+    <a
+      href={src}
+      class:list={{ 'has-story': story }}
+      style={size ? `--ratio: ${(size.width / size.height).toFixed(4)}` : undefined}
+      data-caption={caption}
+      data-story-title={story?.title}
+      data-story-audio={story?.audio}
+      data-story-captions={story?.captions}
+    >
+      <img src={thumb ?? src} alt={alt} width={size?.width} height={size?.height} loading="lazy" decoding="async" />
+      {story && (
+        <span class="badge">
+          <span aria-hidden="true">▶</span> {story.title}
+        </span>
+      )}
+    </a>
+  ))}
+</div>

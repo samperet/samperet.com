@@ -44,8 +44,28 @@ shrinks and a "← Home" button under Career dismisses it; the cross or Escape d
 from Merlin's question opens the matching tiles and closes the rest (`src/scripts/topics.ts`).
 Professional goes to `/career/`, where the work now lives. Tiles can nest (a section's
 `children`), though none do now. A section's `message` adds a button that opens Merlin's message
-chat (CommunityOS uses it for "Ask about setting it up"). A section's `books` adds a "Recommended reading" shelf: each cover (in `public/reading/`) is a
-little book that opens on its spine on hover and links out. Tile pictures that aren't
+chat (CommunityOS uses it for "Ask about setting it up").
+
+**Interests and book shelves.** Books live in `src/data/books.ts`, each tagged with interests
+(yoga, sufism, spirituality, heartwise, circles, travel, adventure, stories, family, men, career,
+leadership). A card's `interests`, or a page's (`<Base interests={[…]}>`, shown in the footer),
+puts a "Recommended reading" shelf at its foot with the books tagged with any of them
+(`src/components/Shelf.astro`); with no matching book there is no shelf. Each cover (in
+`public/reading/`) is a little book that opens on its spine on hover and links out. Only the
+Spirituality card has tagged books so far: tag a book `men` and it appears on `/mens-group/`.
+
+**Cards in parts.** A card's `parts` are sections of it under their own headings: Yoga, Sufism
+and Get HeartWise in "Yoga, Spirituality & Personal Development" (HeartWise is no longer a card of
+its own; `/#heartwise` opens the card narrowed to it). A row of the parts' names at the top
+narrows the card to one, and its shelf to that part's interests. With `ask`, Merlin pops up the
+first time the card opens on a visit, asks the question with the parts as answers, narrows the
+card to the one chosen and goes back to his hat.
+
+**Footer.** Every public page ends with `src/components/Footer.astro`: the page's shelf, links,
+and the copyright. On the homepage it holds two more cards: Recommended Books (every book) and
+Photos (every photo on the site, by the card or career chapter it appears in, filterable like a
+card in parts; the career photos come from `src/data/photos.ts`). Other pages link to them
+(`/#recommended-books`, `/#photos`). Tile pictures that aren't
 already elsewhere live in `public/tiles/`. An open tile shows only its title on top, with no picture, kind or line. Photos open in a full-screen viewer
 (`src/components/PhotoViewer.astro`). Galleries never crop: they are justified, each photo at
 its own shape and each row grown to the full width at one height, using sizes read from the
@@ -121,7 +141,7 @@ Turning a page by hand pauses the reading; Keep reading brings the book back to 
 
 ## Men's group
 
-`/mens-group/` (`src/pages/mens-group.astro`; on the homepage the HeartWise card ends with "I'm
+`/mens-group/` (`src/pages/mens-group.astro`; on the homepage the Get HeartWise part ends with "I'm
 currently looking for men to start a men's group with." and a "Join a men's group" button to it,
 a card's `cta`) invites
 men to a group in Charlotte, VT, meeting weekly for three months through Lover, Warrior, Magician

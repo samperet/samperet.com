@@ -1,7 +1,8 @@
 ---
 import { Font } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import Section, { type SectionData } from '../components/Section.astro';
+import Section, { type SectionData, type Photo } from '../components/Section.astro';
+import { ALPS_PHOTOS, AIRBNB_PHOTOS } from '../data/photos';
 
 const title = 'Samperet.com';
 const description = 'Strategy, relationships, systems & design.';
@@ -14,6 +15,7 @@ const sections: SectionData[] = [
   {
     name: 'Travel & Adventure',
     topics: ['adventure', 'personal'],
+    interests: ['travel', 'adventure'],
     line: 'Places, adventures and disaster relief that shaped how I see things.',
     tile: { kind: 'Travel & adventure', src: '/travel/camel.webp', position: 'center 60%' },
     embed: '/globe/index.html',
@@ -57,97 +59,87 @@ const sections: SectionData[] = [
     topics: ['personal'],
     line: 'Yogi, Sufi, group leader, lifelong student.',
     tile: { kind: 'Practice', src: '/photos/acro-sunset.webp', alt: 'Acro yoga silhouetted against the sunset on a beach', position: 'center 40%' },
-    body: [
-      'Yoga has been a pillar in my life since I was 18 years old. Beyond the physical benefits of asana, yoga has provided a foundation of community, health, and spiritual growth.',
-      'With a focus on Patanjali’s eight-limbed path to enlightenment, I’m currently enrolled in eighth series Ashtanga, aka parenting.',
-      'I pay homage to the many teachers who have crossed my path, given generously of their wisdom, and paved the path for what is to come.',
-      'During a six-month pilgrimage through India, I stumbled upon a Sufi community in Rajasthan. That planted the seed for what would later lead me to my life partner, Mackensie, and my initiation into the Ruhaniat lineage of Sufism, where I received my spiritual name. You can hear more about this in [the podcast](https://mcleanp.substack.com/p/day-447-the-family-of-things?utm_source=substack&utm_medium=web&utm_content=embedded-post), hosted by a dear brother of mine through the ManKind Project (MKP).',
-      'MKP has also played a pivotal role in my development since my initiation in 2012: I have joined and built men’s circles, participated in and facilitated trainings, and cultivated a fascination with circle dynamics that would later lead to my work with Heart iQ.',
-    ],
-    books: [
+    // Three parts; Merlin asks which one the visitor came for, and the card narrows to it.
+    ask: 'What are you drawn to?',
+    parts: [
       {
-        title: 'How Yoga Works',
-        author: 'Geshe Michael Roach & Christie McNally',
-        cover: '/reading/how-yoga-works.webp',
-        href: 'https://openlibrary.org/works/OL490414W',
-        width: 328,
-        height: 500,
-      },
-      {
-        title: 'Death: An Inside Story',
-        author: 'Sadhguru',
-        cover: '/reading/death-an-inside-story.webp',
-        href: 'https://openlibrary.org/works/OL22292279W',
-        width: 230,
-        height: 360,
-      },
-      {
-        title: 'The Magus of Java',
-        author: 'Kosta Danaos',
-        cover: '/reading/the-magus-of-java.webp',
-        href: 'https://openlibrary.org/works/OL7796870W',
-        width: 317,
-        height: 475,
-      },
-    ],
-    photos: [
-      { src: '/photos/yoga-squat.webp', alt: 'A deep squat on a mat on a stone patio, a dog lying alongside' },
-      { src: '/photos/acro-balance.webp', alt: 'Acro yoga under the palms: balancing on a partner’s feet, hands joined' },
-      { src: '/photos/acro-sunset.webp', alt: 'Acro yoga silhouetted against the sunset on a beach' },
-      { src: '/travel/sunset-beach-friends.webp', alt: 'Laughing with a friend on a wide beach at sunset, the tide out' },
-      { src: '/travel/shore-circle.webp', alt: 'A yoga group seated cross-legged on the sand as a wave breaks on the rocks behind them' },
-      { src: '/travel/pinnacles-handstand.webp', alt: 'A handstand on the sand among the limestone pillars of the Pinnacles' },
-    ],
-    children: [
-      {
-        name: 'Intelligent Embodiment',
-        intro: 'My life partner has an incredible practice as a yoga teacher, medical intuitive and massage therapist. Her offerings can be found here:',
-        topics: ['family', 'personal'],
-        line: 'Awake in the body.',
-        tile: { kind: 'My partner’s work', src: '/tiles/intelligent-embodiment.webp', position: 'center 30%' },
+        name: 'Yoga',
+        interests: ['yoga'],
         body: [
-          'My life partner, Mackensie Grant, practises intuitive massage and bodywork in Charlotte, Vermont. Specializing with women, she draws on craniosacral therapy, polarity therapy and Temple Lomi, and three decades of yoga, qigong and teaching. Her sessions meet physical tension and pain, and often lead to insight about its deeper roots.',
-          'I designed and built intelligentembodiment.com for her.',
+          'Yoga has been a pillar in my life since I was 18 years old. Beyond the physical benefits of asana, yoga has provided a foundation of community, health, and spiritual growth.',
+          'With a focus on Patanjali’s eight-limbed path to enlightenment, I’m currently enrolled in eighth series Ashtanga, aka parenting.',
+          'I pay homage to the many teachers who have crossed my path, given generously of their wisdom, and paved the path for what is to come.',
         ],
-        href: 'https://www.intelligentembodiment.com',
+        photos: [
+          { src: '/photos/yoga-squat.webp', alt: 'A deep squat on a mat on a stone patio, a dog lying alongside' },
+          { src: '/photos/acro-balance.webp', alt: 'Acro yoga under the palms: balancing on a partner’s feet, hands joined' },
+          { src: '/photos/acro-sunset.webp', alt: 'Acro yoga silhouetted against the sunset on a beach' },
+          { src: '/travel/sunset-beach-friends.webp', alt: 'Laughing with a friend on a wide beach at sunset, the tide out' },
+          { src: '/travel/shore-circle.webp', alt: 'A yoga group seated cross-legged on the sand as a wave breaks on the rocks behind them' },
+          { src: '/travel/pinnacles-handstand.webp', alt: 'A handstand on the sand among the limestone pillars of the Pinnacles' },
+        ],
+        children: [
+          {
+            name: 'Intelligent Embodiment',
+            intro: 'My life partner has an incredible practice as a yoga teacher, medical intuitive and massage therapist. Her offerings can be found here:',
+            topics: ['family', 'personal'],
+            line: 'Awake in the body.',
+            tile: { kind: 'My partner’s work', src: '/tiles/intelligent-embodiment.webp', position: 'center 30%' },
+            body: [
+              'My life partner, Mackensie Grant, practises intuitive massage and bodywork in Charlotte, Vermont. Specializing with women, she draws on craniosacral therapy, polarity therapy and Temple Lomi, and three decades of yoga, qigong and teaching. Her sessions meet physical tension and pain, and often lead to insight about its deeper roots.',
+              'I designed and built intelligentembodiment.com for her.',
+            ],
+            href: 'https://www.intelligentembodiment.com',
+          },
+        ],
       },
       {
-        name: 'SamaSangha',
-        intro: 'I built this site for my Sufi community:',
-        topics: ['personal'],
-        line: 'A Sufi community in Massachusetts.',
-        tile: { kind: 'Community', src: '/tiles/samasangha.webp', alt: 'The Sufi winged heart, a crescent and star on a red heart, over a blue tiled mosaic', position: 'center 30%' },
+        name: 'Sufism',
+        interests: ['sufism', 'spirituality'],
         body: [
-          'SamaSangha is the Sufi community in Western Massachusetts where I was initiated with Abraham and Halima.',
-          'I designed and built samasangha.org for them.',
+          'During a six-month pilgrimage through India, I stumbled upon a Sufi community in Rajasthan. That planted the seed for what would later lead me to my life partner, Mackensie, and my initiation into the Ruhaniat lineage of Sufism, where I received my spiritual name. You can hear more about this in [the podcast](https://mcleanp.substack.com/p/day-447-the-family-of-things?utm_source=substack&utm_medium=web&utm_content=embedded-post), hosted by a dear brother of mine through the ManKind Project (MKP).',
         ],
-        href: 'https://samasangha.org',
+        children: [
+          {
+            name: 'SamaSangha',
+            intro: 'I built this site for my Sufi community:',
+            topics: ['personal'],
+            line: 'A Sufi community in Massachusetts.',
+            tile: { kind: 'Community', src: '/tiles/samasangha.webp', alt: 'The Sufi winged heart, a crescent and star on a red heart, over a blue tiled mosaic', position: 'center 30%' },
+            body: [
+              'SamaSangha is the Sufi community in Western Massachusetts where I was initiated with Abraham and Halima.',
+              'I designed and built samasangha.org for them.',
+            ],
+            href: 'https://samasangha.org',
+          },
+        ],
       },
-    ],
-  },
-  {
-    name: 'HeartWise',
-    topics: ['personal'],
-    line: 'Exquisite circles of healing and transformation, since 2016.',
-    tile: { kind: 'Circles', src: '/photos/heartwise-circle.webp', alt: 'A HeartWise circle: some thirty people piled together, smiling, on the floor of a studio after a workshop' },
-    body: [
-      'HeartWise is where I bring Heart iQ to people. Heart iQ starts from a simple observation: some parts of us only appear in the presence of other people. Most personal growth happens alone, reading and reflecting, yet the places shaped in relationship stay hidden in solitude and return when someone comes close. A circle that is held well enough, for long enough, becomes a place to be met rather than to perform or be fixed, and the group can reach places together that none of us could reach alone.',
-      'I have been leading exquisite circles of healing and transformation since 2016.',
-    ],
-    photos: [
-      { src: '/photos/heartwise-circle.webp', alt: 'A HeartWise circle: some thirty people piled together, smiling, on the floor of a studio after a workshop' },
-      { src: '/photos/heartwise-group.webp', alt: 'A HeartWise group standing together under the beams of a timber hall after a workshop' },
-      { src: '/photos/heartwise-rug-circle.webp', alt: 'A circle on a patterned rug in a bright room, snow outside, one person standing to speak' },
-      { src: '/photos/heartwise-embrace.webp', alt: 'A HeartWise circle in a heap of hugs on a living-room floor' },
-    ],
-    cta: [
-      { label: 'getheartwise.com', href: 'https://www.getheartwise.com' },
-      { text: 'I’m currently looking for men to start a men’s group with.', label: 'Join a men’s group', href: '/mens-group/' },
+      {
+        name: 'Get HeartWise',
+        id: 'heartwise', // where links to the old HeartWise card land
+        interests: ['heartwise', 'circles'],
+        body: [
+          'The ManKind Project (MKP) has also played a pivotal role in my development since my initiation in 2012: I have joined and built men’s circles, participated in and facilitated trainings, and cultivated a fascination with circle dynamics that would later lead to my work with Heart iQ.',
+          'HeartWise is where I bring Heart iQ to people. Heart iQ starts from a simple observation: some parts of us only appear in the presence of other people. Most personal growth happens alone, reading and reflecting, yet the places shaped in relationship stay hidden in solitude and return when someone comes close. A circle that is held well enough, for long enough, becomes a place to be met rather than to perform or be fixed, and the group can reach places together that none of us could reach alone.',
+          'I have been leading exquisite circles of healing and transformation since 2016.',
+        ],
+        photos: [
+          { src: '/photos/heartwise-circle.webp', alt: 'A HeartWise circle: some thirty people piled together, smiling, on the floor of a studio after a workshop' },
+          { src: '/photos/heartwise-group.webp', alt: 'A HeartWise group standing together under the beams of a timber hall after a workshop' },
+          { src: '/photos/heartwise-rug-circle.webp', alt: 'A circle on a patterned rug in a bright room, snow outside, one person standing to speak' },
+          { src: '/photos/heartwise-embrace.webp', alt: 'A HeartWise circle in a heap of hugs on a living-room floor' },
+        ],
+        cta: [
+          { label: 'getheartwise.com', href: 'https://www.getheartwise.com' },
+          { text: 'I’m currently looking for men to start a men’s group with.', label: 'Join a men’s group', href: '/mens-group/' },
+        ],
+      },
     ],
   },
   {
     name: 'Stories',
     topics: ['family'],
+    interests: ['stories'],
     line: 'Picture books and stories, to read or to listen to.',
     tile: { kind: 'Read · Listen', src: '/photos/airbnb-bearshark.jpg', alt: 'A bear-shark sculpture, half polar bear and half shark, suspended from the ceiling of an Airbnb office' },
     children: [
@@ -182,6 +174,7 @@ const sections: SectionData[] = [
   {
     name: 'Family',
     topics: ['family'],
+    interests: ['family'],
     line: 'Jaya, Fiona, Mackensie and the things we make together.',
     tile: { kind: 'Family', src: '/photos/family-beach.webp', alt: 'The family on the beach, the girls riding on our shoulders and waving', position: 'center 30%' },
     photos: [
@@ -250,6 +243,31 @@ const projects: SectionData[] = [
     embedAllow: 'clipboard-write',
   },
 ];
+
+// The footer's cards: every recommended book (src/data/books.ts), and every photo on the site,
+// gathered by the card or career chapter it appears in, each photo once.
+const slug = (value: string) => value.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const seen = new Set<string>();
+const photoParts: SectionData[] = [];
+const gather = (name: string, photos: Photo[] = []) => {
+  const fresh = photos.filter((p) => !seen.has(p.src) && seen.add(p.src));
+  if (fresh.length) photoParts.push({ name, id: `photos-${slug(name)}`, photos: fresh });
+};
+for (const s of sections) {
+  gather(s.name, s.photos);
+  for (const part of s.parts ?? []) gather(part.name, part.photos);
+}
+gather('ALPS', ALPS_PHOTOS);
+gather('Airbnb', AIRBNB_PHOTOS);
+
+const footerCards: SectionData[] = [
+  { name: 'Recommended Books', tile: { color: 'var(--hackberry)' }, interests: 'all' },
+  {
+    name: 'Photos',
+    tile: { src: '/travel/lava-flow-big-island.webp', alt: 'Two men throwing shakas at night in front of glowing red lava on the Big Island of Hawaiʻi' },
+    parts: photoParts,
+  },
+];
 ---
 
 <Base title={title} description={description} path="/">
@@ -275,6 +293,10 @@ const projects: SectionData[] = [
       </div>
     </section>
   </main>
+
+  <div slot="footer" class="tiles grid small footer-cards">
+    {footerCards.map((section) => <Section section={section} />)}
+  </div>
 
   <script>
     import { startTracking } from '../scripts/track';
@@ -355,8 +377,61 @@ const projects: SectionData[] = [
     // "Ask about setting it up" and the like open Merlin's message chat.
     for (const b of document.querySelectorAll('[data-message]')) b.addEventListener('click', () => openTopic('message'));
 
-    // Open the section a #hash points at, e.g. a shared link to #travel.
-    // Links shared before tiles were renamed still land on the right one.
+    // A card in parts (Yoga, Sufism, Get HeartWise) narrows to one: from the row of the parts'
+    // names at its top, or Merlin's question the first time it opens. Its shelf keeps only the
+    // books for that part's interests, and steps out when none are left. Closing it resets it.
+    const partsOf = (card: HTMLElement) => card.querySelectorAll<HTMLElement>(':scope > .body > [data-part]');
+    const narrow = (card: HTMLElement, id: string) => {
+      for (const b of card.querySelectorAll<HTMLButtonElement>(':scope > .body > [data-part-nav] [data-focus]'))
+        b.setAttribute('aria-pressed', String(b.dataset.focus === id));
+      let interests: string[] | null = null;
+      for (const part of partsOf(card)) {
+        part.hidden = id !== '' && part.dataset.part !== id;
+        if (part.dataset.part === id) interests = (part.dataset.interests ?? '').split(' ').filter(Boolean);
+      }
+      const shelf = card.querySelector<HTMLElement>(':scope > .body > [data-shelf]');
+      if (!shelf) return;
+      let shown = 0;
+      for (const book of shelf.querySelectorAll<HTMLElement>('li[data-tags]')) {
+        book.hidden = interests !== null && !book.dataset.tags!.split(' ').some((tag) => interests!.includes(tag));
+        if (!book.hidden) shown++;
+      }
+      shelf.hidden = shown === 0;
+    };
+    const asked = new WeakSet<HTMLElement>();
+    const askMerlin = (card: HTMLElement) => {
+      if (asked.has(card) || !card.dataset.merlinAsks) return;
+      asked.add(card);
+      const options = [...partsOf(card)].map((part) => ({ id: part.dataset.part!, label: part.dataset.title! }));
+      document.dispatchEvent(new CustomEvent('merlin:ask-focus', { detail: { card: card.id, question: card.dataset.merlinAsks, options } }));
+    };
+    for (const nav of document.querySelectorAll<HTMLElement>('[data-part-nav]')) {
+      const card = nav.closest<HTMLDetailsElement>('details')!;
+      nav.hidden = false;
+      nav.addEventListener('click', (e) => {
+        const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-focus]');
+        if (!b) return;
+        asked.add(card); // chosen already: Merlin needn't ask
+        narrow(card, b.dataset.focus!);
+      });
+      card.addEventListener('toggle', () => {
+        if (!card.open) narrow(card, '');
+      });
+      card.querySelector(':scope > summary')!.addEventListener('click', () => {
+        if (!card.open) setTimeout(() => askMerlin(card), 400);
+      });
+    }
+    document.addEventListener('merlin:focus', (e) => {
+      const { card, id } = (e as CustomEvent<{ card: string; id: string }>).detail;
+      const el = document.getElementById(card);
+      if (!(el instanceof HTMLDetailsElement)) return;
+      narrow(el, id);
+      if (el.open) scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' });
+    });
+
+    // Open the section a #hash points at, e.g. a shared link to #travel, closing any other.
+    // Links shared before tiles were renamed still land on the right one. A part (#heartwise)
+    // opens its card narrowed to it.
     const RENAMED: Record<string, string> = {
       adventure: 'travel-and-adventure',
       'emergency-first-response-efforts': 'travel-and-adventure',
@@ -376,8 +451,16 @@ const projects: SectionData[] = [
       const id = location.hash.slice(1);
       if (MOVED[id]) return location.replace(MOVED[id]);
       const target = id && document.getElementById(RENAMED[id] ?? id);
-      // Open the row and every row it sits inside.
-      for (let el = target instanceof HTMLDetailsElement ? target : null; el; el = el.parentElement?.closest('details') ?? null) el.open = true;
+      if (!target || !target.closest('details.tile')) return;
+      for (const open of document.querySelectorAll<HTMLDetailsElement>('details.tile[open]')) if (!open.contains(target)) open.open = false;
+      // Open the card and every card it sits inside.
+      for (let el = target.closest('details'); el; el = el.parentElement?.closest('details') ?? null) {
+        if (el.dataset.merlinAsks && target !== el) asked.add(el);
+        el.open = true;
+      }
+      if (target.dataset.part) narrow(target.closest('details')!, target.dataset.part);
+      else if (target.dataset.merlinAsks) setTimeout(() => askMerlin(target), 400);
+      requestAnimationFrame(() => scrollTo({ top: 0, behavior: 'auto' }));
     };
     addEventListener('hashchange', fromHash);
     fromHash();
@@ -386,7 +469,7 @@ const projects: SectionData[] = [
 
 <style is:global>
   main {
-    padding-bottom: var(--s9);
+    padding-bottom: var(--s4); /* the footer keeps its own distance */
   }
 
   .hero {
@@ -437,16 +520,16 @@ const projects: SectionData[] = [
     margin-top: var(--s4);
   }
 
-  main:has(.tile[open]) .tile-home {
+  body:has(.tile[open]) .tile-home {
     display: inline-flex;
   }
 
   /* …and Career steps aside, so Home is the one way out. */
-  main:has(.tile[open]) .hero-links {
+  body:has(.tile[open]) .hero-links {
     display: none;
   }
 
-  main:has(.tile[open]) .hero {
+  body:has(.tile[open]) .hero {
     min-height: 0;
     padding: var(--s7) 0 var(--s6);
   }
@@ -476,14 +559,25 @@ const projects: SectionData[] = [
     gap: var(--s3);
   }
 
-  /* With a card open, only it shows: the other grid and the Projects heading step out too. */
-  main:has(.tile[open]) .grid:not(:has(> .tile[open])),
-  main:has(.tile[open]) .projects > h2 {
+  /* With a card open, only it shows: the other grids and the Projects heading step out too. */
+  body:has(.tile[open]) .grid:not(:has(> .tile[open])),
+  body:has(.tile[open]) .projects > h2 {
     display: none;
   }
 
-  main:has(.tile[open]) .projects {
+  body:has(.tile[open]) .projects {
     margin-top: 0;
+  }
+
+  /* A footer card opens in the footer, straight under the header, like a page of its own. */
+  body:has(.footer-cards > .tile[open]) main {
+    padding-bottom: 0;
+  }
+
+  body:has(.footer-cards > .tile[open]) .site-footer {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
   }
 
   @media (max-width: 640px) {
@@ -887,95 +981,55 @@ const projects: SectionData[] = [
     color: var(--muted);
   }
 
-  /* ---- Recommended reading: covers as little books ------------------------------------ */
+  /* ---- A card in parts: a row of their names, then each part under its own heading ---- */
 
-  .reading .eyebrow {
-    font-family: var(--font-body);
-    font-size: var(--text-xs);
-    letter-spacing: 0.12em;
-  }
-
-  .shelf {
-    list-style: none;
-    margin: var(--s3) 0 0;
-    padding: 0;
+  .part-nav {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--s6);
+    gap: var(--s2) var(--s5);
   }
 
-  .book-link {
-    display: grid;
-    gap: var(--s1);
-    width: 8.5rem;
-    color: var(--fg);
-    text-decoration: none;
+  .part-nav[hidden],
+  .part[hidden] {
+    display: none;
   }
 
-  /* The pages sit behind the cover; on hover the cover swings open on its spine, a little. */
-  .book3d {
-    position: relative;
-    display: block;
-    margin-bottom: var(--s2);
-    perspective: 700px;
-  }
-
-  .book-pages {
-    position: absolute;
-    inset: 2% 0 2% 3%;
-    border-radius: 0 3px 3px 0;
-    background: repeating-linear-gradient(to right, #fbfaf7 0 2px, #e9e6de 2px 3px);
-    box-shadow: var(--shadow);
-  }
-
-  .book-cover {
-    position: relative;
-    display: block;
-    height: 100%;
-    transform-origin: left center;
-    transform-style: preserve-3d;
-    transition: transform var(--slow) var(--ease), box-shadow var(--slow) var(--ease);
-    border-radius: 2px 4px 4px 2px;
-    overflow: hidden;
-    box-shadow: 0 6px 16px rgb(35 37 39 / 0.18), 0 1px 2px rgb(35 37 39 / 0.12);
-  }
-
-  .book-cover img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* A soft crease along the spine. */
-  .book-cover::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to right, rgb(0 0 0 / 0.28), rgb(255 255 255 / 0.14) 3%, rgb(0 0 0 / 0.06) 6%, transparent 12%);
-    pointer-events: none;
-  }
-
-  .book-link:hover .book-cover,
-  .book-link:focus-visible .book-cover {
-    transform: rotateY(-32deg);
-    box-shadow: 12px 8px 22px rgb(35 37 39 / 0.24);
-  }
-
-  .book-link:focus-visible {
-    outline-offset: 6px;
-  }
-
-  .book-title {
+  .part-nav button {
+    padding: var(--s1) 0;
+    border: 0;
+    background: none;
     font-family: var(--font-display);
-    font-size: var(--text-md);
-    font-weight: 500;
-    line-height: 1.25;
+    font-size: var(--text-lg);
+    color: var(--muted);
+    text-decoration: underline 2px transparent;
+    text-underline-offset: 0.3em;
+    transition: color var(--fast) var(--ease), text-decoration-color var(--fast) var(--ease);
   }
 
-  .book-author {
-    font-size: var(--text-sm);
-    color: var(--muted);
+  .part-nav button:hover {
+    color: var(--fg);
+  }
+
+  .part-nav button[aria-pressed='true'] {
+    color: var(--fg);
+    text-decoration-color: var(--accent);
+  }
+
+  .part {
+    display: grid;
+    gap: var(--s4);
+    padding-top: var(--s6);
+    border-top: var(--hairline);
+  }
+
+  .part > .body {
+    padding: 0;
+  }
+
+  .tile .part-title {
+    font-size: var(--text-xl);
+    line-height: var(--leading-tight);
+    letter-spacing: -0.015em;
   }
 
   .embed {

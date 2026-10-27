@@ -309,6 +309,8 @@ import '../styles/vivify-subset.css';
     if (target.closest('[data-joke]')) return tellJoke();
     if (target.closest('[data-punchline]')) return revealPunchline();
     if (target.closest('[data-away]')) return dismiss();
+    const focus = target.closest<HTMLButtonElement>('[data-focus]');
+    if (focus) return chooseFocus(focus);
     const topic = target.closest<HTMLButtonElement>('[data-ask]')?.dataset.ask;
     if (isTopic(topic)) openTopic(topic);
   });
@@ -377,6 +379,48 @@ import '../styles/vivify-subset.css';
       }, 700);
     }
   });
+
+  // A card in parts (the homepage's Spirituality card) asks, the first time it opens, which part
+  // the visitor came for: he comes out if hidden and asks, and the answer narrows the card.
+  let focusCard = '';
+  document.addEventListener('merlin:ask-focus', async (e) => {
+    const { card: cardId, question, options } = (e as CustomEvent<{ card: string; question: string; options: { id: string; label: string }[] }>).detail;
+    focusCard = cardId;
+    const ask = () => {
+      frame(
+        'Merlin asks which part you came for',
+        `<p class="merlin-say">${esc(question)}</p>
+        <ul class="merlin-options">
+          ${options.map((o) => option(`data-focus="${esc(o.id)}" data-track="merlin:focus:${esc(o.id)}"`, o.label)).join('')}
+          ${option('data-focus="" data-track="merlin:focus:all"', 'All of it', 'is-aside')}
+        </ul>`,
+      );
+      live.textContent = `Merlin asks: ${question}`;
+      card.querySelector<HTMLButtonElement>('.merlin-option')?.focus({ preventScroll: true });
+    };
+    if (visible && agent) {
+      agent.stop();
+      agent.play('Think');
+      ask();
+    } else {
+      const a = await summon();
+      a.play('Wave');
+      setTimeout(ask, 900);
+    }
+  });
+
+  const chooseFocus = (button: HTMLButtonElement) => {
+    const id = button.dataset.focus ?? '';
+    document.dispatchEvent(new CustomEvent('merlin:focus', { detail: { card: focusCard, id } }));
+    say(id ? `${button.textContent!.replace('→', '').trim()} it is.` : 'All of it, then.');
+    agent?.stop();
+    agent?.play('Pleased');
+    // His work done, he goes back to his hat, unless the visitor has moved on to something else.
+    const said = card.innerHTML;
+    setTimeout(() => {
+      if (visible && !card.hidden && card.innerHTML === said) dismiss();
+    }, 2200);
+  };
 
   // Point at every click outside Merlin and his controls.
   const marker = (x: number, y: number) => {
