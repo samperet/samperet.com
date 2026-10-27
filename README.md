@@ -97,8 +97,8 @@ not GPS tracks. It loads only when the card opens, and only turns when dragged o
 `/career/` (`src/pages/career.astro`) is the résumé as a page: summary, competencies, five
 roles with titles and dates, initiatives, education, community, boards and awards, all data
 in `src/data/career.ts`. Beside the portrait, under the header, sits a small cover for an
-executive overview (`src/components/CareerDeck.astro`) with a Start button over its right edge;
-a click opens it in a dialog nine-tenths of the screen: seven slides built from the same data (who, now, in numbers, four strengths,
+executive overview (`src/components/CareerDeck.astro`), with its title and a Start button to
+its right; Start, or a click on the cover, opens it in a dialog nine-tenths of the screen: seven slides built from the same data (who, now, in numbers, four strengths,
 experience, selected work, let's talk), moved by the visitor with the arrows, the keyboard or a
 swipe, never on their own, with "Present" for full screen and Close, Escape or a click outside to
 put it away. On phones the slides keep to the short version, and print leaves them out. Each highlight is marked with the tagline's four skills; choosing one

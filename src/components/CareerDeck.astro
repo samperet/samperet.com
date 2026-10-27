@@ -1,8 +1,8 @@
 ---
 // The executive overview on /career/: seven slides drawn from the CV's own data
 // (src/data/career.ts), so they say nothing the page below doesn't. On the page it is a small
-// cover beside the portrait with a Start button over its right edge; a click opens the slides
-// in a dialog nine-tenths of the screen.
+// cover beside the portrait, with its title and a Start button to its right (under it on a
+// phone); Start, or a click on the cover, opens the slides in a dialog nine-tenths of the screen.
 // The visitor moves through them (arrows, the keyboard, a swipe; it is a scroll-snapped strip)
 // and nothing advances on its own. "Present" shows it full screen for a meeting. Close, Escape
 // or a click outside puts it away. Hidden in print, where the CV itself is the document.
@@ -39,16 +39,24 @@ const exampleNote = example?.note.replace(/^An example of this work: (\w)/, (_, 
 const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experience', 'Selected work', 'Let’s talk'];
 ---
 
-<button type="button" class="deck-cover" aria-haspopup="dialog" aria-label="Start the executive overview" data-deck-open data-track="career:deck:open">
-  <span class="cover-slide" aria-hidden="true">
-    <span class="cover-text">
-      <span class="cover-name">Samuel Peret</span>
-      <span class="cover-role">Technology <span class="amp">&amp;</span> operations leader</span>
-    </span>
-    {alps.photos?.[0] && <img class="cover-photo" src={alps.photos[0].thumb ?? alps.photos[0].src} alt="" width={alps.photos[0].width} height={alps.photos[0].height} decoding="async" />}
-  </span>
-  <span class="cover-start"><span class="cover-play" aria-hidden="true"></span>Start</span>
-</button>
+<div class="deck-launch">
+  {/* The cover opens it too, for the pointer; Start is the one control for the keyboard and screen readers. */}
+  <div class="deck-cover" aria-hidden="true" data-deck-open data-track="career:deck:open:cover">
+    <div class="cover-slide">
+      <div class="cover-text">
+        <span class="cover-name">Samuel Peret</span>
+        <span class="cover-role">Technology <span class="amp">&amp;</span> operations leader</span>
+      </div>
+      {alps.photos?.[0] && <img class="cover-photo" src={alps.photos[0].thumb ?? alps.photos[0].src} alt="" width={alps.photos[0].width} height={alps.photos[0].height} decoding="async" />}
+    </div>
+  </div>
+  <div class="launch-text">
+    <h2 class="launch-title" id="deck-launch-title">Executive Overview</h2>
+    <button type="button" class="btn btn-accent deck-start" aria-haspopup="dialog" aria-describedby="deck-launch-title" data-deck-open data-track="career:deck:open">
+      <span class="cover-play" aria-hidden="true"></span> Start
+    </button>
+  </div>
+</div>
 
 <dialog class="deck-dialog" aria-label="Executive overview" data-deck-dialog>
   <section class="deck" aria-roledescription="carousel" aria-label="Executive overview" data-deck data-titles={JSON.stringify(slides)}>
@@ -160,10 +168,10 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
 </dialog>
 
 <script>
-  // The cover opens the dialog; arrows, the keyboard and the counter move the strip inside it,
-  // which scrolls and snaps on its own.
+  // Start, or the cover, opens the dialog; arrows, the keyboard and the counter move the strip
+  // inside it, which scrolls and snaps on its own.
   const dialog = document.querySelector<HTMLDialogElement>('[data-deck-dialog]')!;
-  const cover = document.querySelector<HTMLButtonElement>('[data-deck-open]')!;
+  const openers = document.querySelectorAll<HTMLElement>('[data-deck-open]');
   const deck = dialog.querySelector<HTMLElement>('[data-deck]')!;
   const titles: string[] = JSON.parse(deck.dataset.titles!);
   const track = deck.querySelector<HTMLElement>('[data-deck-track]')!;
@@ -198,12 +206,13 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
   });
 
   // Each opening starts at the first slide, with the strip focused so the arrow keys work.
-  cover.addEventListener('click', () => {
+  const open = () => {
     dialog.showModal();
     track.scrollTo({ left: 0, behavior: 'auto' });
     show();
     track.focus({ preventScroll: true });
-  });
+  };
+  for (const opener of openers) opener.addEventListener('click', open);
   const close = () => {
     if (document.fullscreenElement === deck) document.exitFullscreen();
     dialog.close();
@@ -238,37 +247,20 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
 </script>
 
 <style>
-  /* The cover: the first slide in miniature, under the header beside the portrait, with Start
-     over its right edge. The button keeps room on its right for the half of Start that hangs
-     past the slide; only the slide and Start take clicks. */
-  .deck-cover {
-    --overhang: 3.5rem;
-    position: relative;
-    display: block;
-    width: min(100%, 22rem + var(--overhang));
+  /* The cover, the first slide in miniature, under the header beside the portrait; its title
+     and Start to its right, or under it when there is no room. */
+  .deck-launch {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s4) var(--s6);
     margin-top: var(--s6);
-    padding: 0 var(--overhang) 0 0;
-    border: 0;
-    background: none;
-    color: var(--fg);
-    text-align: left;
+  }
+
+  .deck-cover {
+    width: min(100%, 22rem);
     cursor: pointer;
-    pointer-events: none;
     container-type: inline-size;
-  }
-
-  .cover-slide,
-  .cover-start {
-    pointer-events: auto;
-  }
-
-  .deck-cover:focus-visible {
-    outline: none;
-  }
-
-  .deck-cover:focus-visible .cover-start {
-    outline: 2px solid var(--focus);
-    outline-offset: 3px;
   }
 
   .cover-slide {
@@ -289,10 +281,27 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
   }
 
   .deck-cover:hover .cover-slide,
-  .deck-cover:focus-visible .cover-slide {
+  .deck-launch:has(.deck-start:hover, .deck-start:focus-visible) .cover-slide {
     transform: translateY(-2px);
     border-color: var(--rule-strong);
     box-shadow: 0 16px 40px rgb(35 37 39 / 0.16), 0 1px 2px rgb(35 37 39 / 0.08);
+  }
+
+  .launch-text {
+    display: grid;
+    justify-items: start;
+    gap: var(--s3);
+  }
+
+  .launch-title {
+    font-size: var(--text-lg);
+    line-height: var(--leading-tight);
+  }
+
+  .cover-play {
+    border-style: solid;
+    border-width: 0.42em 0 0.42em 0.7em;
+    border-color: transparent transparent transparent currentColor;
   }
 
   .cover-text {
@@ -325,41 +334,9 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
     border-radius: var(--radius);
   }
 
-  .cover-start {
-    position: absolute;
-    top: 50%;
-    right: var(--overhang);
-    translate: 50% -50%;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55em;
-    padding: 0.7rem 1.1rem 0.7rem 0.95rem;
-    border-radius: var(--radius);
-    background: var(--accent);
-    color: var(--on-accent);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    line-height: 1.2;
-    white-space: nowrap;
-    box-shadow: 0 8px 20px rgb(35 37 39 / 0.22), 0 1px 2px rgb(35 37 39 / 0.12);
-    transition: background var(--fast) var(--ease);
-  }
-
-  .deck-cover:hover .cover-start,
-  .deck-cover:focus-visible .cover-start {
-    background: var(--accent-strong);
-  }
-
-  .cover-play {
-    border-style: solid;
-    border-width: 0.42em 0 0.42em 0.7em;
-    border-color: transparent transparent transparent currentColor;
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .deck-cover:hover .cover-slide,
-    .deck-cover:focus-visible .cover-slide {
-      transform: none;
+    .cover-slide {
+      transform: none !important;
     }
   }
 
@@ -811,7 +788,7 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
   }
 
   @media print {
-    .deck-cover,
+    .deck-launch,
     .deck-dialog {
       display: none;
     }
