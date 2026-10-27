@@ -1,7 +1,8 @@
 ---
 // The executive overview on /career/: seven slides drawn from the CV's own data
 // (src/data/career.ts), so they say nothing the page below doesn't. On the page it is a small
-// cover beside the portrait; a click opens the slides in a dialog nine-tenths of the screen.
+// cover beside the portrait with a Start button over its right edge; a click opens the slides
+// in a dialog nine-tenths of the screen.
 // The visitor moves through them (arrows, the keyboard, a swipe; it is a scroll-snapped strip)
 // and nothing advances on its own. "Present" shows it full screen for a meeting. Close, Escape
 // or a click outside puts it away. Hidden in print, where the CV itself is the document.
@@ -38,16 +39,15 @@ const exampleNote = example?.note.replace(/^An example of this work: (\w)/, (_, 
 const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experience', 'Selected work', 'Let’s talk'];
 ---
 
-<button type="button" class="deck-cover" aria-haspopup="dialog" data-deck-open data-track="career:deck:open">
+<button type="button" class="deck-cover" aria-haspopup="dialog" aria-label="Start the executive overview" data-deck-open data-track="career:deck:open">
   <span class="cover-slide" aria-hidden="true">
     <span class="cover-text">
       <span class="cover-name">Samuel Peret</span>
       <span class="cover-role">Technology <span class="amp">&amp;</span> operations leader</span>
     </span>
     {alps.photos?.[0] && <img class="cover-photo" src={alps.photos[0].thumb ?? alps.photos[0].src} alt="" width={alps.photos[0].width} height={alps.photos[0].height} decoding="async" />}
-    <svg class="cover-expand" viewBox="0 0 16 16" width="16" height="16" focusable="false"><path d="M9.5 2.5h4v4M13.5 2.5 9 7M6.5 13.5h-4v-4M2.5 13.5 7 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
   </span>
-  <span class="cover-caption">Executive overview <span class="cover-count">· {slides.length} slides</span></span>
+  <span class="cover-start"><span class="cover-play" aria-hidden="true"></span>Start</span>
 </button>
 
 <dialog class="deck-dialog" aria-label="Executive overview" data-deck-dialog>
@@ -238,19 +238,37 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
 </script>
 
 <style>
-  /* The cover: the first slide in miniature, under the header beside the portrait. */
+  /* The cover: the first slide in miniature, under the header beside the portrait, with Start
+     over its right edge. The button keeps room on its right for the half of Start that hangs
+     past the slide; only the slide and Start take clicks. */
   .deck-cover {
-    display: grid;
-    gap: var(--s2);
-    width: min(100%, 22rem);
+    --overhang: 3.5rem;
+    position: relative;
+    display: block;
+    width: min(100%, 22rem + var(--overhang));
     margin-top: var(--s6);
-    padding: 0;
+    padding: 0 var(--overhang) 0 0;
     border: 0;
     background: none;
     color: var(--fg);
     text-align: left;
-    cursor: zoom-in;
+    cursor: pointer;
+    pointer-events: none;
     container-type: inline-size;
+  }
+
+  .cover-slide,
+  .cover-start {
+    pointer-events: auto;
+  }
+
+  .deck-cover:focus-visible {
+    outline: none;
+  }
+
+  .deck-cover:focus-visible .cover-start {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
   }
 
   .cover-slide {
@@ -307,32 +325,35 @@ const slides = ['Samuel Peret', 'Now', 'In numbers', 'Four strengths', 'Experien
     border-radius: var(--radius);
   }
 
-  .cover-expand {
+  .cover-start {
     position: absolute;
-    top: 3.5cqi;
-    right: 3.5cqi;
-    width: 1.75rem;
-    height: 1.75rem;
-    padding: 0.35rem;
+    top: 50%;
+    right: var(--overhang);
+    translate: 50% -50%;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55em;
+    padding: 0.7rem 1.1rem 0.7rem 0.95rem;
     border-radius: var(--radius);
-    background: rgb(255 255 255 / 0.92);
-    color: var(--fg);
-    box-shadow: 0 1px 3px rgb(35 37 39 / 0.18);
-  }
-
-  .cover-caption {
+    background: var(--accent);
+    color: var(--on-accent);
     font-size: var(--text-sm);
     font-weight: 600;
-    transition: color var(--fast) var(--ease);
+    line-height: 1.2;
+    white-space: nowrap;
+    box-shadow: 0 8px 20px rgb(35 37 39 / 0.22), 0 1px 2px rgb(35 37 39 / 0.12);
+    transition: background var(--fast) var(--ease);
   }
 
-  .cover-count {
-    font-weight: 400;
-    color: var(--muted);
+  .deck-cover:hover .cover-start,
+  .deck-cover:focus-visible .cover-start {
+    background: var(--accent-strong);
   }
 
-  .deck-cover:hover .cover-caption {
-    color: var(--accent-text);
+  .cover-play {
+    border-style: solid;
+    border-width: 0.42em 0 0.42em 0.7em;
+    border-color: transparent transparent transparent currentColor;
   }
 
   @media (prefers-reduced-motion: reduce) {

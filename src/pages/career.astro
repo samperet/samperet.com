@@ -44,6 +44,7 @@ const description =
         alt="Sam Peret, smiling, hands in pockets, in a dark pinstripe suit and open blue shirt"
         fetchpriority="high"
       />
+      <button type="button" class="btn btn-primary side-message" data-contact data-track="career:message">Send me a message</button>
       <nav class="toc" aria-label="On this page">
         {toc.map((t) => <a href={`#${t.id}`} data-toc={t.id} class:list={{ sub: t.sub }}>{t.name}</a>)}
       </nav>
@@ -65,9 +66,6 @@ const description =
             github.com/samperet
           </a>
         </p>
-        <div class="actions">
-          <button type="button" class="btn btn-primary" data-contact data-track="career:message">Send me a message</button>
-        </div>
         <CareerDeck />
       </header>
 
@@ -378,6 +376,11 @@ const description =
     background: #ddd8e8;
   }
 
+  /* "Send me a message", under the portrait and as wide as it. */
+  .side-message {
+    margin-top: calc(var(--s3) - var(--s5));
+  }
+
   .toc {
     display: grid;
     gap: var(--s1);
@@ -458,13 +461,6 @@ const description =
     width: 1em;
     height: 1em;
     color: var(--fg);
-  }
-
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s2);
-    margin-top: var(--s5);
   }
 
   /* ---- Blocks -------------------------------------------------------------------------- */
@@ -923,7 +919,8 @@ const description =
       overflow: visible;
     }
 
-    .portrait {
+    .portrait,
+    .side-message {
       width: min(60vw, 18rem);
     }
 
@@ -943,7 +940,7 @@ const description =
   @media print {
     .home-btn,
     .toc,
-    .actions,
+    .side-message,
     .lens,
     .photos,
     .marks {
