@@ -4,17 +4,23 @@
 // to two homepage cards; the homepage passes those cards in (and is wider), and they show only
 // while open. Elsewhere the footer keeps to the page's usual width.
 import Shelf from './Shelf.astro';
+import { MEN } from '../lib/hosts';
 
 type Props = { path: string; interests?: string[]; cards?: boolean };
 
 const { path, interests, cards = false } = Astro.props;
+// On a page with its own subdomain (its path is a full URL), the site's links lead back to
+// samperet.com.
+const away = /^https?:/.test(path);
 const links = [
   { label: 'Home', href: '/' },
   { label: 'Career', href: '/career/' },
-  { label: 'Men’s work', href: '/mens-group/' },
+  { label: 'Men’s work', href: MEN.url },
   { label: 'Recommended books', href: '/#recommended-books' },
   { label: 'Photos', href: '/#photos' },
-].filter((l) => l.href !== path);
+]
+  .filter((l) => l.href !== path)
+  .map((l) => (away && l.href.startsWith('/') ? { ...l, href: new URL(l.href, Astro.site).href } : l));
 ---
 
 <footer class="site-footer">

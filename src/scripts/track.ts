@@ -1,5 +1,6 @@
 // Logs page views and what visitors click to /api/track, under a per-tab session id.
 // Nothing is sent when the browser signals Global Privacy Control or Do Not Track.
+import { sitePath } from '../lib/hosts';
 
 const nav = navigator as Navigator & { globalPrivacyControl?: boolean };
 const enabled = !nav.globalPrivacyControl && nav.doNotTrack !== '1';
@@ -23,7 +24,7 @@ export function track(type: 'pageview' | 'click', target?: string) {
     type,
     target,
     session,
-    path: location.pathname,
+    path: sitePath(location),
     referrer: type === 'pageview' ? document.referrer : undefined,
   });
   const blob = new Blob([body], { type: 'application/json' });

@@ -2,6 +2,7 @@
 // questions about the site (src/lib/knowledge.ts).
 import type { SectionData, Photo } from '../components/Section.astro';
 import { ALPS_PHOTOS, AIRBNB_PHOTOS } from './photos';
+import { MEN } from '../lib/hosts';
 
 // Copy is deliberately thin — edit freely. Each section is a tile: `tile` is its face, `body` the
 // longer text that unfolds when it opens;
@@ -127,7 +128,7 @@ export const sections: SectionData[] = [
         ],
         cta: [
           { label: 'getheartwise.com', href: 'https://www.getheartwise.com' },
-          { text: 'I’m currently looking for men to start a men’s group with.', label: 'Join a men’s group', href: '/mens-group/' },
+          { text: 'I’m currently looking for men to start a men’s group with.', label: 'Join a men’s group', href: MEN.url },
         ],
       },
     ],

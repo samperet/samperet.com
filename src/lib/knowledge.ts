@@ -7,6 +7,7 @@ import { BOOKS } from '../data/books';
 import { awards, boards, competencies, contact, education, initiatives, roles, summary } from '../data/career';
 import { sections, projects, footerCards } from '../data/home';
 import { GROUP } from '../data/mens-group';
+import { MEN } from './hosts';
 
 const slug = (value: string) =>
   value.toLowerCase().replace(/['’]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -85,7 +86,7 @@ The CV as a page: highlight by skill (strategy, relationships, systems, design),
 
 ${career}
 
-## Men's work (link: /mens-group/)
+## Men's work (link: ${MEN.url})
 
 A men's group Sam is starting in Charlotte, Vermont. Creed: "Show up, share, hold each other
 accountable, shift your perspective, check out in your sovereignty." Sam has sat in and built men's
@@ -127,8 +128,8 @@ export type Place = { path: string; title: string; within?: string; words?: stri
 
 const WORDS: Record<string, string> = {
   '/career/': 'cv resume work job jobs experience professional linkedin',
-  '/mens-group/': 'mens group men group mkp circle',
-  '/mens-group/#apply': 'apply application join mens group',
+  [MEN.url]: 'mens group men group mkp circle',
+  [`${MEN.url}#apply`]: 'apply application join mens group',
   '/#recommended-books': 'books reading library',
   '/#photos': 'pictures gallery',
   '/#heartwise': 'heart iq circles',
@@ -160,8 +161,8 @@ export const PLACES: Place[] = [
   { path: '/career/', title: 'Career' },
   ...roles.map((r) => ({ path: `/career/#${r.id}`, title: r.name, within: 'Career' })),
   ...careerSections.map(([id, title]) => ({ path: `/career/#${id}`, title, within: 'Career' })),
-  { path: '/mens-group/', title: 'the men’s group' },
-  { path: '/mens-group/#apply', title: 'Apply to the men’s group', within: 'Men’s work' },
+  { path: MEN.url, title: 'the men’s group' },
+  { path: `${MEN.url}#apply`, title: 'Apply to the men’s group', within: 'Men’s work' },
   ...footerCards.flatMap((s) => placesOf(s)),
 ]
   .filter((p, i, all) => all.findIndex((q) => q.path === p.path) === i)

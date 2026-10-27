@@ -58,7 +58,7 @@ leadership). A card's `interests`, or a page's (`<Base interests={[…]}>`, show
 puts a "Recommended reading" shelf at its foot with the books tagged with any of them
 (`src/components/Shelf.astro`); with no matching book there is no shelf. Each cover (in
 `public/reading/`) is a little book that opens on its spine on hover and links out. Only the
-Spirituality card has tagged books so far: tag a book `men` and it appears on `/mens-group/`.
+Spirituality card has tagged books so far: tag a book `men` and it appears on the men's group page.
 
 **Cards in parts.** A card's `parts` are sections of it under their own headings: Yoga, Sufism
 and Get HeartWise in "Yoga, Spirituality & Personal Development" (HeartWise is no longer a card of
@@ -152,9 +152,9 @@ Turning a page by hand pauses the reading; Keep reading brings the book back to 
 
 ## Men's group
 
-`/mens-group/` (`src/pages/mens-group.astro`; on the homepage the Get HeartWise part ends with "I'm
-currently looking for men to start a men's group with." and a "Join a men's group" button to it,
-a card's `cta`) invites
+**men.samperet.com** (`src/pages/mens-group.astro`; on the homepage the Get HeartWise part ends
+with "I'm currently looking for men to start a men's group with." and a "Join a men's group"
+button to it, a card's `cta`) invites
 men to a group in Charlotte, VT, meeting weekly for three months through Lover, Warrior, Magician
 and King. The cost is commitment and accountability.
 
@@ -162,6 +162,16 @@ The page has its own look, rougher than the rest of the site: `body.grit` redefi
 tokens (near-black, bone, Beach gold as its one accent), adds film grain, squares every corner,
 and sets headings in Oswald, a condensed grotesque loaded only on this page (`astro.config.mjs`).
 Merlin and the photo viewer are off here.
+
+The page has its own address but no project of its own: it is built with the rest of the site at
+`/mens-group/` (where development and previews still show it), and `vercel.json` routes the
+`men.samperet.com` domain on this project. That host's root shows the page, its form posts to
+`/api/apply` on the same host, samperet.com/mens-group/ redirects there (308), and any other page
+asked for on men.samperet.com redirects back to samperet.com. `src/lib/hosts.ts` holds the address:
+the site's links to the page, Merlin's places and the footer use it, the page's own links back to
+the site are full samperet.com addresses, and the visitor stats log its views under
+`/mens-group/` as before. A visitor crossing between the two hosts starts a new session in the
+stats, since each host keeps its own.
 
 Five blocks show the places filled: `src/data/mens-group.ts` holds `{ size: 5, filled: 2 }`,
 which the page reads, so raise `filled` as men are accepted. The time,

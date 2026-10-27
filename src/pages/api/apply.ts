@@ -1,16 +1,17 @@
-// Applications to the men's group (/mens-group/). Kept with Merlin's messages, so they show at
-// /backend, and emailed to Sam with the applicant as the reply-to. The page posts multipart form
-// data and asks for JSON, with the applicant's video when they recorded one; the video travels
-// only as an attachment to that email. Without JavaScript the form posts itself and is sent back
-// to the page, to its thank-you note.
+// Applications to the men's group (men.samperet.com, /mens-group/ in the build). Kept with
+// Merlin's messages, so they show at /backend, and emailed to Sam with the applicant as the
+// reply-to. The page posts multipart form data and asks for JSON, with the applicant's video when
+// they recorded one; the video travels only as an attachment to that email. Without JavaScript
+// the form posts itself and is sent back to the page, to its thank-you note.
 import type { APIRoute } from 'astro';
 import { db } from '../../lib/db';
 import { canNotify, notify } from '../../lib/notify';
 import { allow, clip, deviceOf, geoOf, sameOrigin } from '../../lib/visitor';
+import { MEN } from '../../lib/hosts';
 
 export const prerender = false;
 
-const PAGE = '/mens-group/';
+const PAGE = MEN.path;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Vercel refuses request bodies over 4.5 MB; the page keeps a minute's video well under this.
 const VIDEO_MAX = 4_400_000;
@@ -20,13 +21,15 @@ const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').
 export const POST: APIRoute = async ({ request, clientAddress }) => {
   const type = request.headers.get('content-type') ?? '';
   const wantsJson = type.includes('application/json') || (request.headers.get('accept') ?? '').includes('application/json');
+  // Without JavaScript the visitor goes back to the page: the root of its own host, or its path elsewhere.
+  const page = new URL(request.url).hostname === MEN.host ? '/' : PAGE;
   const reply = (status: number, error?: string) =>
     wantsJson
       ? new Response(JSON.stringify(error ? { ok: false, error } : { ok: true }), {
           status,
           headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
         })
-      : new Response(null, { status: 303, headers: { Location: `${PAGE}#${error ? 'apply-failed' : 'applied'}` } });
+      : new Response(null, { status: 303, headers: { Location: `${page}#${error ? 'apply-failed' : 'applied'}` } });
 
   if (!sameOrigin(request)) return reply(403, 'Not allowed.');
   if (!allow(`apply:${clientAddress}`, 3, 10 * 60_000)) return reply(429, 'Too many applications. Try again later.');

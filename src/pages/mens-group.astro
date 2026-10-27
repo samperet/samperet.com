@@ -1,7 +1,8 @@
 ---
-// The men's group in Charlotte, VT. Its own look, darker and rougher than the rest of the site:
-// near-black paper with grain, Oswald for headings, square edges. Merlin and the photo viewer stay
-// off this page.
+// The men's group in Charlotte, VT, at men.samperet.com (src/lib/hosts.ts; /mens-group/ in the
+// build), so its links back to the site are full addresses. Its own look, darker and rougher
+// than the rest of the site: near-black paper with grain, Oswald for headings, square edges.
+// Merlin and the photo viewer stay off this page.
 //
 // The four archetypes sit on a wheel, Lover at the top, and it turns clockwise with the scroll,
 // bringing Warrior, Magician and King to the top in turn; the words turn with the wheel, upright
@@ -14,6 +15,7 @@
 import { Font } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import { GROUP } from '../data/mens-group';
+import { MEN, SITE_URL } from '../lib/hosts';
 
 // `element` is what the colour stands for (see below); it isn't shown.
 type Archetype = { id: string; name: string; element: string; color: string; ink: string; text: string };
@@ -50,11 +52,11 @@ const TIMES = ['Weekday mornings', 'Weekday evenings', 'Weekend mornings', 'Week
 const KEYS = 'ABCDE';
 ---
 
-<Base title="Men’s Work, Charlotte VT · Samperet.com" description={description} path="/mens-group/" bodyClass="grit" merlin={false} viewer={false} interests={['men']}>
+<Base title="Men’s Work, Charlotte VT · Samperet.com" description={description} path={MEN.url} bodyClass="grit" merlin={false} viewer={false} interests={['men']}>
   <Font slot="head" cssVariable="--font-oswald" preload />
 
   <main class="wrap mg">
-    <a class="arrow-link home-btn" href="/" data-track="nav:home"><span class="arrow" aria-hidden="true">←</span> Home</a>
+    <a class="arrow-link home-btn" href={SITE_URL} data-track="nav:home"><span class="arrow" aria-hidden="true">←</span> Home</a>
 
     <header class="mg-head">
       <h1>Men’s work <span>Charlotte VT</span></h1>
@@ -69,7 +71,7 @@ const KEYS = 'ABCDE';
       <div class="measure">
         <p>
           Born in ’86, grew up in NH, lived in California, Australia, Maui and Portland. I’ve sat in and built men’s circles since 2012. I’m a
-          Dad, an entrepreneur, facilitator and yogi. You can check me out at <a href="/">Samperet.com</a>.
+          Dad, an entrepreneur, facilitator and yogi. You can check me out at <a href={SITE_URL}>Samperet.com</a>.
         </p>
         <p>
           I’m looking for a specific resonance of men to build this container with. Equal parts passion, curiosity, liveliness and skill. If you
