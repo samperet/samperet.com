@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HAUTomation · Open-source home automation on a Stream Deck</title>
+<meta name="description" content="HAUTomation installs open-source home media and home automation, and puts it on a Stream Deck with buttons designed for your home. Book a free call.">
+<link rel="canonical" href="https://hautomation.samperet.com/">
+<meta property="og:title" content="HAUTomation">
+<meta property="og:description" content="Open-source home media and home automation, on a Stream Deck with buttons designed for your home.">
+<meta property="og:url" content="https://hautomation.samperet.com/">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#be2a44">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/fonts/familjen-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+<!--
+  hautomation.samperet.com: a one-page landing site for HAUTomation, Sam's home-automation
+  practice: open-source home media and home automation, with a Stream Deck of custom buttons as
+  the front panel. Its own Vercel project, deployed from sites/hautomation/ in the samperet.com
+  repository. Static: no build, no tracking. The one script makes the deck's keys answer a press.
+
+  The brand: Swedish modern. Familjen Grotesk (by Familjen STHLM, SIL Open Font License) on warm
+  paper, one hero colour, rouge, and nothing else loud. Rouge on paper and paper on rouge both
+  pass 4.5:1.
+-->
+<style>
+  @font-face { font-family: 'Familjen Grotesk'; src: url('/fonts/familjen-grotesk.woff2') format('woff2'); font-weight: 400 700; font-style: normal; font-display: swap; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Familjen Grotesk'; src: url('/fonts/familjen-grotesk-ext.woff2') format('woff2'); font-weight: 400 700; font-style: normal; font-display: swap; unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+
+  :root {
+    /* Rouge is the hero colour: the hero, the closing call, buttons, the wordmark's HAUT. */
+    --rouge: #be2a44;
+    --rouge-deep: #9d1f36;
+    --rouge-soft: #f7e4e7;
+    --on-rouge: #fdf6f3;
+    --on-rouge-muted: #fbe3e7;
+    --paper: #f4f2ee;
+    --birch: #ebe7e0;
+    --ink: #161616;
+    --ink-muted: #4b4a47;
+    --rule: #d8d3ca;
+    --deck: #1c1c1e;
+    --key: #2b2b2e;
+    --key-hover: #36363a;
+    --sans: 'Familjen Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    --radius: 4px;
+    --radius-lg: 14px;
+    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font: 400 1.0625rem/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; text-wrap: balance; }
+  p, ol, ul { margin: 0; }
+  a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: var(--radius); }
+  .wrap { width: min(72rem, 100% - 2.5rem); margin-inline: auto; }
+  .label { font: 500 0.75rem/1.2 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* ---- Header ---- */
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.25rem 0; }
+  .wordmark { font-size: 1.5rem; font-weight: 400; letter-spacing: -0.02em; text-decoration: none; }
+  .wordmark b { font-weight: 700; color: var(--rouge); }
+  .top nav { display: flex; align-items: center; gap: 1.5rem; font-size: 0.9375rem; }
+  .top nav a:not(.btn) { color: var(--ink-muted); text-decoration: none; }
+  .top nav a:not(.btn):hover { color: var(--ink); text-decoration: underline; }
+
+  .btn { display: inline-flex; align-items: center; gap: 0.6em; padding: 0.85rem 1.35rem; border: 0; border-radius: var(--radius); background: var(--rouge); color: var(--on-rouge); font-weight: 600; text-decoration: none; transition: background 150ms var(--ease); }
+  .btn:hover, .btn:focus-visible { background: var(--rouge-deep); }
+  .btn .arrow { transition: transform 150ms var(--ease); }
+  .btn:hover .arrow, .btn:focus-visible .arrow { transform: translateX(0.2em); }
+  .btn-sm { padding: 0.55rem 0.95rem; font-size: 0.9375rem; }
+  .btn-paper { background: var(--paper); color: var(--ink); }
+  .btn-paper:hover, .btn-paper:focus-visible { background: #fff; }
+
+  /* ---- Hero: rouge, the deck on the right ---- */
+  .hero { background: var(--rouge); color: var(--on-rouge); }
+  .hero :focus-visible { outline-color: var(--on-rouge); }
+  .hero-inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(2.5rem, 6vw, 5rem); align-items: center; padding: clamp(3rem, 8vw, 6.5rem) 0; }
+  .hero-text { display: grid; gap: 1.5rem; justify-items: start; }
+  .hero .label { color: var(--on-rouge-muted); }
+  .hero h1 { font-size: clamp(2.8rem, 1.5rem + 5vw, 5.6rem); font-weight: 700; letter-spacing: -0.035em; line-height: 0.95; max-width: 11ch; }
+  .lede { font-size: clamp(1.15rem, 1rem + 0.6vw, 1.4rem); line-height: 1.45; color: var(--on-rouge-muted); max-width: 34ch; }
+  .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.75rem; margin-top: 0.5rem; }
+  .cta-row .quiet { color: var(--on-rouge); font-weight: 500; }
+
+  /* The deck: an illustration of a Stream Deck, fifteen keys, each one a little screen. */
+  .deck-figure { margin: 0; display: grid; gap: 1rem; }
+  .deck { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(6px, 1.2vw, 11px); padding: clamp(12px, 2vw, 20px); border-radius: clamp(14px, 2.4vw, 24px); background: var(--deck); box-shadow: 0 34px 60px -24px rgb(60 0 14 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.07); }
+  .key { position: relative; aspect-ratio: 1; display: grid; place-content: center; justify-items: center; gap: 0.3em; padding: 0; border: 0; border-radius: clamp(6px, 1vw, 10px); background: var(--key); color: var(--paper); font: 500 clamp(0.56rem, 0.45rem + 0.45vw, 0.72rem)/1 var(--sans); letter-spacing: 0.01em; box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.06); cursor: pointer; transition: background 150ms var(--ease), transform 90ms var(--ease); }
+  .key:hover { background: var(--key-hover); }
+  .key:active { transform: translateY(1px) scale(0.97); }
+  .key[aria-pressed='true'] { background: var(--rouge); }
+  .key svg { width: clamp(18px, 2.6vw, 30px); height: auto; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .key .state { position: absolute; top: 0.45em; right: 0.5em; font: 500 0.85em/1 var(--mono); color: #c9c6c0; }
+  .key[aria-pressed='true'] .state { color: var(--on-rouge); }
+  .key:focus-visible { outline: 2px solid var(--on-rouge); outline-offset: 2px; }
+
+  .readout { padding: 1.1rem 1.25rem 1.25rem; border-radius: var(--radius-lg); background: var(--paper); color: var(--ink); min-height: 11.5rem; }
+  .readout .label { color: var(--ink-muted); }
+  .readout-title { margin: 0.35rem 0 0.6rem; font-size: 1.375rem; font-weight: 600; letter-spacing: -0.015em; }
+  .readout ol { list-style: none; padding: 0; display: grid; gap: 0.3rem; }
+  .readout li { display: grid; grid-template-columns: 1.25rem 1fr; color: var(--ink-muted); }
+  .readout li::before { content: '→'; color: var(--rouge); }
+  .deck-note { font-size: 0.875rem; color: var(--on-rouge-muted); }
+
+  /* ---- Sections: a numbered label on the left, the matter on the right ---- */
+  .band { padding: clamp(3.5rem, 8vw, 6rem) 0; border-top: 1px solid var(--rule); }
+  .band-head { display: grid; grid-template-columns: 14rem minmax(0, 1fr); gap: 1rem 3rem; margin-bottom: clamp(2rem, 5vw, 3.5rem); }
+  .band-head .label { padding-top: 0.6rem; color: var(--ink-muted); }
+  .band-head .label b { color: var(--rouge); font-weight: 500; }
+  .band-head h2 { font-size: clamp(2rem, 1.3rem + 2.8vw, 3.5rem); max-width: 18ch; }
+  .band-head p { margin-top: 1.25rem; max-width: 52ch; font-size: 1.1875rem; color: var(--ink-muted); }
+  .band-body { margin-left: calc(14rem + 3rem); }
+
+  /* The deck, point by point. */
+  .points { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.25rem 3rem; }
+  .points li { display: grid; gap: 0.4rem; padding-top: 1rem; border-top: 2px solid var(--ink); }
+  .points h3 { font-size: 1.3rem; }
+  .points p { color: var(--ink-muted); }
+  .aside { margin-top: 2.5rem; max-width: 60ch; color: var(--ink-muted); font-size: 0.9375rem; }
+
+  /* What gets installed: four panels of birch. */
+  .installs { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1rem; }
+  .install { display: grid; gap: 0.75rem; align-content: start; padding: 1.5rem; border-radius: var(--radius-lg); background: var(--birch); }
+  .install svg { width: 2rem; height: 2rem; fill: none; stroke: var(--rouge); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .install h3 { font-size: 1.375rem; }
+  .install p { color: var(--ink-muted); }
+  .install .label { color: var(--ink); margin-top: auto; padding-top: 0.5rem; }
+
+  /* Principles: four short promises in a row. */
+  .principles { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 2.5rem; }
+  .principles li { display: grid; gap: 0.4rem; align-content: start; }
+  .principles h3 { font-size: 1.25rem; }
+  .principles h3::before { content: ''; display: block; width: 0.75rem; height: 0.75rem; margin-bottom: 0.9rem; border-radius: 2px; background: var(--rouge); }
+  .principles p { color: var(--ink-muted); }
+
+  /* How it works. */
+  .steps { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 2.5rem; counter-reset: step; }
+  .steps li { counter-increment: step; display: grid; gap: 0.4rem; align-content: start; }
+  .steps li::before { content: counter(step); font-size: 3rem; font-weight: 700; line-height: 1; letter-spacing: -0.04em; color: var(--rouge); }
+  .steps h3 { font-size: 1.25rem; }
+  .steps p { color: var(--ink-muted); }
+
+  /* ---- Closing call, in rouge again ---- */
+  .closing { background: var(--rouge); color: var(--on-rouge); }
+  .closing :focus-visible { outline-color: var(--on-rouge); }
+  .closing-inner { display: grid; gap: 1.25rem; justify-items: start; padding: clamp(3.5rem, 8vw, 6rem) 0; }
+  .closing .label { color: var(--on-rouge-muted); }
+  .closing h2 { font-size: clamp(2.4rem, 1.4rem + 4vw, 4.75rem); font-weight: 700; letter-spacing: -0.035em; line-height: 0.98; max-width: 14ch; }
+  .closing p { max-width: 46ch; font-size: 1.1875rem; color: var(--on-rouge-muted); }
+
+  footer { padding: 2rem 0 3rem; font-size: 0.875rem; color: var(--ink-muted); }
+  footer .wrap { display: grid; gap: 0.75rem; }
+  footer .row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1.5rem; }
+  footer .fine { font-size: 0.8125rem; }
+
+  /* Four promises and four steps sit in one row when there's room, two by two when not. */
+  @media (min-width: 1100px) {
+    .principles, .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 900px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .band-head { grid-template-columns: 1fr; }
+    .band-head .label { padding-top: 0; }
+    .band-body { margin-left: 0; }
+  }
+
+  @media (max-width: 640px) {
+    .top nav a:not(.btn) { display: none; }
+    .points, .principles, .steps { grid-template-columns: 1fr; }
+    .readout { min-height: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+  <header class="top wrap">
+    <a class="wordmark" href="/" aria-label="HAUTomation, home"><b>HAUT</b>omation</a>
+    <nav aria-label="Sections">
+      <a href="#deck">The deck</a>
+      <a href="#install">What I install</a>
+      <a href="#how">How it works</a>
+      <a class="btn btn-sm" href="#call">Free call</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-inner wrap">
+        <div class="hero-text">
+          <span class="label">Home automation · Open source · Stream Deck</span>
+          <h1 id="hero-title">One button for movie night.</h1>
+          <p class="lede">I install open-source home media and home automation, then put it all on a Stream Deck with buttons designed for your home.</p>
+          <div class="cta-row">
+            <a class="btn btn-paper" href="mailto:sam@peret.net?subject=HAUTomation%3A%20a%20free%20call">Book a free call <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="quiet" href="#deck-demo">Press a key ↓</a>
+          </div>
+        </div>
+
+        <figure class="deck-figure" id="deck-demo">
+          <div class="deck" role="group" aria-label="An example deck: press a key to see what it does">
+            <button type="button" class="key" data-key="movie" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h16v9H4zM4 10l1.5-4.5 14.5-1.5.5 3.5L4 10zM8.5 5.2 10 9.4M13.5 4.7 15 9"/></svg>Movie</button>
+            <button type="button" class="key" data-key="lights" aria-pressed="false"><span class="state" data-state>60%</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.8 10.6c.6.6.8 1.3.8 2.4h6c0-1.1.2-1.8.8-2.4A6 6 0 0 0 12 3z"/></svg>Lights</button>
+            <button type="button" class="key" data-key="blinds" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18M5 3v14M19 3v14M5 7h14M5 11h14M5 15h14M12 17v4"/></svg>Blinds</button>
+            <button type="button" class="key" data-key="dinner" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v6a2 2 0 0 0 4 0V3M8 11v10M17 21V3c-2.5 1.5-3.5 5-3 9h3"/></svg>Dinner</button>
+            <button type="button" class="key" data-key="music" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>Music</button>
+            <button type="button" class="key" data-key="morning" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Morning</button>
+            <button type="button" class="key" data-key="goodnight" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z"/></svg>Goodnight</button>
+            <button type="button" class="key" data-key="story" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2zM22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z"/></svg>Story</button>
+            <button type="button" class="key" data-key="heat" aria-pressed="false"><span class="state" data-state>21°</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.8V4a2 2 0 0 0-4 0v10.8a4 4 0 1 0 4 0z"/></svg>Heat</button>
+            <button type="button" class="key" data-key="garage" aria-pressed="false"><span class="state" data-state>Shut</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12M7 21v-9h10v9M7 15h10M7 18h10"/></svg>Garage</button>
+            <button type="button" class="key" data-key="door" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h12v10H3zM15 10.5 21 7v10l-6-3.5"/></svg>Door</button>
+            <button type="button" class="key" data-key="away" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/><rect x="9.5" y="13" width="5" height="4" rx="0.5"/><path d="M10.5 13v-1.5a1.5 1.5 0 0 1 3 0V13"/></svg>Away</button>
+            <button type="button" class="key" data-key="pause" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5v14M15.5 5v14" stroke-width="2.6"/></svg>Pause all</button>
+            <button type="button" class="key" data-key="laundry" aria-pressed="false"><span class="state" data-state>Done</span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="4.5"/><path d="M7 6.5h2"/></svg>Laundry</button>
+            <button type="button" class="key" data-key="rooms" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/></svg>Rooms</button>
+          </div>
+          <div class="readout" aria-live="polite">
+            <span class="label">One press</span>
+            <p class="readout-title" data-readout-title>Movie night</p>
+            <ol data-readout-steps>
+              <li>Living-room lights fade to 15%</li>
+              <li>The blinds close</li>
+              <li>The TV comes on, on the right input</li>
+              <li>Your film library opens, ready to choose</li>
+              <li>The hallway stays softly lit for snack runs</li>
+            </ol>
+          </div>
+          <figcaption class="deck-note">An example deck. Yours is drawn for your home.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="band" id="deck" aria-labelledby="deck-title">
+      <div class="wrap">
+        <div class="band-head">
+          <span class="label"><b>1</b> · The deck</span>
+          <div>
+            <h2 id="deck-title">Buttons, not apps.</h2>
+            <p>A Stream Deck is a small panel of keys, each one a tiny screen. No phone to unlock, no app to find: the things your home does most sit on the wall or the coffee table, one press away.</p>
+          </div>
+        </div>
+        <div class="band-body">
+          <ul class="points">
+            <li><h3>Drawn for your home</h3><p>Every key gets its own icon and label, made for what it does in your house, not a stock grid of symbols.</p></li>
+            <li><h3>Keys that show what’s on</h3><p>A key can show the heat, whether the garage is open, what’s playing, or that the laundry is done.</p></li>
+            <li><h3>One press, a whole scene</h3><p>Movie night, dinner, goodnight: a single key runs every step, in order, the same way each time.</p></li>
+            <li><h3>Pages for rooms and people</h3><p>A folder key opens a page for each room, and the kids can have a page of their own.</p></li>
+          </ul>
+          <p class="aside">The deck runs on open-source software such as Home Assistant and Bitfocus Companion, from a computer or a small Raspberry Pi, so it keeps working without an account or a subscription.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="install" aria-labelledby="install-title">
+      <div class="wrap">
+        <div class="band-head">
+          <span class="label"><b>2</b> · What I install</span>
+          <div>
+            <h2 id="install-title">Open source, on your own hardware.</h2>
+            <p>The software is free and the hardware is yours. I choose it with you, set it up, and connect it so it works as one home.</p>
+          </div>
+        </div>
+        <ul class="installs">
+          <li class="install">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4M10 8v4l3.5-2z"/></svg>
+            <h3>Home media</h3>
+            <p>Your films, music and photos on your own server, with artwork and proper menus, playable on every TV and speaker in the house.</p>
+            <span class="label">Jellyfin · Kodi</span>
+          </li>
+          <li class="install">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/><circle cx="12" cy="14" r="2.5"/><path d="M12 11.5V9"/></svg>
+            <h3>Home automation</h3>
+            <p>Lights, blinds, heat, locks and sensors from many brands in one place, running inside your home rather than in someone’s cloud.</p>
+            <span class="label">Home Assistant · Zigbee</span>
+          </li>
+          <li class="install">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M10 7V4M14 7V4M10 20v-3M14 20v-3M7 10H4M7 14H4M20 10h-3M20 14h-3"/></svg>
+            <h3>Small gadgets</h3>
+            <p>Sensors, buttons and little displays on tiny Wi-Fi boards, built for exactly what your home needs and nothing more.</p>
+            <span class="label">ESPHome · ESP32</span>
+          </li>
+          <li class="install">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h2M11 10h2M16 10h2M6 14h2M11 14h2M16 14h2"/></svg>
+            <h3>The deck</h3>
+            <p>A Stream Deck as the front panel for all of it, with custom keys designed, made and tested for your home.</p>
+            <span class="label">Stream Deck · Companion</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="band" aria-labelledby="principles-title">
+      <div class="wrap">
+        <div class="band-head">
+          <span class="label"><b>3</b> · How I build</span>
+          <h2 id="principles-title">Quiet, local, yours.</h2>
+        </div>
+        <ul class="principles band-body">
+          <li><h3>Local first</h3><p>It runs inside your home. When the internet goes down, the lights and the deck keep working.</p></li>
+          <li><h3>No lock-in</h3><p>Free, open-source software on hardware you own, with nothing to renew each month.</p></li>
+          <li><h3>Written down</h3><p>You get the admin logins and a short guide to how your home is set up.</p></li>
+          <li><h3>Yours to change</h3><p>I show you how to add a key or change a scene yourself.</p></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="band" id="how" aria-labelledby="how-title">
+      <div class="wrap">
+        <div class="band-head">
+          <span class="label"><b>4</b> · How it works</span>
+          <h2 id="how-title">From a call to a deck on the wall.</h2>
+        </div>
+        <ol class="steps band-body">
+          <li><h3>A free call</h3><p>Tell me about your home, what you have now and what you’d love it to do.</p></li>
+          <li><h3>A plan</h3><p>What to install, the parts to buy and what it costs, before anything is bought.</p></li>
+          <li><h3>Install and design</h3><p>I set it up, draw the keys and test every one of them in your home.</p></li>
+          <li><h3>Handover</h3><p>A walk-through, the written guide, and help when you think of the next button.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="closing" id="call" aria-labelledby="call-title">
+      <div class="closing-inner wrap">
+        <span class="label">Hej!</span>
+        <h2 id="call-title">Want a button for that?</h2>
+        <p>Tell me what you’d like to press, and we’ll find a time to talk. The first call is free and there’s no obligation.</p>
+        <a class="btn btn-paper" href="mailto:sam@peret.net?subject=HAUTomation%3A%20a%20free%20call">Book a free call <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="row">
+        <span>HAUTomation is Sam Peret’s home automation practice · <a href="mailto:sam@peret.net">sam@peret.net</a></span>
+        <a href="https://samperet.com">samperet.com</a>
+      </div>
+      <p class="fine">Stream Deck is a trademark of its owner. HAUTomation is independent and not affiliated with Elgato or any project named here.</p>
+    </div>
+  </footer>
+
+  <script>
+    // The deck answers a press: the key lights up in rouge and the card below lists what it
+    // does. Lights and the garage switch, so their keys change what they show.
+    const KEYS = {
+      movie: { title: 'Movie night', steps: ['Living-room lights fade to 15%', 'The blinds close', 'The TV comes on, on the right input', 'Your film library opens, ready to choose', 'The hallway stays softly lit for snack runs'] },
+      lights: { title: 'Living-room lights', toggle: ['60%', 'Off'], steps: { '60%': ['The lights come back to 60%', 'The key shows how bright they are'], Off: ['The living-room lights go off', 'The key shows Off until they’re on again'] } },
+      blinds: { title: 'Blinds', steps: ['Every blind on the sunny side closes', 'Press again to open them'] },
+      dinner: { title: 'Dinner', steps: ['Kitchen lights turn a warm white', 'The pendant over the table comes up to 70%', 'A dinner playlist starts low in the kitchen'] },
+      music: { title: 'Kitchen music', steps: ['Plays from your own music library', 'The key shows the track that’s on', 'Hold it to skip to the next one'] },
+      morning: { title: 'Morning', steps: ['Bedroom lights rise slowly', 'The blinds open', 'The heat comes up to 20°', 'The news plays in the kitchen'] },
+      goodnight: { title: 'Goodnight', steps: ['Every light goes off but the hallway, at 5%', 'The doors lock and the garage is checked', 'The heat drops to 17°', 'TVs and speakers switch off'] },
+      story: { title: 'Bedtime story', steps: ['The kids’ room glows a warm, low light', 'Tonight’s audiobook plays in their room', 'The light fades out after thirty minutes'] },
+      heat: { title: 'Heat', steps: ['The key shows the temperature in the living room', 'Press for a degree warmer, hold for a degree cooler'] },
+      garage: { title: 'Garage door', toggle: ['Shut', 'Open'], steps: { Shut: ['The garage door closes', 'The key says Shut once it’s down'], Open: ['The garage door opens', 'The key says Open until it’s shut again'] } },
+      door: { title: 'Front door', steps: ['The doorbell camera comes up on the living-room TV', 'The key lights up when someone rings'] },
+      away: { title: 'Away', steps: ['All lights off and the doors locked', 'The heat drops to 16°', 'Lights come on in the evening as if someone’s home', 'One press when you’re back undoes it all'] },
+      pause: { title: 'Pause all', steps: ['Every TV and speaker in the house pauses at once'] },
+      laundry: { title: 'Laundry', steps: ['The key says Done when the washer finishes', 'Press to clear it'] },
+      rooms: { title: 'Rooms', steps: ['Opens a page of keys for each room', 'Kids get a page of their own'] },
+    };
+    const title = document.querySelector('[data-readout-title]');
+    const list = document.querySelector('[data-readout-steps]');
+    const keys = document.querySelectorAll('.key');
+    for (const key of keys) {
+      key.addEventListener('click', () => {
+        const data = KEYS[key.dataset.key];
+        let steps = data.steps;
+        if (data.toggle) {
+          const state = key.querySelector('[data-state]');
+          const next = data.toggle[(data.toggle.indexOf(state.textContent) + 1) % data.toggle.length];
+          state.textContent = next;
+          steps = data.steps[next];
+        }
+        for (const k of keys) k.setAttribute('aria-pressed', String(k === key));
+        title.textContent = data.title;
+        list.replaceChildren(...steps.map((s) => Object.assign(document.createElement('li'), { textContent: s })));
+      });
+    }
+  </script>
+</body>
+</html>

@@ -27,6 +27,10 @@ all of it; keep it current when a token or component changes.
 
 ## Other sites in this repository
 
+- `sites/hautomation/` is **hautomation.samperet.com**, HAUTomation: a one-page landing site for
+  installing open-source home media and home automation with a Stream Deck of custom keys, in a
+  Swedish-modern brand with rouge as its hero colour. Plain static files, its own Vercel project
+  (`hautomation-samperet`) with this folder as its root directory; see its README.
 - `sites/automate/` is **automate.samperet.com**, a one-page landing site for home-automation
   consulting. Plain static files, deployed by its own Vercel project (`automate-samperet`) with
   this folder as its root directory; see its README.
