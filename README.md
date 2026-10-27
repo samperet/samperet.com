@@ -246,16 +246,23 @@ short chat, tells a few jokes, and points
 at wherever you click. The hat hides while he's out; clicking him asks again, and
 "Silencio" puts him away. He's on every page except the backend and the brand guide.
 
-**Questions.** "Ask me a question" in his menu opens a short chat answered through Claude
-(`src/pages/api/ask.ts`, model in its `MODEL` constant: Claude Opus 5.5 at low effort, with
-server-side refusal fallbacks). His briefing is the site's own words, gathered by
-`src/lib/knowledge.ts` from the data the pages render (`src/data/home.ts` for the homepage cards,
-`src/data/career.ts` for the CV, `src/data/books.ts`, `src/data/mens-group.ts`) plus short
-summaries of the men's group and HAUTomation; so an edit to a card reaches him on the next deploy.
-He answers in a few sentences, in the third person about Sam, and links to where on the site to
-look; in the chat only the site's own paths and a short list of known sites become links. The
-conversation lives in the page only, and the last six turns go with each question, with the page
-the visitor is on.
+**Typed requests.** His menu opens on a line to type into ("What are you looking for?"), with
+the topics underneath. A short request that names a place ("photos", "career", "airbnb photos",
+"heartwise") goes there at once, matched in the page against `PLACES` from `src/lib/knowledge.ts`:
+every homepage card, part and smaller card, the photo groups and books, the career chapters, the
+men's group and HAUTomation. Anything else goes to Claude (`src/pages/api/ask.ts`, model in its
+`MODEL` constant: Claude Opus 5.5 at low effort, with server-side refusal fallbacks), whose reply
+is structured: a few sentences, the one place to take the visitor (the schema only allows the
+paths in `PLACES`), and whether to offer the message form. A place on the current page opens as
+he answers (a homepage card through its `#hash`, narrowed to a part when it is one); a place on
+another page gets a "Take me there" button, and he comes out again on arrival with the
+conversation, which is kept in `sessionStorage` for the visit. His briefing is the site's own
+words, gathered by `src/lib/knowledge.ts` from the data the pages render (`src/data/home.ts` for
+the homepage and footer cards, `src/data/career.ts` for the CV, `src/data/books.ts`,
+`src/data/mens-group.ts`) plus short summaries of the men's group and HAUTomation, so an edit
+to a card reaches him on the next deploy. Only the site's own paths and a short list of known
+sites become links inside an answer. If the API can't answer, he still offers the closest place
+by name and the message form.
 
 Guardrails: same-origin browsers only (an `Origin` header is required), no bots, a body under
 8 KB and a question under 500 characters; per address 6 questions a minute and 40 a day, 30 per

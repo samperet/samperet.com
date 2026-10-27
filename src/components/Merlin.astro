@@ -1,13 +1,19 @@
 ---
 // Merlin, the original Microsoft Agent character, played from his own sprite sheet and frame
 // data via clippyjs. He waits behind a wizard-hat button in the corner; summoned, he asks what
-// the visitor is interested in (src/scripts/topics.ts), answers questions about Sam and the
-// site through Claude (/api/ask), or takes a message for Sam (/api/message). Everything he says is in one card styled by the design system; Vivify
-// supplies the click marker.
+// the visitor is looking for: typed (a place he takes them to, or a question answered through
+// Claude at /api/ask), or one of the topics (src/scripts/topics.ts); he also takes a message for
+// Sam (/api/message) and tells jokes. Everything he says is in one card styled by the design
+// system; Vivify supplies the click marker.
 import '../styles/vivify-subset.css';
+import { PLACES } from '../lib/knowledge';
+
+// The places he can take a visitor, for instant matches without a round trip.
+const places = JSON.stringify(PLACES).replace(/</g, '\\u003c');
 ---
 
 <p class="sr-only" aria-live="polite" data-merlin-ui data-merlin-live></p>
+<script is:inline type="application/json" id="merlin-places" set:html={places}></script>
 
 <script>
   import { initAgent } from 'clippyjs';
@@ -117,20 +123,32 @@ import '../styles/vivify-subset.css';
   const option = (attrs: string, label: string, kind = '') =>
     `<li><button type="button" class="merlin-option ${kind}" ${attrs}><span>${esc(label)}</span><span class="arrow" aria-hidden="true">→</span></button></li>`;
 
+  // His menu: a line to type into first (a question, or the name of a place), then the topics.
+  const finePointer = () => matchMedia('(pointer: fine)').matches;
+  const askForm = (placeholder: string, back: boolean) => `
+    <form class="merlin-chat-form merlin-ask-form">
+      <label class="sr-only" for="merlin-ask-input">Your question or request</label>
+      <textarea id="merlin-ask-input" rows="${back ? 2 : 1}" maxlength="500" required placeholder="${placeholder}"></textarea>
+      <div class="merlin-chat-actions">
+        ${back ? '<button type="button" class="merlin-back" data-restart>Back to the menu</button>' : '<span class="merlin-hint">Enter to ask</span>'}
+        <button type="submit" class="btn btn-primary merlin-send" data-track="merlin:ask:submit">Ask</button>
+      </div>
+    </form>`;
+
   const showAsk = () => {
     frame(
-      'Merlin asks what you are interested in',
-      `<p class="merlin-say">What are you interested in?</p>
+      'Merlin asks what you are looking for',
+      `<p class="merlin-say">What are you looking for?</p>
+      ${askForm('Ask me anything, or name a place', false)}
       <ul class="merlin-options">
-        ${option('data-question data-track="merlin:ask"', 'Ask me a question')}
         ${Object.entries(TOPICS)
           .map(([key, { label }]) => option(`data-ask="${key}" data-track="merlin:topic:${key}"`, label))
           .join('')}
         ${option('data-joke data-track="merlin:joke"', 'Tell me a joke', 'is-aside')}
       </ul>`,
     );
-    live.textContent = 'Merlin asks: what are you interested in?';
-    card.querySelector<HTMLButtonElement>('.merlin-option')?.focus({ preventScroll: true });
+    live.textContent = 'Merlin asks: what are you looking for?';
+    if (finePointer()) askInput().focus({ preventScroll: true });
   };
 
   // What he says after a choice, in the card rather than his old balloon.
@@ -233,14 +251,34 @@ import '../styles/vivify-subset.css';
   };
   const merlinSays = (text: string) => line('merlin', text);
 
-  // Questions about Sam and the site, answered through Claude (/api/ask). The conversation lives
-  // in this page's memory only; the last few turns go along with each question so follow-ups make
-  // sense. Answers may carry markdown links: only the site's own paths and a few known sites
-  // become links, everything else stays text.
+  // Typed questions and requests. A short request that names a place ("photos", "career",
+  // "heartwise") goes there at once, from the places the build gives this page (PLACES in
+  // src/lib/knowledge.ts). Anything else goes to Claude (/api/ask), whose reply also says where
+  // to take the visitor. A place on this page opens as he speaks; a place on another page gets a
+  // "Take me there" button, and the conversation carries on when they arrive (it is kept in
+  // sessionStorage for the visit, and the last few turns go along with each question). Links
+  // inside an answer: only the site's own paths and a few known sites.
   type Turn = { role: 'user' | 'assistant'; text: string };
-  const convo: Turn[] = [];
+  type Place = { path: string; title: string; within?: string; words?: string };
+  const PLACES: Place[] = JSON.parse(document.getElementById('merlin-places')?.textContent || '[]');
+  const STORE = 'merlin:chat';
+  const saved: { convo?: Turn[]; resume?: { path: string; title: string } } = (() => {
+    try {
+      return JSON.parse(sessionStorage.getItem(STORE) || '{}');
+    } catch {
+      return {};
+    }
+  })();
+  const convo: Turn[] = Array.isArray(saved.convo) ? saved.convo.slice(-12) : [];
+  const keep = (resume?: { path: string; title: string }) => {
+    try {
+      sessionStorage.setItem(STORE, JSON.stringify({ convo: convo.slice(-12), resume }));
+    } catch {
+      /* private mode: the conversation lasts as long as the page */
+    }
+  };
   let asking = false;
-  const SUGGESTIONS = ['What does Sam do?', 'What is HeartWise?', 'How do I join the men’s group?'];
+  const SUGGESTIONS = ['What does Sam do?', 'Show me photos from Airbnb', 'How do I join the men’s group?'];
   const LINKABLE = /^(?:\/(?!\/)|https:\/\/(?:[a-z0-9-]+\.)*(?:samperet\.com|getheartwise\.com|intelligentembodiment\.com|samasangha\.org|jayaandfiona\.com|openlibrary\.org|substack\.com|acadialps\.com|fuseanalytics\.com)(?:[\/?#]|$)|https:\/\/(?:www\.)?(?:github\.com\/samperet|linkedin\.com\/in\/samperet)\b)/i;
   const askInput = () => card.querySelector<HTMLTextAreaElement>('#merlin-ask-input')!;
 
@@ -268,23 +306,85 @@ import '../styles/vivify-subset.css';
     return p;
   };
 
-  const showQuestions = () => {
+  // A button under an answer: to another page, or to the message form.
+  const answerButton = (p: HTMLElement, html: string, attrs: Record<string, string>, href?: string) => {
+    const el = document.createElement(href ? 'a' : 'button');
+    el.className = 'btn btn-primary merlin-go';
+    if (href) (el as HTMLAnchorElement).href = href;
+    else (el as HTMLButtonElement).type = 'button';
+    Object.assign(el.dataset, attrs);
+    el.innerHTML = html;
+    p.after(el);
+    log().scrollTop = log().scrollHeight;
+    placeCard();
+    return el;
+  };
+
+  // The best place for a short request, or none: every word must belong to the place (its title,
+  // other names, or the card it sits in); titles that hold the words win, then the fewest extras.
+  const norm = (t: string) => t.toLowerCase().replace(/['’]/g, '').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim();
+  const FILLER = new Set('show me take to go open the a an please page card section see i want would like can you let lets look at find view bring up get hey hi merlin and of in on for my sams sam'.split(' '));
+  const quickPlace = (q: string) => {
+    const words = norm(q).split(' ').filter((w) => w && !FILLER.has(w));
+    if (!words.length || words.length > 3) return undefined;
+    let best: Place | undefined;
+    let bestHits = -1;
+    let bestExtra = Infinity;
+    for (const place of PLACES) {
+      const own = norm(place.title).split(' ').filter((w) => w && !FILLER.has(w));
+      const ownSet = new Set(own);
+      const hay = new Set([...own, ...norm(place.words ?? '').split(' '), ...norm(place.within ?? '').split(' ')]);
+      const within = (set: Set<string>, w: string) => set.has(w) || set.has(`${w}s`) || set.has(w.replace(/s$/, ''));
+      if (!words.every((w) => within(hay, w))) continue;
+      const hits = words.filter((w) => within(ownSet, w)).length;
+      const extra = own.filter((w) => !words.includes(w)).length + (place.within ? 1 : 0);
+      if (hits > bestHits || (hits === bestHits && extra < bestExtra)) {
+        best = place;
+        bestHits = hits;
+        bestExtra = extra;
+      }
+    }
+    return best;
+  };
+
+  // How he names a place he opens: the photo groups and career chapters say where they are.
+  const hereIs = (place: { title: string; within?: string }) => {
+    const title = place.title.replace(/^Get /, '');
+    if (place.within === 'Photos') return `Here are the photos from ${title}.`;
+    if (place.within === 'Career') return `Here’s ${title}, on Sam’s career page.`;
+    return `Here’s ${title}.`;
+  };
+
+  // Takes the visitor to a place: on this page at once (a homepage card opens through its #hash),
+  // elsewhere through a button under his answer.
+  const goHere = (url: URL) => {
+    if (url.hash) {
+      history.replaceState(null, '', url.hash);
+      dispatchEvent(new HashChangeEvent('hashchange'));
+      if (location.pathname !== '/') document.getElementById(decodeURIComponent(url.hash.slice(1)))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(placeCard, 500);
+  };
+  const takeTo = (place: { path: string; title: string }, p: HTMLElement) => {
+    const url = new URL(place.path, location.href);
+    if (url.origin === location.origin && url.pathname === location.pathname) return goHere(url);
+    const away = url.origin !== location.origin;
+    const button = answerButton(p, `Take me there <span aria-hidden="true">${away ? '↗' : '→'}</span>`, { track: 'merlin:go' }, place.path);
+    button.addEventListener('click', () => keep(away ? undefined : { path: place.path, title: place.title }));
+    button.focus({ preventScroll: true });
+  };
+
+  const showQuestions = (first?: string) => {
     frame(
       'Ask Merlin about Sam and this site',
       `<div class="merlin-chat-log" aria-live="polite"></div>
-      ${convo.length ? '' : `<ul class="merlin-options merlin-suggest">${SUGGESTIONS.map((q) => option('data-suggest data-track="merlin:ask:suggested"', q)).join('')}</ul>`}
-      <form class="merlin-chat-form merlin-ask-form">
-        <label class="sr-only" for="merlin-ask-input">Your question</label>
-        <textarea id="merlin-ask-input" rows="2" maxlength="500" required placeholder="Ask about Sam or the site"></textarea>
-        <div class="merlin-chat-actions">
-          <button type="button" class="merlin-back" data-restart>Back to the menu</button>
-          <button type="submit" class="btn btn-primary merlin-send" data-track="merlin:ask:submit">Ask</button>
-        </div>
-      </form>`,
+      ${convo.length || first ? '' : `<ul class="merlin-options merlin-suggest">${SUGGESTIONS.map((q) => option('data-suggest data-track="merlin:ask:suggested"', q)).join('')}</ul>`}
+      ${askForm('Ask about Sam or the site', true)}`,
     );
-    if (!convo.length) merlinSays('Ask me anything about Sam or this site, and I’ll point you to the right place.');
+    if (!convo.length && !first) merlinSays('Ask me anything about Sam or this site, or name a place, and I’ll take you there.');
     for (const turn of convo) turn.role === 'user' ? line('you', turn.text) : answerLine(turn.text);
-    askInput().focus();
+    if (first) void ask(first);
+    else if (finePointer()) askInput().focus();
   };
 
   // Where the visitor is: the path, and the card open on the homepage, if any.
@@ -295,9 +395,22 @@ import '../styles/vivify-subset.css';
 
   const ask = async (question: string) => {
     if (asking) return;
-    asking = true;
     card.querySelector('.merlin-suggest')?.remove();
     line('you', question);
+
+    const place = quickPlace(question);
+    if (place) {
+      const text = hereIs(place);
+      convo.push({ role: 'user', text: question }, { role: 'assistant', text });
+      keep();
+      takeTo(place, answerLine(text));
+      live.textContent = text;
+      agent?.stop();
+      agent?.play('DoMagic1');
+      return;
+    }
+
+    asking = true;
     const pending = answerLine('Consulting the crystal ball…');
     pending.classList.add('is-pending');
     const send = card.querySelector<HTMLButtonElement>('.merlin-send');
@@ -314,23 +427,24 @@ import '../styles/vivify-subset.css';
       pending.remove();
       if (!res.ok || !result.ok) throw new Error(result.error || 'My magic fizzled. Try again, or send Sam a message through me.');
       convo.push({ role: 'user', text: question }, { role: 'assistant', text: result.answer });
-      answerLine(result.answer);
+      keep();
+      const p = answerLine(result.answer);
       live.textContent = result.answer;
       agent?.play('Explain');
+      if (result.message) answerButton(p, 'Write to Sam <span aria-hidden="true">→</span>', { toMessage: '', track: 'merlin:ask:to-message' });
+      if (result.go) takeTo(result.go, p);
     } catch (err) {
       pending.remove();
       const p = answerLine(err instanceof Error && err.message !== 'Failed to fetch' ? err.message : 'My magic fizzled. Try again, or send Sam a message through me.');
-      const to = document.createElement('button');
-      to.type = 'button';
-      to.className = 'merlin-to-message';
-      to.dataset.toMessage = '';
-      to.textContent = 'Send Sam a message';
-      p.append(' ', to);
+      // Still somewhere to go: the closest place by name, if there is one.
+      const near = quickPlace(question.split(/\s+/).slice(-3).join(' '));
+      if (near) takeTo(near, p);
+      answerButton(p, 'Send Sam a message', { toMessage: '' });
       agent?.play('Sad');
     } finally {
       asking = false;
       if (send) send.disabled = false;
-      card.querySelector<HTMLTextAreaElement>('#merlin-ask-input')?.focus();
+      if (finePointer()) card.querySelector<HTMLTextAreaElement>('#merlin-ask-input')?.focus({ preventScroll: true });
     }
   };
 
@@ -392,10 +506,10 @@ import '../styles/vivify-subset.css';
     e.preventDefault();
     if ((e.target as HTMLElement).classList.contains('merlin-ask-form')) {
       const question = askInput().value.trim();
-      if (question && !asking) {
-        askInput().value = '';
-        void ask(question);
-      }
+      if (!question || asking) return;
+      askInput().value = '';
+      if (card.querySelector('.merlin-chat-log')) void ask(question);
+      else showQuestions(question); // typed into his menu: the chat opens with it
       return;
     }
     const value = input().value.trim();
@@ -568,6 +682,19 @@ import '../styles/vivify-subset.css';
     if (moved) setTimeout(placeCard, 20);
     else if (card.hidden) showAsk();
   });
+
+  // Arriving from his "Take me there": he comes out again with the conversation.
+  if (saved.resume && new URL(saved.resume.path, location.href).pathname === location.pathname) {
+    const { title } = saved.resume;
+    keep();
+    void summon().then((a) => {
+      a.play('Wave');
+      setTimeout(() => {
+        showQuestions();
+        merlinSays(`Here we are: ${title}.`);
+      }, 900);
+    });
+  }
 </script>
 
 <style is:global>
@@ -875,6 +1002,18 @@ import '../styles/vivify-subset.css';
   .merlin-chat-merlin.is-pending {
     color: var(--muted);
     font-style: italic;
+  }
+
+  /* Under an answer: Take me there, or Write to Sam. */
+  .merlin-ask .merlin-go {
+    justify-self: start;
+    margin-top: var(--s1);
+    padding: 0.4rem 0.9rem;
+    font-size: var(--text-sm);
+  }
+
+  .merlin-ask .merlin-ask-form + .merlin-options {
+    margin-top: var(--s3);
   }
 
   .merlin-back,

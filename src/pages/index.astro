@@ -1,37 +1,12 @@
 ---
 import { Font } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import Section, { type SectionData, type Photo } from '../components/Section.astro';
-import { ALPS_PHOTOS, AIRBNB_PHOTOS } from '../data/photos';
-import { sections, projects } from '../data/home';
+import Section from '../components/Section.astro';
+import { sections, projects, footerCards } from '../data/home';
 
 const title = 'Samperet.com';
 const description = 'Strategy, relationships, systems & design.';
 
-// The footer's cards: every recommended book (src/data/books.ts), and every photo on the site,
-// gathered by the card or career chapter it appears in, each photo once.
-const slug = (value: string) => value.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-const seen = new Set<string>();
-const photoParts: SectionData[] = [];
-const gather = (name: string, photos: Photo[] = []) => {
-  const fresh = photos.filter((p) => !seen.has(p.src) && seen.add(p.src));
-  if (fresh.length) photoParts.push({ name, id: `photos-${slug(name)}`, photos: fresh });
-};
-for (const s of sections) {
-  gather(s.name, s.photos);
-  for (const part of s.parts ?? []) gather(part.name, part.photos);
-}
-gather('ALPS', ALPS_PHOTOS);
-gather('Airbnb', AIRBNB_PHOTOS);
-
-const footerCards: SectionData[] = [
-  { name: 'Recommended Books', tile: { color: 'var(--hackberry)' }, interests: 'all' },
-  {
-    name: 'Photos',
-    tile: { src: '/travel/lava-flow-big-island.webp', alt: 'Two men throwing shakas at night in front of glowing red lava on the Big Island of Hawaiʻi' },
-    parts: photoParts,
-  },
-];
 ---
 
 <Base title={title} description={description} path="/">

@@ -1,6 +1,7 @@
 // The homepage's cards, rendered by src/pages/index.astro and read by Merlin when he answers
 // questions about the site (src/lib/knowledge.ts).
-import type { SectionData } from '../components/Section.astro';
+import type { SectionData, Photo } from '../components/Section.astro';
+import { ALPS_PHOTOS, AIRBNB_PHOTOS } from './photos';
 
 // Copy is deliberately thin — edit freely. Each section is a tile: `tile` is its face, `body` the
 // longer text that unfolds when it opens;
@@ -243,5 +244,30 @@ export const projects: SectionData[] = [
     embedTitle: 'Percentage Allocator, a calculator for splitting an amount',
     embedRatio: '4 / 3',
     embedAllow: 'clipboard-write',
+  },
+];
+
+// The footer's cards: every recommended book (src/data/books.ts), and every photo on the site,
+// gathered by the card or career chapter it appears in, each photo once.
+const slug = (value: string) => value.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const seen = new Set<string>();
+const photoParts: SectionData[] = [];
+const gather = (name: string, photos: Photo[] = []) => {
+  const fresh = photos.filter((p) => !seen.has(p.src) && seen.add(p.src));
+  if (fresh.length) photoParts.push({ name, id: `photos-${slug(name)}`, photos: fresh });
+};
+for (const s of sections) {
+  gather(s.name, s.photos);
+  for (const part of s.parts ?? []) gather(part.name, part.photos);
+}
+gather('ALPS', ALPS_PHOTOS);
+gather('Airbnb', AIRBNB_PHOTOS);
+
+export const footerCards: SectionData[] = [
+  { name: 'Recommended Books', tile: { color: 'var(--hackberry)' }, interests: 'all' },
+  {
+    name: 'Photos',
+    tile: { src: '/travel/lava-flow-big-island.webp', alt: 'Two men throwing shakas at night in front of glowing red lava on the Big Island of Hawaiʻi' },
+    parts: photoParts,
   },
 ];

@@ -1,10 +1,11 @@
 // What Merlin knows when he answers questions (src/pages/api/ask.ts): the site's own words,
 // gathered from the same data the pages render, so an edit to a card or the CV reaches him with
-// the next deploy. Only what is already public on the site goes in.
+// the next deploy, and the places he can take a visitor (PLACES). Only what is already public on
+// the site goes in.
 import type { SectionData } from '../components/Section.astro';
 import { BOOKS } from '../data/books';
 import { boards, competencies, contact, education, initiatives, roles, summary } from '../data/career';
-import { sections, projects } from '../data/home';
+import { sections, projects, footerCards } from '../data/home';
 import { GROUP } from '../data/mens-group';
 
 const slug = (value: string) =>
@@ -115,3 +116,51 @@ uses: Jellyfin and Stremio. To start, email sam@peret.net about the project.
 Merlin, the wizard in the bottom-right corner (summoned by the hat), can open cards by topic, tell
 a joke, carry a message to Sam (the "Send me a message" option), and answer questions.
 `;
+
+// Every place on the site Merlin can take a visitor: each homepage card, part and smaller card
+// (opened by its /#id), the footer's books and photo groups, the career chapters, the men's
+// group, the picture books and HAUTomation. `words` are other names people use for it, for the
+// instant matches in his chat (src/components/Merlin.astro).
+export type Place = { path: string; title: string; within?: string; words?: string };
+
+const WORDS: Record<string, string> = {
+  '/career/': 'cv resume work job jobs experience professional linkedin',
+  '/mens-group/': 'mens group men group mkp circle',
+  '/mens-group/#apply': 'apply application join mens group',
+  '/#recommended-books': 'books reading library',
+  '/#photos': 'pictures gallery',
+  '/#heartwise': 'heart iq circles',
+  '/#family': 'kids children jaya fiona mackensie',
+  '/#travel-and-adventure': 'travel trips places',
+  '/#stories': 'picture books',
+};
+
+const placesOf = (s: SectionData, within?: string): Place[] => {
+  const id = s.id ?? slug(s.name);
+  // A link tile goes where it links, unless it is a photo with a story, which opens in its card.
+  const path = s.link && !s.story ? s.link : `/#${id}`;
+  return [{ path, title: s.name, within }, ...[...(s.parts ?? []), ...(s.children ?? [])].flatMap((c) => placesOf(c, s.name))];
+};
+
+const careerSections = [
+  ['summary', 'Summary'],
+  ['competencies', 'Competencies'],
+  ['initiatives', 'Technology & AI'],
+  ['education', 'Education'],
+  ['community', 'Community'],
+  ['boards', 'Boards'],
+  ['awards', 'Awards'],
+];
+
+// In order of preference when two fit a request equally well.
+export const PLACES: Place[] = [
+  ...[...sections, ...projects].flatMap((s) => placesOf(s)),
+  { path: '/career/', title: 'Career' },
+  ...roles.map((r) => ({ path: `/career/#${r.id}`, title: r.name, within: 'Career' })),
+  ...careerSections.map(([id, title]) => ({ path: `/career/#${id}`, title, within: 'Career' })),
+  { path: '/mens-group/', title: 'the men’s group' },
+  { path: '/mens-group/#apply', title: 'Apply to the men’s group', within: 'Men’s work' },
+  ...footerCards.flatMap((s) => placesOf(s)),
+]
+  .filter((p, i, all) => all.findIndex((q) => q.path === p.path) === i)
+  .map((p) => (WORDS[p.path] ? { ...p, words: WORDS[p.path] } : p));
