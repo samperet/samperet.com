@@ -44,7 +44,7 @@ const description =
         alt="Sam Peret, smiling, hands in pockets, in a dark pinstripe suit and open blue shirt"
         fetchpriority="high"
       />
-      <button type="button" class="btn btn-primary side-message" data-contact data-track="career:message">Send me a message</button>
+      <button type="button" class="arrow-link side-message" data-contact data-track="career:message">Send me a message <span class="arrow" aria-hidden="true">→</span></button>
       <nav class="toc" aria-label="On this page">
         {toc.map((t) => <a href={`#${t.id}`} data-toc={t.id} class:list={{ sub: t.sub }}>{t.name}</a>)}
       </nav>
@@ -376,9 +376,19 @@ const description =
     background: #ddd8e8;
   }
 
-  /* "Send me a message", under the portrait and as wide as it. */
+  /* "Send me a message", under the portrait: a link to look at (it opens Merlin), its arrow in
+     the accent. */
   .side-message {
+    justify-self: start;
     margin-top: calc(var(--s3) - var(--s5));
+    padding: 0 0 0.1em;
+    border: 0;
+    border-bottom: 2px solid var(--accent);
+    background: none;
+  }
+
+  .side-message .arrow {
+    color: var(--accent-text);
   }
 
   .toc {
@@ -919,8 +929,7 @@ const description =
       overflow: visible;
     }
 
-    .portrait,
-    .side-message {
+    .portrait {
       width: min(60vw, 18rem);
     }
 

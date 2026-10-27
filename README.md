@@ -90,7 +90,9 @@ The Travel & Adventure card embeds a globe of Sam's travels: `public/globe/` hol
 (`index.html`, with the 83 stops inline), self-hosted d3 7.9.0 and topojson-client 3.1.0, and
 Natural Earth's 110m world map. It came from Sam's Route Atlas export, rebuilt because the export
 was broken (a corrupted d3 and map files it could not reach); the route curves are illustrative,
-not GPS tracks. It loads only when the card opens, and only turns when dragged or asked to spin.
+not GPS tracks. Pins mark sixteen of the countries and cities (`PINS` in the page), each named
+on hover or tap; pins too close to tell apart, like Hong Kong and Shenzhen, share one label. It
+loads only when the card opens, and only turns when dragged or asked to spin.
 
 ## Career
 

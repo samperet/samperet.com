@@ -18,12 +18,6 @@ export const sections: SectionData[] = [
     embed: '/globe/index.html',
     embedTitle: 'A globe tracing my travels: drag to turn it',
     embedRatio: '16 / 10',
-    body: [
-      'Japan, Nepal, Hong Kong, Shenzhen, Malaysia, the Philippines, Germany, Switzerland, France, Spain, Italy, the Czech Republic, Amsterdam, Moldova, Ukraine, and Mexico, plus multiple drives across the USA.',
-      'I’ve also lived in Maui, Australia, and India.',
-      'Went to New Orleans after Hurricane Katrina, and to Tacloban, Philippines, after Typhoon Haiyan.',
-      'In Tacloban we were the first Americans to arrive, and paved the way for the relief efforts that followed by converting a ransacked hospital into a distribution warehouse.',
-    ],
     photos: [
       {
         src: '/travel/lava-flow-big-island.webp',

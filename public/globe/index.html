@@ -8,7 +8,9 @@
 <!--
   The travel globe shown in the Travel & Adventure card. Built from Sam's Route Atlas export:
   the same stops and route curve, redrawn in the site's palette. Route curves are illustrative,
-  not GPS tracks. It never moves on its own: drag to turn it, or press Spin.
+  not GPS tracks. Pins mark the countries and cities, named on hover or tap (pins too close to
+  tell apart, like Hong Kong and Shenzhen, share one label). It never moves on its own: drag to
+  turn it, or press Spin.
 -->
 <style>
   html, body { margin: 0; height: 100%; background: #fbfaf7; color: #232527; font: 14px/1.4 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
@@ -24,6 +26,9 @@
   .facts { position: absolute; top: 12px; right: 14px; text-align: right; font-size: 12px; color: #565a5d; }
   .facts strong { display: block; font-family: Georgia, 'Iowan Old Style', serif; font-weight: 500; font-size: 20px; color: #232527; }
   .hint { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-size: 12px; color: #565a5d; pointer-events: none; }
+  .label { position: absolute; z-index: 1; padding: 4px 8px; border-radius: 3px; background: #232527; color: #fff; font-size: 13px; font-weight: 600; white-space: nowrap; pointer-events: none; transform: translate(-50%, calc(-100% - 22px)); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); }
+  .label[hidden] { display: none; }
+  .label::after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -5px; border: 5px solid transparent; border-top-color: #232527; }
   @media (prefers-reduced-motion: reduce) { #spin { display: none; } }
 </style>
 </head>
@@ -36,14 +41,24 @@
     <button id="minus" type="button" aria-label="Zoom out">&minus;</button>
   </div>
   <div class="facts"><strong id="stops">0</strong>stops · <span id="km">0</span> km</div>
-  <div class="hint">Drag to turn the world · + / − to zoom</div>
+  <div class="label" id="label" role="status" hidden></div>
+  <div class="hint">Drag to turn the world · hover or tap a pin · + / − to zoom</div>
 </div>
 <script src="d3-7.9.0.min.js"></script>
 <script src="topojson-client-3.1.0.min.js"></script>
 <script>
 (() => {
   const STOPS = [[-70.801,44.314],[-72.608,42.706],[-75.452,39.917],[-77.903,37.927],[-81.274,37.844],[-86.015,35.728],[-90.766,34.935],[-95.999,33.998],[-103.016,33.444],[-108.676,33.444],[-113.439,34.287],[-117.441,34.576],[-120.707,37.016],[-123.296,40.059],[-123.465,43.215],[-120.181,46.807],[-117.658,44.85],[-107.474,42.52],[-101.438,38.401],[-97.584,39.734],[-90.86,33.285],[-83.39,30.88],[-81.593,26.537],[-80.511,32.366],[-77.818,34.66],[-76.577,37.703],[-69.825,43.431],[-157.559,64.662],[-70.549,42.513],[-158.279,21.994],[-70.165,42.853],[-103.384,23.819],[-69.972,42.781],[2.528,48.45],[-4.305,39.864],[10.762,43.091],[9.793,50.396],[10.478,60.409],[12.672,49.044],[19.332,49.856],[6.081,48.689],[-71.083,43.042],[132.608,33.296],[136.498,34.987],[139.01,36.036],[140.442,37.229],[140.991,38.913],[141.279,41.07],[150.964,-25.112],[152.115,-28.963],[151.338,-32.016],[150.347,-34.913],[148.527,-36.958],[115.621,-24.509],[101.964,0.975],[121.03,14.503],[110.046,20.261],[73.824,20.479],[74.04,18.405],[75.05,15.37],[76.275,13.004],[77.685,9.661],[79.241,14.236],[80.484,18.735],[79.843,24.296],[78.146,27.908],[77.445,32.761],[30.997,49.143],[28.928,45.638],[-69.833,42.855],[-157.993,22.079],[124.987,10.537],[-157.687,21.568],[-122.524,41.281],[-126.141,55.592],[-121.663,40.499],[-73.228,41.719],[-71.054,42.821],[145.076,-19.38],[146.799,-6.53],[139.25,-3.569],[145.405,-19.895],[-70.666,43.088]];
+  // Pins: where Sam has been, named on hover or tap.
+  const PINS = [
+    ['Japan', 138.25, 36.2], ['Nepal', 84.12, 28.39], ['Hong Kong', 114.17, 22.32], ['Shenzhen, China', 114.06, 22.54],
+    ['Malaysia', 101.98, 4.21], ['The Philippines', 121.77, 12.88], ['Germany', 10.45, 51.17], ['Switzerland', 8.23, 46.82],
+    ['France', 2.21, 46.23], ['Spain', -3.75, 40.46], ['Italy', 12.57, 41.87], ['The Czech Republic', 15.47, 49.82],
+    ['Amsterdam, the Netherlands', 4.9, 52.37], ['Moldova', 28.37, 47.41], ['Ukraine', 31.17, 48.38], ['Mexico', -102.55, 23.63],
+  ].map(([name, lon, lat]) => ({ name, at: [lon, lat], x: 0, y: 0, shown: false }));
   const canvas = document.getElementById('globe');
+  const label = document.getElementById('label');
+  let picked = null; // the pins whose label is showing
   const ctx = canvas.getContext('2d');
   const grat = d3.geoGraticule10();
   let land, borders, w = 0, h = 0, zoom = 1, spinning = false, drag = null, last = 0;
@@ -76,7 +91,7 @@
   for (let i = 1; i < STOPS.length; i++) km += d3.geoDistance(STOPS[i - 1], STOPS[i]) * 6371;
   document.getElementById('stops').textContent = STOPS.length;
   document.getElementById('km').textContent = Math.round(km).toLocaleString('en-US');
-  canvas.setAttribute('aria-label', 'A globe tracing my travels: ' + STOPS.length + ' stops, about ' + (Math.round(km / 1000) * 1000).toLocaleString('en-US') + ' km. Drag or use the arrow keys to turn it.');
+  canvas.setAttribute('aria-label', 'A globe tracing my travels: ' + STOPS.length + ' stops, about ' + (Math.round(km / 1000) * 1000).toLocaleString('en-US') + ' km, with pins on ' + PINS.map((p) => p.name).join(', ') + '. Drag or use the arrow keys to turn it.');
 
   function draw() {
     if (!w) return;
@@ -97,6 +112,45 @@
     ctx.strokeStyle = '#007a87'; ctx.lineWidth = 2.2; ctx.shadowColor = 'rgba(0, 122, 135, 0.35)'; ctx.shadowBlur = 6; ctx.stroke();
     ctx.shadowBlur = 0;
     ctx.restore();
+
+    // The pins on the side facing us: a round head on a short stem, its point on the place.
+    const centre = [-rotation[0], -rotation[1]];
+    for (const pin of PINS) {
+      pin.shown = d3.geoDistance(pin.at, centre) < Math.PI / 2 - 0.05;
+      if (!pin.shown) continue;
+      [pin.x, pin.y] = projection(pin.at);
+      const on = picked?.includes(pin);
+      ctx.beginPath(); ctx.moveTo(pin.x, pin.y); ctx.lineTo(pin.x, pin.y - 10);
+      ctx.strokeStyle = '#232527'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.beginPath(); ctx.arc(pin.x, pin.y - 12, on ? 6 : 4.5, 0, 2 * Math.PI);
+      ctx.fillStyle = '#7b0051'; ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+    place();
+  }
+
+  // The label sits over the pins it names, and goes when they turn out of sight.
+  function place() {
+    const shown = picked?.filter((p) => p.shown) ?? [];
+    if (!shown.length) { label.hidden = true; return; }
+    label.textContent = shown.map((p) => p.name).join(' · ');
+    label.style.left = shown[0].x + 'px';
+    label.style.top = shown[0].y + 'px';
+    label.hidden = false;
+  }
+  // The pins under a point: within reach of the nearest one's head or stem, and any as close.
+  function pinsAt(x, y, reach) {
+    const near = PINS.filter((p) => p.shown).map((p) => [p, Math.min(Math.hypot(p.x - x, p.y - 12 - y), Math.hypot(p.x - x, p.y - y))]).filter(([, d]) => d <= reach);
+    if (!near.length) return null;
+    near.sort((a, b) => a[1] - b[1]);
+    const first = near[0][0];
+    return near.filter(([p]) => Math.hypot(p.x - first.x, p.y - first.y) < 8).map(([p]) => p);
+  }
+  const same = (a, b) => (a?.length ?? 0) === (b?.length ?? 0) && (a ?? []).every((p) => b.includes(p));
+  function pick(pins) {
+    if (same(pins, picked)) return;
+    picked = pins;
+    draw();
   }
 
   function resize() {
@@ -109,13 +163,31 @@
   new ResizeObserver(resize).observe(canvas);
 
   // Turning: drag with the mouse, or sideways with a finger (up and down still scrolls the page).
-  canvas.onpointerdown = (e) => { drag = { x: e.clientX, y: e.clientY, r: [...rotation] }; canvas.setPointerCapture(e.pointerId); };
+  // A pin is named when the mouse is over it, or when it is tapped (a tap elsewhere puts the name away).
+  canvas.onpointerdown = (e) => { drag = { x: e.clientX, y: e.clientY, r: [...rotation], moved: false }; canvas.setPointerCapture(e.pointerId); };
   canvas.onpointermove = (e) => {
-    if (!drag) return;
+    const r = canvas.getBoundingClientRect();
+    if (!drag) {
+      if (e.pointerType !== 'mouse') return;
+      const pins = pinsAt(e.clientX - r.left, e.clientY - r.top, 10);
+      canvas.style.cursor = pins ? 'pointer' : '';
+      pick(pins);
+      return;
+    }
+    if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 5) return;
+    drag.moved = true;
     rotation = [drag.r[0] + (e.clientX - drag.x) * 0.35, Math.max(-89, Math.min(89, drag.r[1] - (e.clientY - drag.y) * 0.35)), 0];
     draw();
   };
-  canvas.onpointerup = canvas.onpointercancel = () => { drag = null; };
+  canvas.onpointerup = (e) => {
+    if (drag && !drag.moved) {
+      const r = canvas.getBoundingClientRect();
+      pick(pinsAt(e.clientX - r.left, e.clientY - r.top, e.pointerType === 'mouse' ? 10 : 20));
+    }
+    drag = null;
+  };
+  canvas.onpointercancel = () => { drag = null; };
+  canvas.onpointerleave = (e) => { if (e.pointerType === 'mouse' && !drag) { canvas.style.cursor = ''; pick(null); } };
   canvas.onkeydown = (e) => {
     const k = { ArrowLeft: [-10, 0], ArrowRight: [10, 0], ArrowUp: [0, 10], ArrowDown: [0, -10] }[e.key];
     if (!k) return;
