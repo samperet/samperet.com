@@ -146,7 +146,7 @@ const attrs = part
       <span class="caption">
         <Heading>{name}</Heading>
       </span>
-      <span class="go-mark" aria-hidden="true">{story ? '▶' : '→'}</span>
+      <span class="go-mark" aria-hidden="true">{story ? '▶' : link.startsWith('http') ? '↗' : '→'}</span>
     </span>
   </a>
 ) : (

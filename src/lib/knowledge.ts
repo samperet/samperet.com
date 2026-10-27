@@ -105,11 +105,10 @@ Sam at 603.531.1077 with questions.
 
 ## HAUTomation (https://hautomation.samperet.com)
 
-Sam's home automation practice. He installs open-source home media (Jellyfin, Kodi) and home
-automation (Home Assistant, Zigbee, ESPHome on ESP32 boards), and puts it on a Stream Deck with keys
-designed for the home: movie night, goodnight, the garage door, a bedtime story. Local first, no
-lock-in, documented, yours to change. Steps: a free call, a plan with parts and cost, install and
-design, handover. Book a free call by email: sam@peret.net.
+Sam's home automation practice: a technical partner for people doing custom projects, building
+technology into furniture and doing creative custom work, who want someone to make it work. Sam
+has been automating home systems since 2000 (${new Date().getFullYear() - 2000} years). Tools he
+uses: Jellyfin and Stremio. To start, email sam@peret.net about the project.
 
 ## Merlin
 

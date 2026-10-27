@@ -211,13 +211,9 @@ export const projects: SectionData[] = [
   {
     name: 'HAUTomation',
     topics: ['personal'],
-    line: 'Open-source home automation, on a Stream Deck.',
-    tile: { kind: 'Service · Home automation', src: '/tiles/hautomation.webp', alt: 'The HAUTomation site: “One button for movie night.” in white on rouge, beside a Stream Deck of custom keys' },
-    body: [
-      'HAUTomation is my home automation practice. I install open-source home media and home automation (Jellyfin, Kodi, Home Assistant, ESPHome) and put it all on a Stream Deck with keys designed for the home: movie night, goodnight, the garage door, the kids’ bedtime story.',
-      'The first call is free.',
-    ],
-    href: 'https://hautomation.samperet.com',
+    line: 'A technical partner for custom, creative work.',
+    tile: { kind: 'Home automation', src: '/tiles/hautomation.webp', alt: 'The HAUTomation site: “Your idea, wired in.” in white on rouge, beside a deck of keys' },
+    link: 'https://hautomation.samperet.com',
   },
   {
     name: 'CommunityOS',

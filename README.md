@@ -27,9 +27,10 @@ all of it; keep it current when a token or component changes.
 
 ## Other sites in this repository
 
-- `sites/hautomation/` is **hautomation.samperet.com**, HAUTomation: a one-page landing site for
-  installing open-source home media and home automation with a Stream Deck of custom keys, in a
-  Swedish-modern brand with rouge as its hero colour. Plain static files, its own Vercel project
+- `sites/hautomation/` is **hautomation.samperet.com**, HAUTomation: a one-page landing site
+  looking for people doing custom, creative projects (technology in furniture, one-off pieces) who
+  want a partner to build them, naming Jellyfin and Stremio as Sam's tools; a Swedish-modern brand
+  with rouge as its hero colour. Its card under Projects on the homepage links straight to it. Plain static files, its own Vercel project
   (`hautomation-samperet`) with this folder as its root directory; see its README.
 - `sites/automate/` is **automate.samperet.com**, a one-page landing site for home-automation
   consulting. Plain static files, deployed by its own Vercel project (`automate-samperet`) with
@@ -40,9 +41,9 @@ all of it; keep it current when a token or component changes.
 Every section in `src/pages/index.astro` is a tile (`<details>`, `src/components/Section.astro`):
 a picture from `tile.src` (or a palette colour, `tile.color`) with only its title on it, as large as
 the card allows: the homepage script fits each title to its card's width and the lower three
-fifths of its height (`kind` and `line` stay in the data but aren't shown). HAUTomation (linking to
-hautomation.samperet.com), CommunityOS and the Percentage Allocator are smaller cards under a
-Projects heading after the main grid.
+fifths of its height (`kind` and `line` stay in the data but aren't shown). HAUTomation (a link tile
+straight to hautomation.samperet.com), CommunityOS and the Percentage Allocator are smaller cards
+under a Projects heading after the main grid.
 Clicking it, or a link to its id (e.g. `/#travel-and-adventure`; old ids such as `/#travel` still work), opens it on its own: the other tiles step
 out and its text, links, photos and embeds follow below. While a card is open the header
 shrinks and a "← Home" button under Career dismisses it; the cross or Escape does too. Each lists its `topics`; choosing Personal, Family or Adventure
