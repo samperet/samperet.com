@@ -8,6 +8,11 @@ page's one script). Keep it general about how he works and what he does. The cal
 half-hour call booked through Sam's Calendly (embedded in the closing section; the hero and header
 buttons jump to it), with email to sam@peret.net as the alternative.
 
+The tools sit in a dark "Get your movie night under control." band with a wall of film posters
+tilted back for depth, each row drifting (still under reduced motion, paused on hover). The
+posters, in `posters/`, are from films of 1914 to 1928, all in the public domain, from the
+Internet Archive; the footer says so. No eyebrow labels anywhere on the page.
+
 The brand is Swedish modern: Familjen Grotesk (by Familjen STHLM, SIL Open Font License, in
 `fonts/`) on warm paper (`#f4f2ee`), birch panels (`#ebe7e0`) and ink (`#161616`), with one hero
 colour, rouge (`#be2a44`; paper text on it is 5.4:1). The hero's picture is a deck of keys, one lit

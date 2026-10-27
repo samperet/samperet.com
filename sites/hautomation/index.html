@@ -44,10 +44,12 @@
     --ink-muted: #4b4a47;
     --rule: #d8d3ca;
     --deck: #1c1c1e;
+    --cinema: #121213; /* the movie-night band */
+    --cinema-raised: #1d1d20;
+    --cinema-muted: #c9c6c0;
     --key: #2b2b2e;
     --key-hover: #36363a;
     --sans: 'Familjen Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
     --radius: 4px;
     --radius-lg: 14px;
     --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -62,7 +64,6 @@
   a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
   :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: var(--radius); }
   .wrap { width: min(72rem, 100% - 2.5rem); margin-inline: auto; }
-  .label { font: 500 0.75rem/1.2 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
 
   /* ---- Header ---- */
   .top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.25rem 0; }
@@ -85,7 +86,6 @@
   .hero :focus-visible { outline-color: var(--on-rouge); }
   .hero-inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: clamp(2.5rem, 6vw, 5rem); align-items: center; padding: clamp(3rem, 8vw, 6.5rem) 0; }
   .hero-text { display: grid; gap: 1.5rem; justify-items: start; }
-  .hero .label { color: var(--on-rouge-muted); }
   .hero h1 { font-size: clamp(2.8rem, 1.5rem + 5vw, 5.6rem); font-weight: 700; letter-spacing: -0.035em; line-height: 0.95; max-width: 10ch; }
   .lede { font-size: clamp(1.15rem, 1rem + 0.6vw, 1.4rem); line-height: 1.45; color: var(--on-rouge-muted); max-width: 34ch; }
   .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.75rem; margin-top: 0.5rem; }
@@ -97,14 +97,11 @@
   .key.lit { background: var(--rouge); }
   .key svg { width: clamp(18px, 2.6vw, 30px); height: auto; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* ---- Sections: a numbered label on the left, the matter on the right ---- */
+  /* ---- Sections: a heading and a line, then the matter ---- */
   .band { padding: clamp(3.5rem, 8vw, 6rem) 0; border-top: 1px solid var(--rule); }
-  .band-head { display: grid; grid-template-columns: 14rem minmax(0, 1fr); gap: 1rem 3rem; margin-bottom: clamp(2rem, 5vw, 3.5rem); }
-  .band-head .label { padding-top: 0.6rem; color: var(--ink-muted); }
-  .band-head .label b { color: var(--rouge); font-weight: 500; }
+  .band-head { display: grid; gap: 1.25rem; margin-bottom: clamp(2rem, 5vw, 3.5rem); }
   .band-head h2 { font-size: clamp(2rem, 1.3rem + 2.8vw, 3.5rem); max-width: 18ch; }
-  .band-head p { margin-top: 1.25rem; max-width: 52ch; font-size: 1.1875rem; color: var(--ink-muted); }
-  .band-body { margin-left: calc(14rem + 3rem); }
+  .band-head p { max-width: 52ch; font-size: 1.1875rem; color: var(--ink-muted); }
 
   /* Who it's for, two by two. */
   .points { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.25rem 3rem; }
@@ -112,21 +109,30 @@
   .points h3 { font-size: 1.3rem; }
   .points p { color: var(--ink-muted); }
 
-  /* The tools: two panels of birch, each name set large. */
+  /* ---- Movie night: a dark band, a wall of posters tilted back for depth with each row
+     drifting (the other way every other row), then the two tools ---- */
+  .media { --gap: clamp(8px, 1.1vw, 14px); background: var(--cinema); color: var(--paper); padding: clamp(3.5rem, 8vw, 6rem) 0; overflow: clip; }
+  .media :focus-visible { outline-color: var(--paper); }
+  .media h2 { font-size: clamp(2.4rem, 1.4rem + 4vw, 4.75rem); font-weight: 700; letter-spacing: -0.035em; line-height: 0.98; max-width: 14ch; }
+  .wall { position: relative; height: clamp(19rem, 40vw, 33rem); margin: clamp(1.5rem, 4vw, 3rem) 0 clamp(2.5rem, 5vw, 4rem); perspective: 1300px; overflow: hidden; }
+  .wall::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to right, var(--cinema), transparent 14%, transparent 86%, var(--cinema)), linear-gradient(to bottom, var(--cinema), transparent 16%, transparent 84%, var(--cinema)); }
+  .wall-tilt { position: absolute; inset: -22% -14%; display: grid; align-content: center; gap: var(--gap); transform: rotateX(20deg) rotateY(-18deg) rotateZ(6deg); }
+  .wall-track { display: flex; width: max-content; animation: drift var(--speed, 100s) linear infinite; }
+  .wall-row:nth-child(even) .wall-track { animation-direction: reverse; }
+  .wall img { flex: none; width: clamp(88px, 10vw, 146px); height: auto; margin-right: var(--gap); border-radius: 6px; box-shadow: 0 16px 28px -14px rgb(0 0 0 / 0.8); }
+  .wall:hover .wall-track { animation-play-state: paused; }
+  @keyframes drift { to { transform: translateX(-50%); } }
+
   .tools { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-  .tool { display: grid; gap: 0.9rem; align-content: start; padding: clamp(1.5rem, 3vw, 2.25rem); border-radius: var(--radius-lg); background: var(--birch); }
-  .tool .label { color: var(--rouge); }
+  .tool { display: grid; gap: 0.9rem; align-content: start; padding: clamp(1.5rem, 3vw, 2.25rem); border-radius: var(--radius-lg); background: var(--cinema-raised); }
   .tool h3 { font-size: clamp(2.2rem, 1.4rem + 3vw, 3.4rem); font-weight: 700; letter-spacing: -0.035em; line-height: 1; }
-  .tool p { color: var(--ink-muted); max-width: 40ch; }
-  .tool a { justify-self: start; font-weight: 600; text-decoration-color: var(--rule); }
-  .tool a:hover { text-decoration-color: var(--rouge); }
+  .tool p { color: var(--cinema-muted); max-width: 40ch; }
+  .tool a { justify-self: start; font-weight: 600; color: var(--paper); text-decoration-color: var(--rouge); }
 
   /* Since 2000: the years, set as large as the page allows. */
   .years { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.5rem clamp(1.5rem, 4vw, 3rem); align-items: end; }
   .years-number { font-size: clamp(6rem, 3rem + 14vw, 13rem); font-weight: 700; letter-spacing: -0.06em; line-height: 0.8; color: var(--rouge); }
   .years-text { display: grid; gap: 0.75rem; padding-bottom: 0.4rem; }
-  .years-text .label { color: var(--ink-muted); }
-  .years-text .label b { color: var(--rouge); font-weight: 500; }
   .years-text p { font-size: clamp(1.4rem, 1rem + 1.6vw, 2.1rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; max-width: 22ch; }
 
   /* ---- Closing call, in rouge again ---- */
@@ -138,7 +144,6 @@
   /* The booking calendar (Calendly) sits on a paper panel, so its white page belongs to the design. */
   .calendar { border-radius: var(--radius-lg); background: #fff; overflow: hidden; box-shadow: 0 34px 60px -24px rgb(60 0 14 / 0.6); }
   .calendar noscript p { padding: 2rem; color: var(--ink); }
-  .closing .label { color: var(--on-rouge-muted); }
   .closing h2 { font-size: clamp(2.4rem, 1.4rem + 4vw, 4.75rem); font-weight: 700; letter-spacing: -0.035em; line-height: 0.98; max-width: 14ch; }
   .closing p { max-width: 46ch; font-size: 1.1875rem; color: var(--on-rouge-muted); }
 
@@ -149,9 +154,6 @@
 
   @media (max-width: 900px) {
     .hero-inner, .closing-inner { grid-template-columns: 1fr; }
-    .band-head { grid-template-columns: 1fr; }
-    .band-head .label { padding-top: 0; }
-    .band-body { margin-left: 0; }
   }
 
   @media (max-width: 640px) {
@@ -163,6 +165,7 @@
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     * { transition-duration: 0.01ms !important; }
+    .wall-track { animation: none; }
   }
 </style>
 </head>
@@ -180,7 +183,6 @@
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-inner wrap">
         <div class="hero-text">
-          <span class="label">Home automation · Custom work · Since 2000</span>
           <h1 id="hero-title">Your idea, wired in.</h1>
           <p class="lede">A technical partner for people making something of their own: furniture with technology inside, rooms that respond, one-off pieces that have to just work.</p>
           <div class="cta-row">
@@ -211,13 +213,10 @@
     <section class="band" id="who" aria-labelledby="who-title">
       <div class="wrap">
         <div class="band-head">
-          <span class="label"><b>1</b> · Who it’s for</span>
-          <div>
-            <h2 id="who-title">For people making something new.</h2>
-            <p>You have the idea, the design or the piece. I’m looking for people who want a partner to make the technology part of it work.</p>
-          </div>
+          <h2 id="who-title">For people making something new.</h2>
+          <p>You have the idea, the design or the piece. I’m looking for people who want a partner to make the technology part of it work.</p>
         </div>
-        <ul class="points band-body">
+        <ul class="points">
           <li><h3>Custom projects</h3><p>The ideas that don’t come in a box, and that nobody sells off the shelf.</p></li>
           <li><h3>Technology in furniture</h3><p>Pieces where the technology lives inside the wood, the cabinet or the wall, and disappears into the design.</p></li>
           <li><h3>Creative custom work</h3><p>Makers, designers, artists and builders working on something one of a kind.</p></li>
@@ -226,21 +225,27 @@
       </div>
     </section>
 
-    <section class="band" id="tools" aria-labelledby="tools-title">
+    <section class="media" id="tools" aria-labelledby="tools-title">
       <div class="wrap">
-        <div class="band-head">
-          <span class="label"><b>2</b> · Tools I use</span>
-          <h2 id="tools-title">At home on the screen.</h2>
+        <h2 id="tools-title">Get your movie night under control.</h2>
+      </div>
+      <!-- Posters of films from 1914 to 1928, all in the public domain (via the Internet Archive). Each row holds its posters twice, so it can drift forever. -->
+      <div class="wall" aria-hidden="true">
+        <div class="wall-tilt">
+          <div class="wall-row"><div class="wall-track" style="--speed: 90s"><img src="/posters/the-circus-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-freshman-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/sunrise-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-general-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-phantom-of-the-opera-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/speedy-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-lodger-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/steamboat-bill-jr-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/faust-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-rink-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/wings-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-tramp-1915.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927-schulz-neudamm.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-floorwalker-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/tango-tangle-1914.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-circus-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-freshman-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/sunrise-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-general-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-phantom-of-the-opera-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/speedy-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-lodger-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/steamboat-bill-jr-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/faust-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-rink-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/wings-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-tramp-1915.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927-schulz-neudamm.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-floorwalker-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/tango-tangle-1914.webp" alt="" width="300" height="450" loading="lazy" decoding="async"></div></div>
+          <div class="wall-row"><div class="wall-track" style="--speed: 110s"><img src="/posters/the-general-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-phantom-of-the-opera-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/speedy-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-lodger-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/steamboat-bill-jr-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/faust-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-rink-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/wings-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-tramp-1915.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927-schulz-neudamm.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-floorwalker-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/tango-tangle-1914.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-circus-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-freshman-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/sunrise-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-general-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-phantom-of-the-opera-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/speedy-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-lodger-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/steamboat-bill-jr-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/faust-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-rink-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/wings-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-tramp-1915.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927-schulz-neudamm.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-floorwalker-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/tango-tangle-1914.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-circus-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-freshman-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/sunrise-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"></div></div>
+          <div class="wall-row"><div class="wall-track" style="--speed: 100s"><img src="/posters/steamboat-bill-jr-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/faust-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-rink-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/wings-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-tramp-1915.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927-schulz-neudamm.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-floorwalker-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/tango-tangle-1914.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-circus-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-freshman-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/sunrise-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-general-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-phantom-of-the-opera-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/speedy-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-lodger-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/steamboat-bill-jr-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/faust-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-rink-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/wings-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-tramp-1915.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927-schulz-neudamm.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-floorwalker-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/tango-tangle-1914.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-circus-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-freshman-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/sunrise-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-general-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-phantom-of-the-opera-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/speedy-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-lodger-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"></div></div>
+          <div class="wall-row"><div class="wall-track" style="--speed: 120s"><img src="/posters/the-tramp-1915.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927-schulz-neudamm.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-floorwalker-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/tango-tangle-1914.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-circus-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-freshman-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/sunrise-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-general-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-phantom-of-the-opera-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/speedy-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-lodger-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/steamboat-bill-jr-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/faust-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-rink-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/wings-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-tramp-1915.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927-schulz-neudamm.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-floorwalker-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/tango-tangle-1914.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-circus-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/metropolis-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-freshman-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/sunrise-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-general-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-phantom-of-the-opera-1925.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/speedy-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-lodger-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/steamboat-bill-jr-1928.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/faust-1926.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/the-rink-1916.webp" alt="" width="300" height="450" loading="lazy" decoding="async"><img src="/posters/wings-1927.webp" alt="" width="300" height="450" loading="lazy" decoding="async"></div></div>
         </div>
+      </div>
+      <div class="wrap">
         <ul class="tools">
           <li class="tool">
-            <span class="label">Media server</span>
             <h3>Jellyfin</h3>
             <p>Free, open-source software for your own films, shows, music and photos, streamed to the screens around your home.</p>
             <a href="https://jellyfin.org" rel="noopener">jellyfin.org ↗</a>
           </li>
           <li class="tool">
-            <span class="label">Media center</span>
             <h3>Stremio</h3>
             <p>One app that gathers what you watch into a single library, on the TV, the computer and the phone.</p>
             <a href="https://www.stremio.com" rel="noopener">stremio.com ↗</a>
@@ -253,7 +258,6 @@
       <div class="wrap years">
         <span class="years-number" data-years>26</span>
         <div class="years-text">
-          <span class="label"><b>3</b> · Since 2000</span>
           <p id="years-title">I’ve been automating home systems since 2000: <span data-years>26</span> years and counting.</p>
         </div>
       </div>
@@ -262,7 +266,6 @@
     <section class="closing" id="talk" aria-labelledby="talk-title">
       <div class="closing-inner wrap">
         <div class="closing-text">
-          <span class="label">Hej!</span>
           <h2 id="talk-title">Working on something?</h2>
           <p>Pick a time for a half-hour call and tell me what you’re making and where the technology comes in.</p>
           <p class="closing-email">Rather write? <a href="mailto:sam@peret.net?subject=HAUTomation%3A%20a%20project">sam@peret.net</a></p>
@@ -284,7 +287,7 @@
         <span>HAUTomation is Sam Peret’s home automation practice · <a href="mailto:sam@peret.net">sam@peret.net</a></span>
         <a href="https://samperet.com">samperet.com</a>
       </div>
-      <p class="fine">Jellyfin and Stremio are trademarks of their owners. HAUTomation is independent and not affiliated with them.</p>
+      <p class="fine">Jellyfin and Stremio are trademarks of their owners. HAUTomation is independent and not affiliated with them. The posters are from films of 1914 to 1928, in the public domain, via the Internet Archive.</p>
     </div>
   </footer>
 
