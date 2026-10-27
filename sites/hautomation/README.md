@@ -13,7 +13,8 @@ his own words (owner, 2026-10-27), beside screenshots of the panel on the Stream
 15-key deck (`streamdeck/`), with a button to the code on GitHub
 (github.com/samperet/Streamdeck-Hautomate). It moved here from the samperet.com homepage.
 
-The tools sit in a dark "Get your movie night under control." band with a wall of film posters
+The tools sit in a dark "Get your movie night under control." band, each named beside its own mark
+(`logos/`: Jellyfin's symbol and Stremio's icon, from Brandfetch), with a wall of film posters
 tilted back for depth, each row drifting (still under reduced motion, paused on hover). The
 posters, in `posters/`, are from films of 1914 to 1928, all in the public domain, from the
 Internet Archive. No eyebrow labels anywhere on the page, and the footer is one line, "Designed

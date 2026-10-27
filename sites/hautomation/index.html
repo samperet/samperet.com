@@ -126,7 +126,9 @@
 
   .tools { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
   .tool { display: grid; gap: 0.9rem; align-content: start; padding: clamp(1.5rem, 3vw, 2.25rem); border-radius: var(--radius-lg); background: var(--cinema-raised); }
-  .tool h3 { font-size: clamp(2.2rem, 1.4rem + 3vw, 3.4rem); font-weight: 700; letter-spacing: -0.035em; line-height: 1; }
+  .tool h3 { display: flex; align-items: center; gap: 0.3em; font-size: clamp(2.2rem, 1.4rem + 3vw, 3.4rem); font-weight: 700; letter-spacing: -0.035em; line-height: 1; }
+  /* Each tool's own mark (from Brandfetch), as tall as its name. */
+  .tool-logo { flex: none; width: 0.95em; height: 0.95em; object-fit: contain; }
   .tool p { color: var(--cinema-muted); max-width: 40ch; }
   .tool a { justify-self: start; font-weight: 600; color: var(--paper); text-decoration-color: var(--rouge); }
 
@@ -252,12 +254,12 @@
       <div class="wrap">
         <ul class="tools">
           <li class="tool">
-            <h3>Jellyfin</h3>
+            <h3><img class="tool-logo" src="/logos/jellyfin.svg" alt="" width="72" height="72">Jellyfin</h3>
             <p>Free, open-source software for your own films, shows, music and photos, streamed to the screens around your home.</p>
             <a href="https://jellyfin.org" rel="noopener">jellyfin.org ↗</a>
           </li>
           <li class="tool">
-            <h3>Stremio</h3>
+            <h3><img class="tool-logo" src="/logos/stremio.png" alt="" width="120" height="120">Stremio</h3>
             <p>One app that gathers what you watch into a single library, on the TV, the computer and the phone.</p>
             <a href="https://www.stremio.com" rel="noopener">stremio.com ↗</a>
           </li>
