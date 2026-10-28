@@ -10,3 +10,5 @@ quote, note or panel); find another way to carry the colour (owner, 2026-10-25).
 ## Git
 
 The owner wants every change pushed straight to `main` (owner, 2026-10-18). No feature branches or pull requests unless asked.
+Push to `main` only, never a copy to a session branch as well (owner, 2026-10-28): every push builds on up to three Vercel
+projects (samperet.com, hautomation-samperet, automate-samperet), and the Hobby plan stops at 100 deployments a day.
