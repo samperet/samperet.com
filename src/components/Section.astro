@@ -7,6 +7,7 @@
 
 import type { Photo } from '../data/photos';
 import Gallery from './Gallery.astro';
+import Glimmer from './Glimmer.astro';
 import Shelf from './Shelf.astro';
 
 export type { Photo };
@@ -53,12 +54,14 @@ export type SectionData = {
   parts?: SectionData[];
   ask?: string;
   id?: string; // the anchor, when not the name's slug
+  // A pattern hidden behind the open card, glimmering around the mouse when it is shaken (Glimmer.astro).
+  glimmer?: string;
 };
 
 type Props = { section: SectionData; child?: boolean; part?: boolean };
 
 const { section, child = false, part = false } = Astro.props;
-const { name, tile = {}, link, story, href, links = [], message, memories = [], embed, embedTitle, embedRatio, embedAllow, embedLast = false, body = [], photos = [], cover, children = [], cta = [], parts = [], ask } = section;
+const { name, tile = {}, link, story, href, links = [], message, memories = [], embed, embedTitle, embedRatio, embedAllow, embedLast = false, body = [], photos = [], cover, children = [], cta = [], parts = [], ask, glimmer } = section;
 // Smaller cards sit in rows; a card with an `intro` starts a new row, with its line above.
 const rows: { intro?: string; cards: SectionData[] }[] = [];
 for (const c of children) {
@@ -171,6 +174,7 @@ const attrs = part
       <span class="toggle-mark" aria-hidden="true"></span>
     </summary>
   )}
+  {glimmer && !part && <Glimmer src={glimmer} />}
   <div class="body">
     {parts.length > 1 && (
       <nav class="part-nav" aria-label={`Show part of ${name}`} data-part-nav hidden>

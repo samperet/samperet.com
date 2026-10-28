@@ -69,6 +69,14 @@ narrows the card to one, and its shelf to that part's interests. With `ask`, Mer
 first time the card opens on a visit, asks the question with the parts as answers, narrows the
 card to the one chosen and goes back to his hat.
 
+**A hidden pattern.** A card with `glimmer` (a pattern image) hides it behind the page while the
+card is open (`src/components/Glimmer.astro`): nothing shows until the mouse is shaken hard (five
+turns of 40 px or more within 0.8 s), and then a faint circle of the pattern glimmers around the
+pointer and fades over four seconds. Mouse only. The Yoga, Spirituality & Personal Development card
+hides a Shipibo (kené) pattern, `public/patterns/shipibo.svg`, drawn by `tools/patterns/shipibo.py`:
+a bold stepped cross with finer crosses inside, double-lined arms joining its neighbours, and
+diagonals with fine parallels out to small crosses at the corners.
+
 **Footer.** Every public page ends with `src/components/Footer.astro`: the page's shelf, links,
 and the copyright. Its text links include Recommended books and Photos, which open two homepage
 cards (`/#recommended-books`, `/#photos`) that show only while open: every book, and every photo on

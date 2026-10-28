@@ -57,6 +57,8 @@ export const sections: SectionData[] = [
     tile: { kind: 'Practice', src: '/photos/acro-sunset.webp', alt: 'Acro yoga silhouetted against the sunset on a beach', position: 'center 40%' },
     // Three parts; Merlin asks which one the visitor came for, and the card narrows to it.
     ask: 'What are you drawn to?',
+    // A Shipibo pattern behind the open card, seen only in a glimmer when the mouse is shaken.
+    glimmer: '/patterns/shipibo.svg',
     parts: [
       {
         name: 'Yoga',

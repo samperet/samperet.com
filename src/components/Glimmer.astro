@@ -1,0 +1,91 @@
+---
+// A pattern hidden behind an open card, for the curious. Nothing shows until the mouse is shaken
+// hard; then a faint circle of the pattern glimmers around the pointer and fades over four
+// seconds, following it as it goes. The layer sits behind the whole page, under its content, and
+// exists only while its card is open. Mouse only: a touch screen never shows it.
+type Props = { src: string };
+const { src } = Astro.props;
+---
+
+<div class="glimmer" aria-hidden="true" data-glimmer style={`--glimmer: url('${src}')`}></div>
+
+<script>
+  // A shake: five turns within 0.8 s, a turn being a change of direction after a swing of at
+  // least 40 px, across or up and down.
+  const SWING = 40;
+  const TURNS = 5;
+  const WITHIN = 800;
+
+  const layers = [...document.querySelectorAll<HTMLElement>('[data-glimmer]')];
+  if (layers.length && matchMedia('(pointer: fine)').matches) {
+    const axes = { x: { dir: 0, run: 0 }, y: { dir: 0, run: 0 } };
+    let last: { x: number; y: number } | null = null;
+    let turns: number[] = [];
+    let settle: number | undefined;
+
+    const light = (layer: HTMLElement) => {
+      layer.classList.add('lit');
+      clearTimeout(settle);
+      // Lit for a moment, then the class goes and the long fade begins.
+      settle = window.setTimeout(() => layer.classList.remove('lit'), 350);
+    };
+
+    addEventListener(
+      'pointermove',
+      (e) => {
+        if (e.pointerType !== 'mouse') return;
+        const layer = layers.find((l) => l.checkVisibility());
+        if (!layer) return;
+        layer.style.setProperty('--x', `${e.clientX}px`);
+        layer.style.setProperty('--y', `${e.clientY}px`);
+
+        if (last) {
+          for (const [axis, d] of [['x', e.clientX - last.x], ['y', e.clientY - last.y]] as const) {
+            const a = axes[axis];
+            const dir = Math.sign(d);
+            if (!dir) continue;
+            if (dir !== a.dir) {
+              if (Math.abs(a.run) >= SWING) turns.push(e.timeStamp);
+              a.dir = dir;
+              a.run = 0;
+            }
+            a.run += d;
+          }
+        }
+        last = { x: e.clientX, y: e.clientY };
+        turns = turns.filter((t) => e.timeStamp - t < WITHIN);
+        if (turns.length >= TURNS) {
+          turns = [];
+          light(layer);
+        }
+      },
+      { passive: true },
+    );
+  }
+</script>
+
+<style>
+  .glimmer {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--glimmer) 0 0 / 160px repeat;
+    opacity: 0;
+    transition: opacity 4s ease-out;
+    /* Only a soft circle around the pointer, densest at its centre. */
+    -webkit-mask-image: radial-gradient(circle 11rem at var(--x, -50vw) var(--y, -50vh), #000, rgb(0 0 0 / 0.45) 45%, transparent 100%);
+    mask-image: radial-gradient(circle 11rem at var(--x, -50vw) var(--y, -50vh), #000, rgb(0 0 0 / 0.45) 45%, transparent 100%);
+  }
+
+  .glimmer.lit {
+    opacity: 0.16;
+    transition: opacity 0.35s ease-out;
+  }
+
+  @media print {
+    .glimmer {
+      display: none;
+    }
+  }
+</style>
