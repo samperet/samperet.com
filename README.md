@@ -146,7 +146,9 @@ loads don't; it tells the visitor stats its path itself (`startTracking('/family
 
 Stories is the last card in the homepage grid. Inside it, Foreside Fiasco and The Golden
 Berry are tiles that open their flipbook pages, and The Bear Shark is a tile that opens the photo
-viewer and plays Sam telling it (a link tile with `story`). The books' "← Home" returns to the
+viewer and plays Sam telling it (a link tile with `story`). The Family of Things links out to
+Peter McLean's podcast episode on Substack, which has Sam in it; its tile is the episode's cover
+(`public/tiles/family-of-things.webp`, doubled from Substack's 273 px original). The books' "← Home" returns to the
 open card, and the old `/stories/` page (`src/pages/stories.astro`) now only forwards to it.
 
 Both books use `src/components/Flipbook.astro`: give it the page count, image folder and page

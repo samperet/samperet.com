@@ -167,6 +167,13 @@ export const sections: SectionData[] = [
         link: '/photos/airbnb-bearshark.jpg',
         story: { title: 'The story of the bear shark', audio: '/stories/bear-shark.m4a', captions: '/stories/bear-shark.vtt' },
       },
+      {
+        name: 'The Family of Things',
+        topics: ['personal'],
+        line: 'From Peter McLean’s podcast: being called by your true name, in his words and mine.',
+        tile: { kind: 'Podcast · Listen', src: '/tiles/family-of-things.webp', alt: 'Canada geese flying across a cloudy sky, the episode’s cover' },
+        link: 'https://mcleanp.substack.com/p/day-447-the-family-of-things',
+      },
     ],
   },
 ];

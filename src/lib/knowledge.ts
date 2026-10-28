@@ -145,6 +145,7 @@ const WORDS: Record<string, string> = {
   'https://jayaandfiona.com': 'jaya fiona games kids math quiz charades',
   '/#travel-and-adventure': 'travel trips places',
   '/#stories': 'picture books',
+  'https://mcleanp.substack.com/p/day-447-the-family-of-things': 'podcast episode peter mclean true name sufi name',
   'https://hautomation.samperet.com/#stream-deck': 'stream deck streamdeck elgato home assistant jukebox raspberry pi buttons',
 };
 
