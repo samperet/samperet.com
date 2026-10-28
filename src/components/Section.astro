@@ -8,6 +8,7 @@
 import type { Photo } from '../data/photos';
 import Gallery from './Gallery.astro';
 import Glimmer from './Glimmer.astro';
+import Memories from './Memories.astro';
 import Shelf from './Shelf.astro';
 
 export type { Photo };
@@ -210,31 +211,7 @@ const attrs = part
         )}
       </p>
     )}
-    {memories.length > 0 && (
-      <div class="memories">
-        <h4 class="eyebrow">Memories archive</h4>
-        <ul>
-          {memories.map((m) => (
-            <li class="memory" data-memory={m.audio}>
-              <button type="button" class="memory-play" aria-label={`Play ${m.title}`} data-track={`memory:${m.title}`}>
-                <span class="memory-icon" aria-hidden="true"></span>
-              </button>
-              <div class="memory-main">
-                <div class="memory-head">
-                  <span class="memory-title">{m.title}</span>
-                  <span class="memory-time" data-memory-time>{m.duration}</span>
-                </div>
-                <div class="memory-track" aria-hidden="true"><span data-memory-bar></span></div>
-                <details class="memory-transcript">
-                  <summary>Transcript</summary>
-                  {m.transcript.map((line) => <p>{line}</p>)}
-                </details>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
+    {memories.length > 0 && <Memories memories={memories} />}
     {embed && !embedLast && <iframe {...frame} />}
     {cover && (
       <a class="cover" href={cover.href}>
@@ -270,40 +247,3 @@ const attrs = part
 </Tag>
 )}
 
-<script>
-  import { clock, pickSource } from '../scripts/narration';
-
-  // One memory plays at a time; its row shows the time left and how far along it is.
-  let current: { audio: HTMLAudioElement; row: HTMLElement } | undefined;
-  for (const row of document.querySelectorAll<HTMLElement>('[data-memory]')) {
-    const button = row.querySelector<HTMLButtonElement>('.memory-play')!;
-    const bar = row.querySelector<HTMLElement>('[data-memory-bar]')!;
-    const time = row.querySelector<HTMLElement>('[data-memory-time]')!;
-    const total = time.textContent;
-    let audio: HTMLAudioElement | undefined;
-    const show = (playing: boolean) => {
-      row.classList.toggle('playing', playing);
-      button.setAttribute('aria-label', `${playing ? 'Pause' : 'Play'} ${row.querySelector('.memory-title')!.textContent}`);
-    };
-    button.addEventListener('click', () => {
-      if (!audio) {
-        audio = new Audio();
-        audio.src = pickSource(audio, row.dataset.memory!);
-        audio.addEventListener('timeupdate', () => {
-          if (audio!.duration) bar.style.width = `${(audio!.currentTime / audio!.duration) * 100}%`;
-          time.textContent = clock(audio!.currentTime);
-        });
-        audio.addEventListener('play', () => show(true));
-        audio.addEventListener('pause', () => show(false));
-        audio.addEventListener('ended', () => {
-          bar.style.width = '0';
-          time.textContent = total;
-        });
-      }
-      if (current && current.audio !== audio) current.audio.pause();
-      current = { audio, row };
-      if (audio.paused) void audio.play().catch(() => show(false));
-      else audio.pause();
-    });
-  }
-</script>

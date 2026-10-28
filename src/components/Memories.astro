@@ -1,0 +1,184 @@
+---
+// A memories archive: recordings, each a row with a play button, the time left, how far along it
+// is, and its transcript folded beneath. One plays at a time. Used by a homepage card with
+// `memories` and by the family page (family.samperet.com).
+type Memory = { title: string; audio: string; duration: string; transcript: string[] };
+type Props = { memories: Memory[] };
+const { memories } = Astro.props;
+---
+
+<div class="memories">
+  <h4 class="eyebrow">Memories archive</h4>
+  <ul>
+    {memories.map((m) => (
+      <li class="memory" data-memory={m.audio}>
+        <button type="button" class="memory-play" aria-label={`Play ${m.title}`} data-track={`memory:${m.title}`}>
+          <span class="memory-icon" aria-hidden="true"></span>
+        </button>
+        <div class="memory-main">
+          <div class="memory-head">
+            <span class="memory-title">{m.title}</span>
+            <span class="memory-time" data-memory-time>{m.duration}</span>
+          </div>
+          <div class="memory-track" aria-hidden="true"><span data-memory-bar></span></div>
+          <details class="memory-transcript">
+            <summary>Transcript</summary>
+            {m.transcript.map((line) => <p>{line}</p>)}
+          </details>
+        </div>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<script>
+  import { clock, pickSource } from '../scripts/narration';
+
+  // One memory plays at a time; its row shows the time left and how far along it is.
+  let current: { audio: HTMLAudioElement; row: HTMLElement } | undefined;
+  for (const row of document.querySelectorAll<HTMLElement>('[data-memory]')) {
+    const button = row.querySelector<HTMLButtonElement>('.memory-play')!;
+    const bar = row.querySelector<HTMLElement>('[data-memory-bar]')!;
+    const time = row.querySelector<HTMLElement>('[data-memory-time]')!;
+    const total = time.textContent;
+    let audio: HTMLAudioElement | undefined;
+    const show = (playing: boolean) => {
+      row.classList.toggle('playing', playing);
+      button.setAttribute('aria-label', `${playing ? 'Pause' : 'Play'} ${row.querySelector('.memory-title')!.textContent}`);
+    };
+    button.addEventListener('click', () => {
+      if (!audio) {
+        audio = new Audio();
+        audio.src = pickSource(audio, row.dataset.memory!);
+        audio.addEventListener('timeupdate', () => {
+          if (audio!.duration) bar.style.width = `${(audio!.currentTime / audio!.duration) * 100}%`;
+          time.textContent = clock(audio!.currentTime);
+        });
+        audio.addEventListener('play', () => show(true));
+        audio.addEventListener('pause', () => show(false));
+        audio.addEventListener('ended', () => {
+          bar.style.width = '0';
+          time.textContent = total;
+        });
+      }
+      if (current && current.audio !== audio) current.audio.pause();
+      current = { audio, row };
+      if (audio.paused) void audio.play().catch(() => show(false));
+      else audio.pause();
+    });
+  }
+</script>
+
+<style>
+  .memories .eyebrow {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    letter-spacing: 0.12em;
+  }
+
+  .memories ul {
+    list-style: none;
+    margin: var(--s3) 0 0;
+    padding: 0;
+    max-width: var(--measure);
+  }
+
+  .memory {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: var(--s4);
+    align-items: start;
+    padding: var(--s3) 0;
+    border-top: var(--hairline);
+  }
+
+  .memory:last-child {
+    border-bottom: var(--hairline);
+  }
+
+  .memory-play {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: var(--on-accent);
+    transition: background var(--fast) var(--ease);
+  }
+
+  .memory-play:hover,
+  .memory-play:focus-visible {
+    background: var(--accent-strong);
+  }
+
+  .memory-icon {
+    width: 0;
+    height: 0;
+    margin-left: 0.15rem;
+    border-style: solid;
+    border-width: 0.45rem 0 0.45rem 0.7rem;
+    border-color: transparent transparent transparent currentColor;
+  }
+
+  .memory.playing .memory-icon {
+    width: 0.65rem;
+    height: 0.8rem;
+    margin-left: 0;
+    border-width: 0 0.22rem;
+    border-color: currentColor;
+  }
+
+  .memory-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--s3);
+  }
+
+  .memory-title {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: 500;
+  }
+
+  .memory-time {
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+
+  .memory-track {
+    position: relative;
+    height: 3px;
+    margin: var(--s2) 0;
+    border-radius: 2px;
+    background: var(--rule);
+  }
+
+  .memory-track span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  .memory-transcript summary {
+    cursor: pointer;
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .memory-transcript summary:hover {
+    color: var(--fg);
+  }
+
+  .memory-transcript p {
+    margin-top: var(--s2);
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--muted);
+  }
+</style>

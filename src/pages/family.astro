@@ -1,0 +1,82 @@
+---
+// The family page, at family.samperet.com (src/lib/hosts.ts; /family/ in the build). Unlisted:
+// nothing on samperet.com links here, Merlin doesn't know it, and it asks search engines to leave
+// it out. Its photos open in the viewer, and the memories archive plays the girls' recordings with
+// their transcripts. Its links back to the site are full samperet.com addresses.
+import Base from '../layouts/Base.astro';
+import Gallery from '../components/Gallery.astro';
+import Memories from '../components/Memories.astro';
+import { FAMILY_PAGE } from '../data/family';
+import { FAMILY, SITE_URL } from '../lib/hosts';
+---
+
+<Base title="Family" description={FAMILY_PAGE.line} path={FAMILY.url} noindex footer merlin={false}>
+  <main class="wrap family">
+    <a class="arrow-link home-btn" href={SITE_URL} data-track="nav:home"><span class="arrow" aria-hidden="true">←</span> Home</a>
+    <header class="family-head">
+      <h1>Family</h1>
+      <p class="lede">{FAMILY_PAGE.line}</p>
+    </header>
+    <Gallery photos={FAMILY_PAGE.photos} />
+    <Memories memories={FAMILY_PAGE.memories} />
+  </main>
+
+  <script>
+    import { startTracking } from '../scripts/track';
+
+    // Logged under its path in the build, whichever host served it.
+    startTracking('/family/');
+  </script>
+</Base>
+
+<style is:global>
+  .family {
+    display: grid;
+    gap: var(--s6);
+    padding: var(--s6) 0 var(--s7);
+  }
+
+  .family-head {
+    display: grid;
+    gap: var(--s3);
+    margin-top: var(--s4);
+  }
+
+  .family-head h1 {
+    font-size: var(--text-display);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+  }
+
+  /* The gallery, as on the homepage: each photo starts at the row height and grows with its
+     width, so a row fills the width and its photos share one height. */
+  .photos {
+    --row: 16rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+  }
+
+  .photos::after {
+    content: '';
+    flex: 1000 1 0;
+  }
+
+  .photos img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-lg);
+  }
+
+  .photos a {
+    position: relative;
+    display: block;
+    flex: var(--ratio, 1.333) 1 calc(var(--ratio, 1.333) * var(--row));
+  }
+
+  .photos a:hover img,
+  .photos a:focus-visible img {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+</style>

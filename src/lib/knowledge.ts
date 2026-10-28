@@ -142,7 +142,7 @@ const WORDS: Record<string, string> = {
   '/#recommended-books': 'books reading library',
   '/#photos': 'pictures gallery',
   '/#heartwise': 'heart iq circles',
-  '/#family': 'kids children jaya fiona mackensie',
+  'https://jayaandfiona.com': 'jaya fiona games kids math quiz charades',
   '/#travel-and-adventure': 'travel trips places',
   '/#stories': 'picture books',
   'https://hautomation.samperet.com/#stream-deck': 'stream deck streamdeck elgato home assistant jukebox raspberry pi buttons',

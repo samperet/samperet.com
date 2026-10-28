@@ -8,6 +8,12 @@
       "headers": { "Location": "https://men.samperet.com/" }
     },
     {
+      "src": "^/family(?:/.*)?$",
+      "has": [{ "type": "host", "value": { "eq": "samperet.com" } }],
+      "status": 308,
+      "headers": { "Location": "https://family.samperet.com/" }
+    },
+    {
       "src": "^/mens-group/?$",
       "has": [{ "type": "host", "value": { "eq": "men.samperet.com" } }],
       "status": 308,
@@ -21,6 +27,23 @@
     {
       "src": "^/(?!api/|_astro/|_image|_server-islands/|_vercel/)([^.]+)$",
       "has": [{ "type": "host", "value": { "eq": "men.samperet.com" } }],
+      "status": 308,
+      "headers": { "Location": "https://samperet.com/$1" }
+    },
+    {
+      "src": "^/family/?$",
+      "has": [{ "type": "host", "value": { "eq": "family.samperet.com" } }],
+      "status": 308,
+      "headers": { "Location": "/" }
+    },
+    {
+      "src": "^/$",
+      "has": [{ "type": "host", "value": { "eq": "family.samperet.com" } }],
+      "dest": "/family/index.html"
+    },
+    {
+      "src": "^/(?!api/|_astro/|_image|_server-islands/|_vercel/)([^.]+)$",
+      "has": [{ "type": "host", "value": { "eq": "family.samperet.com" } }],
       "status": 308,
       "headers": { "Location": "https://samperet.com/$1" }
     }

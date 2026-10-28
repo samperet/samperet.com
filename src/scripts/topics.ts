@@ -7,7 +7,6 @@
 export const TOPICS = {
   professional: { label: 'Professional', reply: 'Here’s the professional side.', href: '/career/' },
   personal: { label: 'Personal', reply: 'A little more personal.' },
-  family: { label: 'Family', reply: 'Family first!' },
   adventure: { label: 'Adventure', reply: 'Adventure awaits!' },
   message: { label: 'Send me a message', reply: 'Happy to deliver a message to Sam.' },
 } as const;

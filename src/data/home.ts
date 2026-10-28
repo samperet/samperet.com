@@ -80,7 +80,7 @@ export const sections: SectionData[] = [
           {
             name: 'Intelligent Embodiment',
             intro: 'My life partner has an incredible practice as a yoga teacher, medical intuitive and massage therapist. Her offerings can be found here:',
-            topics: ['family', 'personal'],
+            topics: ['personal'],
             line: 'Awake in the body.',
             tile: { kind: 'My partner’s work', src: '/tiles/intelligent-embodiment.webp', position: 'center 30%' },
             body: [
@@ -136,28 +136,28 @@ export const sections: SectionData[] = [
   },
   {
     name: 'Stories',
-    topics: ['family'],
+    topics: ['personal'],
     interests: ['stories'],
     line: 'Picture books and stories, to read or to listen to.',
     tile: { kind: 'Read · Listen', src: '/photos/airbnb-bearshark.jpg', alt: 'A bear-shark sculpture, half polar bear and half shark, suspended from the ceiling of an Airbnb office' },
     children: [
       {
         name: 'Foreside Fiasco',
-        topics: ['family'],
+        topics: ['personal'],
         line: 'An unfortunate true story.',
         tile: { kind: 'Picture book · Read aloud', src: '/books/foreside-fiasco/cover-560.webp', position: 'center 35%' },
         link: '/foreside-fiasco/',
       },
       {
         name: 'The Golden Berry',
-        topics: ['family'],
+        topics: ['personal'],
         line: 'By Jaya Elnora Peret, painted in watercolor by the Ukrainian artist Kateryna Rohotova.',
         tile: { kind: 'Picture book · By Jaya', src: '/books/golden-berry/cover-640.webp', position: 'center 30%' },
         link: '/golden-berry/',
       },
       {
         name: 'The Bear Shark',
-        topics: ['family'],
+        topics: ['personal'],
         line: 'How a 12-foot bear shark got into the building.',
         tile: {
           kind: 'Story · Audio',
@@ -169,44 +169,6 @@ export const sections: SectionData[] = [
       },
     ],
   },
-  {
-    name: 'Family',
-    topics: ['family'],
-    interests: ['family'],
-    line: 'Jaya, Fiona, Mackensie and the things we make together.',
-    tile: { kind: 'Family', src: '/photos/family-beach.webp', alt: 'The family on the beach, the girls riding on our shoulders and waving', position: 'center 30%' },
-    photos: [
-      { src: '/photos/family-beach.webp', alt: 'The family on the beach, the girls riding on our shoulders and waving' },
-      { src: '/photos/jaya-and-fiona.webp', alt: 'Jaya and Fiona in red dresses, side by side' },
-    ],
-    memories: [
-      {
-        title: 'Take a nap',
-        audio: '/memories/take-a-nap.m4a',
-        duration: '0:38',
-        transcript: [
-          '“Because I don’t have any stories when my nap comes up.”',
-          '“Are you going to take a nap every day?” “Every single day.”',
-          '“What if you don’t want to take a nap? What should you tell yourself?”',
-          '“I should tell myself I have a very short nap.”',
-          '“Okay. Even if you don’t want to?” “Even if I don’t want to. Do it anyways.”',
-          '“Give us one story.” “Deal.”',
-        ],
-      },
-      {
-        title: 'Have to clean up',
-        audio: '/memories/have-to-clean-up.m4a',
-        duration: '0:24',
-        transcript: [
-          '“So, whenever we do something like Magna-Tiles, we have to clean it up.”',
-          '“And when we do something like a pillow fort or anything like that, or even anything, we have to clean it up.”',
-        ],
-      },
-    ],
-    embed: 'https://jayaandfiona.com/',
-    embedTitle: 'jayaandfiona.com, Jaya and Fiona’s Fun Zone',
-    embedLast: true,
-  },
 ];
 
 // Smaller cards under a Projects heading, after the main ones.
@@ -217,6 +179,13 @@ export const projects: SectionData[] = [
     line: 'A technical partner for custom, creative work.',
     tile: { kind: 'Home automation', src: '/tiles/hautomation.webp', alt: 'The HAUTomation site: “Your idea, wired in.” in white on rouge, beside a deck of keys' },
     link: 'https://hautomation.samperet.com',
+  },
+  {
+    name: 'Jaya and Fiona’s Fun Zone',
+    topics: ['personal'],
+    line: 'jayaandfiona.com: Math Racer, PopMath, a geography quiz, charades, trivia, Connect 4 and more.',
+    tile: { kind: 'Website · Games', src: '/tiles/jayaandfiona.webp', alt: 'jayaandfiona.com: a column of yellow buttons for its games under a pink header', position: 'center top' },
+    link: 'https://jayaandfiona.com',
   },
   {
     name: 'CommunityOS',

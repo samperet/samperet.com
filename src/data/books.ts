@@ -3,7 +3,7 @@
 // (src/components/Shelf.astro); the Recommended Books card in the footer shows them all.
 //
 // Interests in use: yoga, sufism, spirituality, heartwise, circles (the Spirituality card's
-// parts), travel, adventure, stories, family (homepage cards), men (men.samperet.com), career,
+// parts), travel, adventure, stories (homepage cards), men (men.samperet.com), career,
 // leadership (/career/). Tag a book with any of them and it appears there; fiction is shelved only
 // with all the books.
 export type Book = {

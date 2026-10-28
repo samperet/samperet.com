@@ -18,13 +18,16 @@ const session = (() => {
 
 export const sessionId = () => session;
 
+// The page's path in the stats: where it was served, unless the page names its own.
+let pagePath: string | undefined;
+
 export function track(type: 'pageview' | 'click', target?: string) {
   if (!enabled) return;
   const body = JSON.stringify({
     type,
     target,
     session,
-    path: sitePath(location),
+    path: pagePath ?? sitePath(location),
     referrer: type === 'pageview' ? document.referrer : undefined,
   });
   const blob = new Blob([body], { type: 'application/json' });
@@ -49,9 +52,10 @@ function label(el: Element): string | null {
 }
 
 let started = false;
-export function startTracking() {
+export function startTracking(path?: string) {
   if (started) return;
   started = true;
+  pagePath = path;
   track('pageview');
   document.addEventListener(
     'click',

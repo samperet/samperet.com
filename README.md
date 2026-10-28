@@ -44,11 +44,12 @@ Every section in `src/pages/index.astro` is a tile (`<details>`, `src/components
 a picture from `tile.src` (or a palette colour, `tile.color`) with only its title on it, as large as
 the card allows: the homepage script fits each title to its card's width and the lower three
 fifths of its height (`kind` and `line` stay in the data but aren't shown). HAUTomation (a link tile
-straight to hautomation.samperet.com), CommunityOS and the Percentage Allocator are smaller cards
-under a Projects heading after the main grid.
+straight to hautomation.samperet.com), Jaya and Fiona's Fun Zone (a link tile straight to
+jayaandfiona.com), CommunityOS and the Percentage Allocator are smaller cards under a Projects
+heading after the main grid.
 Clicking it, or a link to its id (e.g. `/#travel-and-adventure`; old ids such as `/#travel` still work), opens it on its own: the other tiles step
 out and its text, links, photos and embeds follow below. While a card is open the header
-shrinks and a "← Home" button under Career dismisses it; the cross or Escape does too. Each lists its `topics`; choosing Personal, Family or Adventure
+shrinks and a "← Home" button under Career dismisses it; the cross or Escape does too. Each lists its `topics`; choosing Personal or Adventure
 from Merlin's question opens the matching tiles and closes the rest (`src/scripts/topics.ts`).
 Professional goes to `/career/`, where the work now lives. Tiles can nest (a section's
 `children`), though none do now. A section's `message` adds a button that opens Merlin's message
@@ -132,15 +133,18 @@ The Percentage Allocator card embeds Sam's percentcalc app, copied from
 `/percentcalc/`, installable and offline through its own service worker). To update it, copy the
 repository's files over that folder again.
 
-The Family card holds the family photos, a "Memories archive" (a section's `memories`: each
-recording plays in its own row with its transcript folded beneath; files in `public/memories/`,
-`.m4a` plus an `.mp3` twin) and, at its foot, jayaandfiona.com live, edge to edge across the window and as tall as its
-page, so nothing scrolls inside it (`embedLast` puts a card's embed after everything else; the
-heights, measured from the site, are in `index.astro` and need raising if the site grows).
+The family page is unlisted: nothing on samperet.com links to it, Merlin neither knows nor
+mentions it, and it asks search engines to leave it out (`noindex`). It is `src/pages/family.astro`
+(data in `src/data/family.ts`), served at its own address the way the men's group page is
+(`src/lib/hosts.ts`, `vercel.json`): the family photos and a "Memories archive", each recording
+playing in its own row with its transcript folded beneath (`src/components/Memories.astro`; files
+in `public/memories/`, `.m4a` plus an `.mp3` twin; a homepage card can carry one with
+`memories`). Only the family page names its address in its scripts, so the scripts every page
+loads don't; it tells the visitor stats its path itself (`startTracking('/family/')`).
 
 ## Stories
 
-Stories is a card on the homepage, before Family. Inside it, Foreside Fiasco and The Golden
+Stories is the last card in the homepage grid. Inside it, Foreside Fiasco and The Golden
 Berry are tiles that open their flipbook pages, and The Bear Shark is a tile that opens the photo
 viewer and plays Sam telling it (a link tile with `story`). The books' "← Home" returns to the
 open card, and the old `/stories/` page (`src/pages/stories.astro`) now only forwards to it.
