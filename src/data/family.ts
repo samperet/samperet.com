@@ -1,12 +1,13 @@
 // The family page (src/pages/family.astro), at family.samperet.com: unlisted, so nothing here is
 // linked from samperet.com or told to Merlin. Photos open in the viewer; memories are recordings
-// with their transcripts.
+// with their transcripts, or a note for a song.
+import type { Memory } from '../components/Memories.astro';
 import type { Photo } from './photos';
 
 export const FAMILY_PAGE: {
   line: string;
   photos: Photo[];
-  memories: { title: string; audio: string; duration: string; transcript: string[] }[];
+  memories: Memory[];
 } = {
   line: 'Jaya, Fiona, Mackensie and the things we make together.',
   photos: [
@@ -35,6 +36,12 @@ export const FAMILY_PAGE: {
         '“So, whenever we do something like Magna-Tiles, we have to clean it up.”',
         '“And when we do something like a pillow fort or anything like that, or even anything, we have to clean it up.”',
       ],
+    },
+    {
+      title: 'You Belong With Me',
+      audio: '/memories/you-belong-with-me.m4a',
+      duration: '1:10',
+      note: 'Fiona sings Taylor Swift’s song.',
     },
   ],
 };

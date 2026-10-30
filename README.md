@@ -137,7 +137,8 @@ The family page is unlisted: nothing on samperet.com links to it, Merlin neither
 mentions it, and it asks search engines to leave it out (`noindex`). It is `src/pages/family.astro`
 (data in `src/data/family.ts`), served at its own address the way the men's group page is
 (`src/lib/hosts.ts`, `vercel.json`): the family photos and a "Memories archive", each recording
-playing in its own row with its transcript folded beneath (`src/components/Memories.astro`; files
+playing in its own row with its transcript folded beneath, or a one-line `note` for a song (Fiona
+singing You Belong With Me; stereo, levelled to -18 LUFS) (`src/components/Memories.astro`; files
 in `public/memories/`, `.m4a` plus an `.mp3` twin; a homepage card can carry one with
 `memories`). Only the family page names its address in its scripts, so the scripts every page
 loads don't; it tells the visitor stats its path itself (`startTracking('/family/')`).

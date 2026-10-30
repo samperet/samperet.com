@@ -2,7 +2,8 @@
 // A memories archive: recordings, each a row with a play button, the time left, how far along it
 // is, and its transcript folded beneath. One plays at a time. Used by a homepage card with
 // `memories` and by the family page (family.samperet.com).
-type Memory = { title: string; audio: string; duration: string; transcript: string[] };
+// A song has a one-line `note` in place of a transcript.
+export type Memory = { title: string; audio: string; duration: string; transcript?: string[]; note?: string };
 type Props = { memories: Memory[] };
 const { memories } = Astro.props;
 ---
@@ -21,10 +22,13 @@ const { memories } = Astro.props;
             <span class="memory-time" data-memory-time>{m.duration}</span>
           </div>
           <div class="memory-track" aria-hidden="true"><span data-memory-bar></span></div>
-          <details class="memory-transcript">
-            <summary>Transcript</summary>
-            {m.transcript.map((line) => <p>{line}</p>)}
-          </details>
+          {m.transcript && (
+            <details class="memory-transcript">
+              <summary>Transcript</summary>
+              {m.transcript.map((line) => <p>{line}</p>)}
+            </details>
+          )}
+          {m.note && <p class="memory-note">{m.note}</p>}
         </div>
       </li>
     ))}
@@ -165,10 +169,14 @@ const { memories } = Astro.props;
     background: var(--accent);
   }
 
-  .memory-transcript summary {
-    cursor: pointer;
+  .memory-transcript summary,
+  .memory-note {
     font-size: var(--text-sm);
     color: var(--muted);
+  }
+
+  .memory-transcript summary {
+    cursor: pointer;
   }
 
   .memory-transcript summary:hover {
